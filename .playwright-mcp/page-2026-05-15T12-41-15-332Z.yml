@@ -1,0 +1,572 @@
+- generic [ref=e2]:
+  - generic [ref=e3]:
+    - banner [ref=e4]:
+      - generic [ref=e5]:
+        - link "Learnpath" [ref=e6] [cursor=pointer]:
+          - /url: /
+          - img [ref=e8]
+          - generic [ref=e17]: Learnpath
+        - navigation [ref=e18]:
+          - link "Fitur" [ref=e19] [cursor=pointer]:
+            - /url: "#features"
+          - link "Cara Kerja" [ref=e20] [cursor=pointer]:
+            - /url: "#how"
+          - link "Kursus" [ref=e21] [cursor=pointer]:
+            - /url: "#courses"
+          - link "Harga" [ref=e22] [cursor=pointer]:
+            - /url: "#pricing"
+          - link "FAQ" [ref=e23] [cursor=pointer]:
+            - /url: "#faq"
+        - link "Buka Dasbor" [ref=e25] [cursor=pointer]:
+          - /url: /dashboard
+          - text: Buka Dasbor
+          - img [ref=e26]
+    - main [ref=e28]:
+      - generic [ref=e33]:
+        - generic [ref=e34]:
+          - generic [ref=e35]:
+            - img [ref=e36]
+            - text: Baru · AI Tutor 24/7 untuk semua kursus
+          - heading "Jalur belajar yang terarah, untuk karier yang tumbuh cepat." [level=1] [ref=e38]
+          - paragraph [ref=e39]: Roadmap personal, AI Tutor 24/7, dan progres yang terukur — semua dalam satu platform yang dirancang untuk hasil nyata.
+          - generic [ref=e40]:
+            - link "Mulai gratis 7 hari" [ref=e41] [cursor=pointer]:
+              - /url: /dashboard
+              - text: Mulai gratis 7 hari
+              - img [ref=e42]
+            - button "Lihat demo (2 mnt)" [ref=e44]:
+              - img [ref=e46]
+              - text: Lihat demo (2 mnt)
+          - generic [ref=e48]:
+            - generic [ref=e54]: +8k
+            - generic [ref=e55]:
+              - generic [ref=e56]:
+                - img [ref=e57]
+                - img [ref=e59]
+                - img [ref=e61]
+                - img [ref=e63]
+                - img [ref=e65]
+                - generic [ref=e67]: 4,9 / 5
+              - generic [ref=e68]: Dari 8.420 ulasan siswa
+        - generic [ref=e70]:
+          - generic [ref=e71]:
+            - generic [ref=e72]:
+              - img [ref=e74]
+              - generic [ref=e76]:
+                - generic [ref=e77]: Fullstack JavaScript dari Nol
+                - generic [ref=e78]: Modul 3 dari 8 · Ayu Pratiwi
+              - generic [ref=e79]: Live
+            - generic [ref=e80]:
+              - button [ref=e82]:
+                - img [ref=e83]
+              - generic [ref=e85]:
+                - generic [ref=e86]: 04:12
+                - generic [ref=e89]: 11:30
+            - generic [ref=e91]:
+              - generic [ref=e92]: Progres modul
+              - generic [ref=e93]: 64%
+            - list [ref=e96]:
+              - listitem [ref=e97]:
+                - img [ref=e99]
+                - generic [ref=e101]: 01 · Setup environment
+                - generic [ref=e102]: 8 mnt
+              - listitem [ref=e103]:
+                - img [ref=e105]
+                - generic [ref=e107]: 02 · Variabel & tipe
+                - generic [ref=e108]: 12 mnt
+              - listitem [ref=e109]:
+                - img [ref=e111]
+                - generic [ref=e113]: 03 · Fungsi & scope
+                - generic [ref=e114]: 15 mnt
+              - listitem [ref=e115]:
+                - img [ref=e117]
+                - generic [ref=e119]: 04 · Async / await
+                - generic [ref=e120]: 18 mnt
+          - generic [ref=e121]:
+            - generic [ref=e122]:
+              - img [ref=e124]
+              - generic [ref=e126]: AI Tutor
+              - generic [ref=e127]: Online
+            - generic [ref=e129]: Closure terjadi saat fungsi menyimpan referensi ke variabel di lingkup luarnya.
+          - generic [ref=e130]:
+            - img [ref=e132]
+            - generic [ref=e135]:
+              - generic [ref=e136]: Sertifikat diterbitkan
+              - generic [ref=e137]: Diverifikasi oleh 14 mitra HR
+      - generic [ref=e139]:
+        - generic [ref=e140]: Dipercaya tim pembelajaran di seluruh Indonesia
+        - generic [ref=e141]:
+          - generic [ref=e142]: Tokoaja
+          - generic [ref=e143]: Nimbus
+          - generic [ref=e144]: Pintaria
+          - generic [ref=e145]: Brevo
+          - generic [ref=e146]: Sintra
+          - generic [ref=e147]: Kunci
+      - generic [ref=e149]:
+        - generic [ref=e150]:
+          - generic [ref=e151]: Fitur Utama
+          - heading "Dirancang untuk hasil yang terukur." [level=2] [ref=e152]
+          - paragraph [ref=e153]: Bukan sekadar kumpulan video — Learnpath memandu setiap langkah dari nol sampai siap kerja.
+        - generic [ref=e154]:
+          - generic [ref=e155]:
+            - img [ref=e157]
+            - heading "Roadmap personal" [level=3] [ref=e158]
+            - paragraph [ref=e159]: Jalur belajar tersusun otomatis berdasarkan tujuan karier dan level saat ini.
+            - generic [ref=e160]:
+              - text: Pelajari
+              - img [ref=e161]
+          - generic [ref=e163]:
+            - img [ref=e165]
+            - heading "AI Tutor 24/7" [level=3] [ref=e167]
+            - paragraph [ref=e168]: Tanya kapan saja — dapat penjelasan kontekstual lengkap dengan contoh kode.
+            - generic [ref=e169]:
+              - text: Pelajari
+              - img [ref=e170]
+          - generic [ref=e172]:
+            - img [ref=e174]
+            - heading "Mentor bersertifikat" [level=3] [ref=e177]
+            - paragraph [ref=e178]: Sesi 1-on-1 dengan praktisi industri dari perusahaan teknologi terkemuka.
+            - generic [ref=e179]:
+              - text: Pelajari
+              - img [ref=e180]
+          - generic [ref=e182]:
+            - img [ref=e184]
+            - heading "Sesi adaptif" [level=3] [ref=e186]
+            - paragraph [ref=e187]: Jadwal & kesulitan menyesuaikan ritmemu — tidak pernah kepayahan, tidak pernah bosan.
+            - generic [ref=e188]:
+              - text: Pelajari
+              - img [ref=e189]
+          - generic [ref=e191]:
+            - img [ref=e193]
+            - heading "Sertifikat resmi" [level=3] [ref=e196]
+            - paragraph [ref=e197]: Sertifikat terverifikasi blockchain, diakui 140+ mitra HR di Asia Tenggara.
+            - generic [ref=e198]:
+              - text: Pelajari
+              - img [ref=e199]
+          - generic [ref=e201]:
+            - img [ref=e203]
+            - heading "Komunitas cohort" [level=3] [ref=e208]
+            - paragraph [ref=e209]: Belajar bareng dalam batch, diskusi mingguan, dan proyek kolaboratif.
+            - generic [ref=e210]:
+              - text: Pelajari
+              - img [ref=e211]
+      - generic [ref=e214]:
+        - generic [ref=e215]:
+          - generic [ref=e216]: Cara Kerja
+          - heading "Dari nol ke siap kerja dalam 3 langkah." [level=2] [ref=e217]
+          - paragraph [ref=e218]: Sederhana tapi terstruktur. Setiap langkah punya milestone yang jelas.
+        - generic [ref=e219]:
+          - generic [ref=e221]:
+            - generic [ref=e222]:
+              - img [ref=e224]
+              - generic [ref=e227]: "01"
+            - heading "Tentukan tujuanmu" [level=3] [ref=e228]
+            - paragraph [ref=e229]: Pilih peran impian — Frontend, Data Scientist, Product Designer, atau yang lain.
+          - generic [ref=e230]:
+            - generic [ref=e231]:
+              - img [ref=e233]
+              - generic [ref=e234]: "02"
+            - heading "Ikuti roadmap" [level=3] [ref=e235]
+            - paragraph [ref=e236]: Materi tersusun otomatis dengan urutan yang masuk akal. Tidak perlu menebak.
+          - generic [ref=e237]:
+            - generic [ref=e238]:
+              - img [ref=e240]
+              - generic [ref=e243]: "03"
+            - heading "Lulus & buktikan" [level=3] [ref=e244]
+            - paragraph [ref=e245]: Sertifikat + portfolio yang sudah direview mentor. Siap ditampilkan ke recruiter.
+      - generic [ref=e247]:
+        - generic [ref=e248]:
+          - generic [ref=e249]:
+            - generic [ref=e250]: Kursus
+            - heading "Pilih dari 128+ kursus di kategori paling diminati." [level=2] [ref=e251]
+            - paragraph [ref=e252]: Dari fundamental sampai topik lanjutan — semua dengan proyek nyata.
+          - link "Lihat semua kursus" [ref=e253] [cursor=pointer]:
+            - /url: "#"
+            - text: Lihat semua kursus
+            - img [ref=e254]
+        - generic [ref=e256]:
+          - link "Pengembangan Web 48 kursus 320 jam Mulai jelajahi" [ref=e257] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e259]
+            - heading "Pengembangan Web" [level=3] [ref=e261]
+            - generic [ref=e262]:
+              - generic [ref=e263]: 48 kursus
+              - generic [ref=e265]: 320 jam
+            - generic [ref=e266]:
+              - text: Mulai jelajahi
+              - img [ref=e267]
+          - link "Data & AI 36 kursus 280 jam Mulai jelajahi" [ref=e269] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e271]
+            - heading "Data & AI" [level=3] [ref=e272]
+            - generic [ref=e273]:
+              - generic [ref=e274]: 36 kursus
+              - generic [ref=e276]: 280 jam
+            - generic [ref=e277]:
+              - text: Mulai jelajahi
+              - img [ref=e278]
+          - link "Desain Produk 24 kursus 190 jam Mulai jelajahi" [ref=e280] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e282]
+            - heading "Desain Produk" [level=3] [ref=e285]
+            - generic [ref=e286]:
+              - generic [ref=e287]: 24 kursus
+              - generic [ref=e289]: 190 jam
+            - generic [ref=e290]:
+              - text: Mulai jelajahi
+              - img [ref=e291]
+          - link "Bisnis & Karier 18 kursus 140 jam Mulai jelajahi" [ref=e293] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e295]
+            - heading "Bisnis & Karier" [level=3] [ref=e298]
+            - generic [ref=e299]:
+              - generic [ref=e300]: 18 kursus
+              - generic [ref=e302]: 140 jam
+            - generic [ref=e303]:
+              - text: Mulai jelajahi
+              - img [ref=e304]
+          - link "Bahasa Inggris 12 kursus 96 jam Mulai jelajahi" [ref=e306] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e308]
+            - heading "Bahasa Inggris" [level=3] [ref=e310]
+            - generic [ref=e311]:
+              - generic [ref=e312]: 12 kursus
+              - generic [ref=e314]: 96 jam
+            - generic [ref=e315]:
+              - text: Mulai jelajahi
+              - img [ref=e316]
+          - link "Soft Skills 14 kursus 110 jam Mulai jelajahi" [ref=e318] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e320]
+            - heading "Soft Skills" [level=3] [ref=e325]
+            - generic [ref=e326]:
+              - generic [ref=e327]: 14 kursus
+              - generic [ref=e329]: 110 jam
+            - generic [ref=e330]:
+              - text: Mulai jelajahi
+              - img [ref=e331]
+      - generic [ref=e338]:
+        - generic [ref=e339]:
+          - generic [ref=e340]:
+            - img [ref=e341]
+            - text: AI Tutor
+          - heading "Tanya apa saja, kapan saja — tutor pribadimu tidak pernah tidur." [level=2] [ref=e343]
+          - paragraph [ref=e344]: Konteks materimu langsung dikenali. Penjelasan dengan contoh, bukan jawaban template. Bisa diminta meng-quiz, merangkum, atau membahas error spesifik.
+          - list [ref=e345]:
+            - listitem [ref=e346]:
+              - img [ref=e348]
+              - generic [ref=e350]: Penjelasan kontekstual dengan contoh kode
+            - listitem [ref=e351]:
+              - img [ref=e353]
+              - generic [ref=e355]: Quiz otomatis untuk mengecek pemahaman
+            - listitem [ref=e356]:
+              - img [ref=e358]
+              - generic [ref=e360]: Tersedia dalam Bahasa Indonesia & Inggris
+          - generic [ref=e361]:
+            - link "Coba AI Tutor" [ref=e362] [cursor=pointer]:
+              - /url: /dashboard
+              - text: Coba AI Tutor
+              - img [ref=e363]
+            - link "Pelajari cara kerjanya" [ref=e365] [cursor=pointer]:
+              - /url: "#"
+        - generic [ref=e367]:
+          - generic [ref=e369]: Bagaimana cara closure bekerja di JavaScript?
+          - generic [ref=e371]: Closure adalah ketika fungsi 'mengingat' variabel dari lingkup luarnya, meskipun lingkup itu sudah selesai dijalankan.
+          - generic [ref=e372]:
+            - generic [ref=e373]: // counter.js
+            - generic [ref=e374]: "function makeCounter() {"
+            - generic [ref=e375]: let n = 0;
+            - generic [ref=e376]: return () => ++n;
+            - generic [ref=e377]: "}"
+          - generic [ref=e379]: Bisa kasih quiz singkat?
+      - generic [ref=e387]:
+        - generic [ref=e388]:
+          - generic [ref=e389]: 8.420+
+          - generic [ref=e390]: Siswa aktif
+        - generic [ref=e391]:
+          - generic [ref=e392]: "128"
+          - generic [ref=e393]: Kursus terkurasi
+        - generic [ref=e394]:
+          - generic [ref=e395]: 94%
+          - generic [ref=e396]: Tingkat penyelesaian
+        - generic [ref=e397]:
+          - generic [ref=e398]: 4,9 / 5
+          - generic [ref=e399]: Rating siswa
+      - generic [ref=e401]:
+        - generic [ref=e402]:
+          - generic [ref=e403]: Testimoni
+          - heading "Cerita nyata dari siswa Learnpath." [level=2] [ref=e404]
+          - paragraph [ref=e405]: Tidak ada review berbayar — semua dari alumni yang sudah lulus dan bekerja.
+        - generic [ref=e406]:
+          - figure "RA Rifqi Andika Frontend Engineer · Jakarta" [ref=e407]:
+            - generic [ref=e408]:
+              - img [ref=e409]
+              - img [ref=e411]
+              - img [ref=e413]
+              - img [ref=e415]
+              - img [ref=e417]
+            - blockquote [ref=e419]: “Dari pemula ke kontributor open-source dalam 4 bulan. Roadmap-nya bikin saya nggak nebak-nebak lagi.”
+            - generic [ref=e420]:
+              - generic [ref=e421]: RA
+              - generic [ref=e422]:
+                - generic [ref=e423]: Rifqi Andika
+                - generic [ref=e424]: Frontend Engineer · Jakarta
+          - figure "MA Maya Anggraini Data Analyst · Surabaya" [ref=e425]:
+            - generic [ref=e426]:
+              - img [ref=e427]
+              - img [ref=e429]
+              - img [ref=e431]
+              - img [ref=e433]
+              - img [ref=e435]
+            - blockquote [ref=e437]: “AI Tutor jadi penyelamat saat stuck malam-malam. Penjelasannya pas, tidak terlalu panjang, tidak terlalu pendek.”
+            - generic [ref=e438]:
+              - generic [ref=e439]: MA
+              - generic [ref=e440]:
+                - generic [ref=e441]: Maya Anggraini
+                - generic [ref=e442]: Data Analyst · Surabaya
+          - figure "DP Dimas Prabowo Product Designer · Bandung" [ref=e443]:
+            - generic [ref=e444]:
+              - img [ref=e445]
+              - img [ref=e447]
+              - img [ref=e449]
+              - img [ref=e451]
+              - img [ref=e453]
+            - blockquote [ref=e455]: “Sertifikat Learnpath beneran dilihat recruiter. Diterima di 3 perusahaan dalam 6 minggu setelah lulus.”
+            - generic [ref=e456]:
+              - generic [ref=e457]: DP
+              - generic [ref=e458]:
+                - generic [ref=e459]: Dimas Prabowo
+                - generic [ref=e460]: Product Designer · Bandung
+      - generic [ref=e462]:
+        - generic [ref=e463]:
+          - generic [ref=e464]: Harga
+          - heading "Bayar untuk hasil, bukan kontrak." [level=2] [ref=e465]
+          - paragraph [ref=e466]: Mulai gratis, upgrade saat siap. Batalkan kapan saja tanpa biaya tersembunyi.
+        - generic [ref=e467]:
+          - generic [ref=e468]: Bulanan
+          - button [ref=e469]
+          - generic [ref=e471]: Tahunan
+          - generic [ref=e472]: Hemat 20%
+        - generic [ref=e473]:
+          - generic [ref=e474]:
+            - generic [ref=e475]:
+              - generic [ref=e476]: Basic
+              - generic [ref=e477]: Mulai eksplorasi tanpa biaya.
+              - generic [ref=e478]:
+                - generic [ref=e479]: Rp 0
+                - generic [ref=e480]: selamanya
+            - list [ref=e481]:
+              - listitem [ref=e482]:
+                - img [ref=e484]
+                - generic [ref=e486]: 12 kursus gratis pilihan
+              - listitem [ref=e487]:
+                - img [ref=e489]
+                - generic [ref=e491]: AI Tutor terbatas (10/hari)
+              - listitem [ref=e492]:
+                - img [ref=e494]
+                - generic [ref=e496]: Sertifikat partisipasi
+              - listitem [ref=e497]:
+                - img [ref=e499]
+                - generic [ref=e501]: Dukungan komunitas
+            - link "Mulai gratis" [ref=e502] [cursor=pointer]:
+              - /url: /dashboard
+              - text: Mulai gratis
+              - img [ref=e503]
+          - generic [ref=e505]:
+            - generic [ref=e506]: Paling populer
+            - generic [ref=e507]:
+              - generic [ref=e508]: Pro
+              - generic [ref=e509]: Untuk yang serius berkembang.
+              - generic [ref=e510]:
+                - generic [ref=e511]: Rp 199.000
+                - generic [ref=e512]: /bulan
+            - list [ref=e513]:
+              - listitem [ref=e514]:
+                - img [ref=e516]
+                - generic [ref=e518]: Akses 128+ kursus
+              - listitem [ref=e519]:
+                - img [ref=e521]
+                - generic [ref=e523]: AI Tutor tanpa batas
+              - listitem [ref=e524]:
+                - img [ref=e526]
+                - generic [ref=e528]: Sertifikat terverifikasi
+              - listitem [ref=e529]:
+                - img [ref=e531]
+                - generic [ref=e533]: Sesi mentor 2x/bulan
+              - listitem [ref=e534]:
+                - img [ref=e536]
+                - generic [ref=e538]: Review portfolio
+              - listitem [ref=e539]:
+                - img [ref=e541]
+                - generic [ref=e543]: Komunitas cohort
+            - link "Coba 7 hari gratis" [ref=e544] [cursor=pointer]:
+              - /url: /dashboard
+              - text: Coba 7 hari gratis
+              - img [ref=e545]
+          - generic [ref=e547]:
+            - generic [ref=e548]:
+              - generic [ref=e549]: Team
+              - generic [ref=e550]: Untuk tim & perusahaan.
+              - generic [ref=e551]:
+                - generic [ref=e552]: Rp 499.000
+                - generic [ref=e553]: /bulan / 5 user
+            - list [ref=e554]:
+              - listitem [ref=e555]:
+                - img [ref=e557]
+                - generic [ref=e559]: Semua di paket Pro
+              - listitem [ref=e560]:
+                - img [ref=e562]
+                - generic [ref=e564]: Dashboard admin
+              - listitem [ref=e565]:
+                - img [ref=e567]
+                - generic [ref=e569]: Analitik tim
+              - listitem [ref=e570]:
+                - img [ref=e572]
+                - generic [ref=e574]: SSO & SCIM
+              - listitem [ref=e575]:
+                - img [ref=e577]
+                - generic [ref=e579]: Manajer akun khusus
+            - link "Hubungi sales" [ref=e580] [cursor=pointer]:
+              - /url: /dashboard
+              - text: Hubungi sales
+              - img [ref=e581]
+      - generic [ref=e584]:
+        - generic [ref=e585]:
+          - generic [ref=e586]: FAQ
+          - heading "Pertanyaan yang sering muncul." [level=2] [ref=e587]
+          - paragraph [ref=e588]: Belum menemukan jawabanmu? Hubungi tim dukungan kami.
+        - generic [ref=e589]:
+          - generic [ref=e590]:
+            - button "Apakah Learnpath cocok untuk pemula total?" [ref=e591]:
+              - generic [ref=e592]: Apakah Learnpath cocok untuk pemula total?
+              - img [ref=e594]
+            - paragraph [ref=e599]: Ya. Roadmap personal akan menyesuaikan level mulai dari nol — kami punya jalur khusus untuk yang belum pernah coding atau desain sama sekali.
+          - generic [ref=e600]:
+            - button "Bagaimana cara kerja AI Tutor?" [ref=e601]:
+              - generic [ref=e602]: Bagaimana cara kerja AI Tutor?
+              - img [ref=e604]
+            - paragraph [ref=e605]: AI Tutor mengenali konteks materi dan progres belajarmu. Pertanyaan dijawab dengan referensi langsung ke pelajaran terkait, lengkap dengan contoh praktis.
+          - generic [ref=e606]:
+            - button "Apakah sertifikat Learnpath diakui industri?" [ref=e607]:
+              - generic [ref=e608]: Apakah sertifikat Learnpath diakui industri?
+              - img [ref=e610]
+            - paragraph [ref=e611]: Sertifikat kami diverifikasi via blockchain dan diakui oleh 140+ mitra HR di Asia Tenggara. Banyak alumni diterima kerja dalam 6–12 minggu pasca-lulus.
+          - generic [ref=e612]:
+            - button "Bisa batal langganan kapan saja?" [ref=e613]:
+              - generic [ref=e614]: Bisa batal langganan kapan saja?
+              - img [ref=e616]
+            - paragraph [ref=e617]: Tentu. Tidak ada kontrak minimum. Batalkan dari pengaturan akun — akses berlanjut sampai akhir periode tagihan.
+          - generic [ref=e618]:
+            - button "Apakah ada diskon untuk pelajar?" [ref=e619]:
+              - generic [ref=e620]: Apakah ada diskon untuk pelajar?
+              - img [ref=e622]
+            - paragraph [ref=e623]: Ada diskon 40% untuk pelajar/mahasiswa aktif. Cukup verifikasi dengan email institusi atau kartu pelajar di pengaturan akun.
+          - generic [ref=e624]:
+            - button "Bagaimana dukungan untuk paket Team?" [ref=e625]:
+              - generic [ref=e626]: Bagaimana dukungan untuk paket Team?
+              - img [ref=e628]
+            - paragraph [ref=e629]: Paket Team mendapat manajer akun khusus, onboarding tim, dan SLA respons dukungan 4 jam pada hari kerja.
+      - generic [ref=e634]:
+        - generic [ref=e635]:
+          - img [ref=e636]
+          - text: Coba 7 hari gratis
+        - heading "Karier baru dimulai dari kebiasaan belajar yang baru." [level=2] [ref=e638]
+        - paragraph [ref=e639]: Buat akun gratis dalam 30 detik. Tidak butuh kartu kredit. Batalkan kapan saja.
+        - generic [ref=e640]:
+          - link "Mulai sekarang" [ref=e641] [cursor=pointer]:
+            - /url: /dashboard
+            - text: Mulai sekarang
+            - img [ref=e642]
+          - link "Lihat semua paket" [ref=e644] [cursor=pointer]:
+            - /url: "#pricing"
+    - contentinfo [ref=e645]:
+      - generic [ref=e646]:
+        - generic [ref=e647]:
+          - generic [ref=e648]:
+            - link "Learnpath Learn Smarter, Grow Faster" [ref=e649] [cursor=pointer]:
+              - /url: /
+              - img [ref=e651]
+              - generic [ref=e660]:
+                - generic [ref=e661]: Learnpath
+                - generic [ref=e662]: Learn Smarter, Grow Faster
+            - paragraph [ref=e663]: Platform pembelajaran terstruktur untuk talenta digital Indonesia. Roadmap personal, AI Tutor, dan sertifikat yang diakui industri.
+          - generic [ref=e664]:
+            - generic [ref=e665]:
+              - generic [ref=e666]: Produk
+              - list [ref=e667]:
+                - listitem [ref=e668]:
+                  - link "Kursus" [ref=e669] [cursor=pointer]:
+                    - /url: "#"
+                - listitem [ref=e670]:
+                  - link "AI Tutor" [ref=e671] [cursor=pointer]:
+                    - /url: "#"
+                - listitem [ref=e672]:
+                  - link "Mentor" [ref=e673] [cursor=pointer]:
+                    - /url: "#"
+                - listitem [ref=e674]:
+                  - link "Sertifikat" [ref=e675] [cursor=pointer]:
+                    - /url: "#"
+                - listitem [ref=e676]:
+                  - link "Cohort" [ref=e677] [cursor=pointer]:
+                    - /url: "#"
+            - generic [ref=e678]:
+              - generic [ref=e679]: Perusahaan
+              - list [ref=e680]:
+                - listitem [ref=e681]:
+                  - link "Tentang" [ref=e682] [cursor=pointer]:
+                    - /url: "#"
+                - listitem [ref=e683]:
+                  - link "Karier" [ref=e684] [cursor=pointer]:
+                    - /url: "#"
+                - listitem [ref=e685]:
+                  - link "Blog" [ref=e686] [cursor=pointer]:
+                    - /url: "#"
+                - listitem [ref=e687]:
+                  - link "Press kit" [ref=e688] [cursor=pointer]:
+                    - /url: "#"
+                - listitem [ref=e689]:
+                  - link "Kontak" [ref=e690] [cursor=pointer]:
+                    - /url: "#"
+            - generic [ref=e691]:
+              - generic [ref=e692]: Sumber Daya
+              - list [ref=e693]:
+                - listitem [ref=e694]:
+                  - link "Bantuan" [ref=e695] [cursor=pointer]:
+                    - /url: "#"
+                - listitem [ref=e696]:
+                  - link "Komunitas" [ref=e697] [cursor=pointer]:
+                    - /url: "#"
+                - listitem [ref=e698]:
+                  - link "Status sistem" [ref=e699] [cursor=pointer]:
+                    - /url: "#"
+                - listitem [ref=e700]:
+                  - link "Roadmap publik" [ref=e701] [cursor=pointer]:
+                    - /url: "#"
+                - listitem [ref=e702]:
+                  - link "Changelog" [ref=e703] [cursor=pointer]:
+                    - /url: "#"
+            - generic [ref=e704]:
+              - generic [ref=e705]: Legal
+              - list [ref=e706]:
+                - listitem [ref=e707]:
+                  - link "Ketentuan" [ref=e708] [cursor=pointer]:
+                    - /url: "#"
+                - listitem [ref=e709]:
+                  - link "Privasi" [ref=e710] [cursor=pointer]:
+                    - /url: "#"
+                - listitem [ref=e711]:
+                  - link "Cookie" [ref=e712] [cursor=pointer]:
+                    - /url: "#"
+                - listitem [ref=e713]:
+                  - link "Akreditasi" [ref=e714] [cursor=pointer]:
+                    - /url: "#"
+                - listitem [ref=e715]:
+                  - link "Keamanan" [ref=e716] [cursor=pointer]:
+                    - /url: "#"
+        - generic [ref=e717]:
+          - generic [ref=e718]: © 2026 PT Learnpath Indonesia. Hak cipta dilindungi.
+          - generic [ref=e719]:
+            - generic [ref=e720]: Sistem normal
+            - 'link "Bahasa: ID" [ref=e722] [cursor=pointer]':
+              - /url: "#"
+  - region "Notifications alt+T"

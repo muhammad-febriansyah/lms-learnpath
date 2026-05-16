@@ -1,0 +1,99 @@
+- generic [ref=e2]:
+  - generic [ref=e3]:
+    - complementary [ref=e4]:
+      - generic [ref=e5]:
+        - link [ref=e6] [cursor=pointer]:
+          - /url: /dashboard
+          - img [ref=e7]
+        - generic [ref=e16]:
+          - generic [ref=e17]: Learnpath
+          - generic [ref=e18]: Admin Console
+      - button "Ciutkan sidebar" [ref=e19]:
+        - img [ref=e20]
+      - navigation [ref=e22]:
+        - link "Dashboard" [ref=e23] [cursor=pointer]:
+          - /url: /admin/dashboard
+          - img [ref=e24]
+          - generic [ref=e29]: Dashboard
+        - button "Master Data" [ref=e31]:
+          - img [ref=e32]
+          - generic [ref=e34]: Master Data
+          - img [ref=e35]
+        - button "Marketplace" [ref=e38]:
+          - img [ref=e39]
+          - generic [ref=e42]: Marketplace
+          - img [ref=e43]
+        - button "Business" [ref=e46]:
+          - img [ref=e47]
+          - generic [ref=e51]: Business
+          - img [ref=e52]
+        - button "Skill Matrix" [ref=e55]:
+          - img [ref=e56]
+          - generic [ref=e60]: Skill Matrix
+          - img [ref=e61]
+        - button "User Management" [ref=e64]:
+          - img [ref=e65]
+          - generic [ref=e70]: User Management
+          - img [ref=e71]
+        - button "Reports" [ref=e74]:
+          - img [ref=e75]
+          - generic [ref=e77]: Reports
+          - img [ref=e78]
+        - link "Settings" [ref=e80] [cursor=pointer]:
+          - /url: /admin/settings
+          - img [ref=e81]
+          - generic [ref=e84]: Settings
+      - generic [ref=e85]:
+        - generic [ref=e87]: SA
+        - generic [ref=e89]:
+          - generic [ref=e90]: Super Admin
+          - generic [ref=e91]: admin@example.com
+        - button "Keluar" [ref=e92]:
+          - img [ref=e93]
+    - generic [ref=e96]:
+      - banner [ref=e97]:
+        - generic [ref=e98]:
+          - button "Toggle sidebar" [ref=e99]:
+            - img [ref=e100]
+          - generic [ref=e102]:
+            - generic [ref=e103]: Beranda
+            - img [ref=e104]
+            - generic [ref=e106]: Dasbor
+          - generic [ref=e107]:
+            - img [ref=e108]
+            - textbox "Cari kursus, siswa…" [ref=e111]
+            - generic [ref=e112]: ⌘K
+          - generic [ref=e113]:
+            - button "Notifikasi" [ref=e114]:
+              - img [ref=e115]
+            - button "SA Super Super Admin" [ref=e118]:
+              - generic [ref=e120]: SA
+              - generic [ref=e121]:
+                - generic [ref=e122]: Super
+                - generic [ref=e123]: Super Admin
+              - img [ref=e124]
+      - main [ref=e126]:
+        - generic [ref=e127]:
+          - generic [ref=e128]:
+            - heading "Paket Kursus" [level=1] [ref=e129]:
+              - img [ref=e130]
+              - text: Paket Kursus
+            - paragraph [ref=e134]: Beli beberapa kursus sekaligus dengan harga lebih hemat.
+          - generic [ref=e135]:
+            - img
+            - textbox "Cari paket..." [ref=e136]
+          - generic [ref=e137]:
+            - img [ref=e138]
+            - paragraph [ref=e142]: Belum ada paket tersedia
+            - paragraph [ref=e143]: Paket kursus akan segera hadir di sini.
+          - generic [ref=e144]:
+            - paragraph [ref=e145]: Menampilkan 0 - 0 dari 0 data
+            - generic [ref=e146]:
+              - button "Sebelumnya" [disabled]:
+                - img
+                - text: Sebelumnya
+              - button "1" [ref=e147]
+              - button "Selanjutnya" [disabled]:
+                - text: Selanjutnya
+                - img
+  - region "Notifications alt+T"
