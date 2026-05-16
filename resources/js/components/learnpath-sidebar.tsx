@@ -23,8 +23,8 @@ import {
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { usePermission } from '@/hooks/use-permission';
-import { ADMIN_NAV, STUDENT_NAV  } from '@/lib/admin-nav';
-import type {AdminNavSection} from '@/lib/admin-nav';
+import { ADMIN_NAV, STUDENT_NAV } from '@/lib/admin-nav';
+import type { AdminNavSection } from '@/lib/admin-nav';
 import { dashboard, logout } from '@/routes';
 import { edit as editProfile } from '@/routes/profile';
 import type { User } from '@/types';
@@ -47,7 +47,9 @@ export function LearnpathSidebar({
     collapsed,
     onToggleCollapse,
 }: SidebarProps) {
-    const { url: currentUrl, props } = usePage<{ auth: { user: User | null } }>();
+    const { url: currentUrl, props } = usePage<{
+        auth: { user: User | null };
+    }>();
     const user = props.auth.user;
     const { hasRole, hasPermission } = usePermission();
 
@@ -77,8 +79,10 @@ export function LearnpathSidebar({
             <aside
                 className={
                     'fixed top-0 left-0 z-40 flex h-screen w-[260px] shrink-0 flex-col bg-white ring-1 ring-slate-200/70 transition-[width,transform] duration-300 ease-out lg:sticky lg:border-r lg:border-slate-200/70 lg:ring-0 ' +
-                    (collapsed ? 'lg:w-[76px] ' : 'lg:w-[260px] ') +
-                    (mobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0')
+                    (collapsed ? 'lg:w-[76px]' : 'lg:w-[260px]') +
+                    (mobileOpen
+                        ? 'translate-x-0'
+                        : '-translate-x-full lg:translate-x-0')
                 }
             >
                 <div
@@ -108,14 +112,18 @@ export function LearnpathSidebar({
                 <button
                     onClick={onToggleCollapse}
                     title={collapsed ? 'Perluas sidebar' : 'Ciutkan sidebar'}
-                    className="absolute -right-3 top-[58px] z-10 hidden size-6 place-items-center rounded-full bg-white text-slate-500 shadow-sm ring-1 ring-slate-200 transition hover:text-brand-600 hover:ring-brand-300 lg:grid"
+                    className="absolute top-[58px] -right-3 z-10 hidden size-6 place-items-center rounded-full bg-white text-slate-500 shadow-sm ring-1 ring-slate-200 transition hover:text-brand-600 hover:ring-brand-300 lg:grid"
                 >
-                    {collapsed ? <IconChevR size={12} /> : <IconChevL size={12} />}
+                    {collapsed ? (
+                        <IconChevR size={12} />
+                    ) : (
+                        <IconChevL size={12} />
+                    )}
                 </button>
 
                 <nav
                     className={
-                        'flex-1 space-y-1 overflow-y-auto overflow-x-hidden py-4 ' +
+                        'flex-1 space-y-1 overflow-x-hidden overflow-y-auto py-4 ' +
                         (collapsed ? 'px-3 lg:px-2' : 'px-3')
                     }
                 >
@@ -151,7 +159,8 @@ export function LearnpathSidebar({
                             </div>
                             <div className="relative">
                                 <div className="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-2 py-0.5 text-[10px] font-bold tracking-wider uppercase">
-                                    <span className="size-1.5 rounded-full bg-emerald-300" /> Baru
+                                    <span className="size-1.5 rounded-full bg-emerald-300" />{' '}
+                                    Baru
                                 </div>
                                 <div className="mt-2 pr-6 text-[15px] leading-snug font-bold">
                                     Aktifkan AI Tutor untuk semua kursus
@@ -176,7 +185,11 @@ export function LearnpathSidebar({
                         </div>
                         <span className="absolute -right-0.5 -bottom-0.5 size-2.5 rounded-full bg-emerald-500 ring-2 ring-white" />
                     </div>
-                    <div className={'min-w-0 flex-1 leading-tight ' + labelHidden}>
+                    <div
+                        className={
+                            'min-w-0 flex-1 leading-tight ' + labelHidden
+                        }
+                    >
                         <div className="truncate text-[13px] font-semibold text-slate-900">
                             {user?.name ?? 'Pengguna'}
                         </div>
@@ -226,8 +239,8 @@ function SingleLink({
             className={
                 'group/item relative flex w-full items-center rounded-xl text-[14px] font-medium transition ' +
                 (collapsed
-                    ? 'gap-3 px-3 py-2.5 lg:justify-center lg:px-0 lg:py-2.5 '
-                    : 'gap-3 px-3 py-2.5 ') +
+                    ? 'gap-3 px-3 py-2.5 lg:justify-center lg:px-0 lg:py-2.5'
+                    : 'gap-3 px-3 py-2.5') +
                 (isActive
                     ? 'bg-brand-600 text-white shadow-[0_8px_18px_-10px_rgba(18,35,125,0.6)]'
                     : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900')
@@ -238,8 +251,8 @@ function SingleLink({
                     size={18}
                     className={
                         isActive
-                            ? 'text-white shrink-0'
-                            : 'text-slate-400 group-hover/item:text-brand-600 shrink-0'
+                            ? 'shrink-0 text-white'
+                            : 'shrink-0 text-slate-400 group-hover/item:text-brand-600'
                     }
                 />
             )}
@@ -264,7 +277,9 @@ function NavGroup({
     currentUrl: string;
     onClickItem?: () => void;
 }) {
-    const hasActive = section.items.some((item) => isUrlActive(currentUrl, item.href));
+    const hasActive = section.items.some((item) =>
+        isUrlActive(currentUrl, item.href),
+    );
     const [open, setOpen] = useGroupOpenState(section.label, hasActive);
 
     const labelHidden = collapsed ? 'lg:hidden' : '';
@@ -277,10 +292,10 @@ function NavGroup({
                 onClick={() => setOpen(!open)}
                 title={collapsed ? section.label : undefined}
                 className={
-                    'group/group relative flex w-full items-center rounded-xl text-[13px] font-semibold uppercase tracking-wider transition ' +
+                    'group/group relative flex w-full items-center rounded-xl text-[13px] font-semibold tracking-wider uppercase transition ' +
                     (collapsed
-                        ? 'gap-3 px-3 py-2 lg:justify-center lg:px-0 '
-                        : 'gap-3 px-3 py-2 ') +
+                        ? 'gap-3 px-3 py-2 lg:justify-center lg:px-0'
+                        : 'gap-3 px-3 py-2') +
                     (hasActive
                         ? 'text-brand-700'
                         : 'text-slate-500 hover:bg-slate-50 hover:text-slate-700')
@@ -325,7 +340,7 @@ function NavGroup({
                                     href={item.href}
                                     onClick={onClickItem}
                                     className={
-                                        'flex w-full items-center gap-3 rounded-lg pl-5 pr-3 py-2 text-[13.5px] font-medium transition ' +
+                                        'flex w-full items-center gap-3 rounded-lg py-2 pr-3 pl-5 text-[13.5px] font-medium transition ' +
                                         (is
                                             ? 'bg-brand-600 text-white shadow-[0_8px_18px_-10px_rgba(18,35,125,0.6)]'
                                             : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900')
@@ -336,12 +351,14 @@ function NavGroup({
                                             size={16}
                                             className={
                                                 is
-                                                    ? 'text-white shrink-0'
-                                                    : 'text-slate-400 group-hover/item:text-brand-600 shrink-0'
+                                                    ? 'shrink-0 text-white'
+                                                    : 'shrink-0 text-slate-400 group-hover/item:text-brand-600'
                                             }
                                         />
                                     )}
-                                    <span className="flex-1 text-left">{item.title}</span>
+                                    <span className="flex-1 text-left">
+                                        {item.title}
+                                    </span>
                                 </Link>
                             </li>
                         );
@@ -352,7 +369,7 @@ function NavGroup({
             {/* Saat collapsed: tampilkan flyout list ketika hover group */}
             {collapsed && (
                 <div className="pointer-events-none absolute left-full z-50 ml-3 hidden -translate-y-2 rounded-xl bg-white p-2 opacity-0 shadow-xl ring-1 ring-slate-200 transition group-hover/group:pointer-events-auto group-hover/group:opacity-100 lg:block">
-                    <div className="px-2 pt-1 pb-2 text-[10px] font-semibold tracking-wider uppercase text-slate-400">
+                    <div className="px-2 pt-1 pb-2 text-[10px] font-semibold tracking-wider text-slate-400 uppercase">
                         {section.label}
                     </div>
                     <ul className="space-y-0.5">
@@ -403,23 +420,23 @@ function filterByPermission(
         .map((section) => {
             if (section.type === 'item') {
                 if (section.permission && !hasPermission(section.permission)) {
-return null;
-}
+                    return null;
+                }
 
                 return section;
             }
 
             if (section.permission && !hasPermission(section.permission)) {
-return null;
-}
+                return null;
+            }
 
             const items = section.items.filter(
                 (item) => !item.permission || hasPermission(item.permission),
             );
 
             if (items.length === 0) {
-return null;
-}
+                return null;
+            }
 
             return { ...section, items };
         })
@@ -603,9 +620,13 @@ function NotificationDropdown() {
             <DropdownMenuContent align="end" className="w-[340px] p-0">
                 <div className="flex items-center justify-between border-b border-slate-100 px-3 py-2">
                     <div>
-                        <div className="text-[13px] font-bold text-slate-900">Notifikasi</div>
+                        <div className="text-[13px] font-bold text-slate-900">
+                            Notifikasi
+                        </div>
                         <div className="text-[11px] text-slate-500">
-                            {unread > 0 ? `${unread} belum dibaca` : 'Semua sudah dibaca'}
+                            {unread > 0
+                                ? `${unread} belum dibaca`
+                                : 'Semua sudah dibaca'}
                         </div>
                     </div>
                     {unread > 0 && (
@@ -621,7 +642,10 @@ function NotificationDropdown() {
                 <div className="max-h-[360px] overflow-y-auto py-1">
                     {items.length === 0 ? (
                         <div className="px-3 py-8 text-center">
-                            <IconBell size={22} className="mx-auto mb-2 text-slate-300" />
+                            <IconBell
+                                size={22}
+                                className="mx-auto mb-2 text-slate-300"
+                            />
                             <p className="text-[12.5px] font-semibold text-slate-700">
                                 Tidak ada notifikasi
                             </p>
@@ -640,7 +664,9 @@ function NotificationDropdown() {
                                 <span
                                     className={
                                         'mt-1 size-2 shrink-0 rounded-full ' +
-                                        (n.read ? 'bg-transparent' : 'bg-brand-500')
+                                        (n.read
+                                            ? 'bg-transparent'
+                                            : 'bg-brand-500')
                                     }
                                 />
                                 <div className="min-w-0 flex-1">
@@ -680,7 +706,10 @@ function formatTimeAgo(iso: string | null): string {
 
     if (days < 7) return `${days} hari lalu`;
 
-    return new Date(iso).toLocaleDateString('id-ID', { day: '2-digit', month: 'short' });
+    return new Date(iso).toLocaleDateString('id-ID', {
+        day: '2-digit',
+        month: 'short',
+    });
 }
 
 function UserDropdown({ user }: { user: User }) {
@@ -695,14 +724,17 @@ function UserDropdown({ user }: { user: User }) {
               ? user.avatar
               : undefined;
 
-    const roleLabel = typeof user.role_label === 'string' ? user.role_label : null;
+    const roleLabel =
+        typeof user.role_label === 'string' ? user.role_label : null;
 
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
                 <button className="ml-1 hidden items-center gap-2 rounded-xl border-l border-slate-200 pl-2 transition-colors hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-600 sm:flex">
                     <Avatar className="size-9 ring-1 ring-slate-200">
-                        {avatarUrl && <AvatarImage src={avatarUrl} alt={user.name} />}
+                        {avatarUrl && (
+                            <AvatarImage src={avatarUrl} alt={user.name} />
+                        )}
                         <AvatarFallback className="bg-gradient-to-br from-brand-300 to-brand-600 text-[12px] font-bold text-white">
                             {initials(user.name)}
                         </AvatarFallback>
@@ -711,7 +743,9 @@ function UserDropdown({ user }: { user: User }) {
                         <div className="text-[13px] font-semibold text-slate-900">
                             {user.name.split(' ')[0]}
                         </div>
-                        <div className="text-[11px] text-slate-500">{roleLabel ?? 'Pengguna'}</div>
+                        <div className="text-[11px] text-slate-500">
+                            {roleLabel ?? 'Pengguna'}
+                        </div>
                     </div>
                     <IconChevron size={16} className="text-slate-400" />
                 </button>
@@ -720,7 +754,9 @@ function UserDropdown({ user }: { user: User }) {
                 <DropdownMenuLabel className="p-0 font-normal">
                     <div className="flex items-center gap-2.5 px-2 py-2">
                         <Avatar className="size-9">
-                            {avatarUrl && <AvatarImage src={avatarUrl} alt={user.name} />}
+                            {avatarUrl && (
+                                <AvatarImage src={avatarUrl} alt={user.name} />
+                            )}
                             <AvatarFallback className="bg-gradient-to-br from-brand-300 to-brand-600 text-[12px] font-bold text-white">
                                 {initials(user.name)}
                             </AvatarFallback>
@@ -729,7 +765,9 @@ function UserDropdown({ user }: { user: User }) {
                             <div className="truncate text-[13px] font-bold text-slate-900">
                                 {user.name}
                             </div>
-                            <div className="truncate text-[11px] text-slate-500">{user.email}</div>
+                            <div className="truncate text-[11px] text-slate-500">
+                                {user.email}
+                            </div>
                         </div>
                     </div>
                 </DropdownMenuLabel>
@@ -742,7 +780,10 @@ function UserDropdown({ user }: { user: User }) {
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
                     <Link href="/settings/security" className="cursor-pointer">
-                        <IconSparkle size={14} className="mr-2 text-slate-500" />
+                        <IconSparkle
+                            size={14}
+                            className="mr-2 text-slate-500"
+                        />
                         Keamanan
                     </Link>
                 </DropdownMenuItem>
