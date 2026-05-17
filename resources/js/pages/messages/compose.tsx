@@ -61,7 +61,7 @@ export default function MessagesCompose({ recipients, replyTo }: Props) {
     return (
         <>
             <Head title="Tulis Pesan" />
-            <div className="mx-auto max-w-3xl space-y-5">
+            <div className="space-y-5">
                 <div>
                     <nav className="flex items-center gap-1.5 text-[12.5px] text-slate-500">
                         <Link href="/dashboard" className="hover:text-slate-700">

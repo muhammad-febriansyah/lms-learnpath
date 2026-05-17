@@ -9,11 +9,14 @@ use App\Models\OrganizationInvitation;
 use App\Models\OrganizationMember;
 use App\Models\Position;
 use App\Models\User;
+use App\Services\Business\BulkInvitationImporter;
 use App\Services\Learning\PositionCourseAutoEnrollService;
 use App\Services\Mail\InvitationMailComposer;
 use App\Services\Mail\MailketingService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response as HttpResponse;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Inertia\Inertia;
@@ -25,6 +28,7 @@ class InvitationController extends Controller
         private readonly MailketingService $mail,
         private readonly InvitationMailComposer $composer,
         private readonly PositionCourseAutoEnrollService $autoEnroll,
+        private readonly BulkInvitationImporter $importer,
     ) {}
 
     public function index(Request $request): Response
@@ -121,6 +125,98 @@ class InvitationController extends Controller
         }
 
         return back()->with('success', $message);
+    }
+
+    public function bulkTemplate(Request $request): HttpResponse
+    {
+        $this->resolveOrganization($request);
+
+        return response($this->importer->templateCsv(), 200, [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => 'attachment; filename="template-undangan-karyawan.csv"',
+        ]);
+    }
+
+    public function bulkPreview(Request $request): RedirectResponse
+    {
+        $org = $this->resolveOrganization($request);
+
+        $data = $request->validate([
+            'file' => ['required', 'file', 'mimes:csv,txt', 'max:2048'],
+        ], [
+            'file.required' => 'File CSV wajib diunggah.',
+            'file.mimes' => 'File harus berformat CSV.',
+            'file.max' => 'Ukuran file maksimal 2MB.',
+        ]);
+
+        $result = $this->importer->parseAndValidate($data['file']->getRealPath(), $org);
+
+        if ($result['summary']['total'] === 0) {
+            return back()->withErrors(['file' => 'CSV kosong atau format header tidak terbaca.']);
+        }
+
+        $token = $this->importer->previewToken();
+
+        Cache::put($this->previewCacheKey($org->id, $token), [
+            'rows' => $result['rows'],
+            'summary' => $result['summary'],
+            'created_by' => $request->user()->id,
+        ], now()->addMinutes(15));
+
+        return back()->with('bulk_preview', [
+            'token' => $token,
+            'rows' => $result['rows'],
+            'summary' => $result['summary'],
+        ]);
+    }
+
+    public function bulkCommit(Request $request): RedirectResponse
+    {
+        $org = $this->resolveOrganization($request);
+
+        $data = $request->validate([
+            'token' => ['required', 'string', 'max:60'],
+        ], [
+            'token.required' => 'Preview token tidak ditemukan. Unggah ulang file.',
+        ]);
+
+        $cacheKey = $this->previewCacheKey($org->id, $data['token']);
+        $cached = Cache::pull($cacheKey);
+
+        if (! $cached || ($cached['created_by'] ?? null) !== $request->user()->id) {
+            return back()->withErrors(['token' => 'Preview kedaluwarsa. Unggah ulang file.']);
+        }
+
+        $readyRows = collect($cached['rows'])
+            ->filter(fn (array $row) => $row['status'] === 'ready')
+            ->map(fn (array $row) => [
+                'email' => $row['email'],
+                'name' => $row['name'],
+                'position_id' => $row['position_id'],
+                'employee_number' => $row['employee_number'],
+                'division' => $row['division'],
+                'branch' => $row['branch'],
+            ])
+            ->values()
+            ->all();
+
+        if ($readyRows === []) {
+            return back()->withErrors(['token' => 'Tidak ada baris yang siap diimpor.']);
+        }
+
+        [$created, $skipped, $sent] = $this->createInvitations($org, $request->user(), $readyRows);
+
+        $message = "Bulk import: {$created} undangan dibuat, {$sent} email terkirim.";
+        if ($skipped > 0) {
+            $message .= " {$skipped} dilewati di tahap akhir.";
+        }
+
+        return back()->with('success', $message);
+    }
+
+    private function previewCacheKey(int $orgId, string $token): string
+    {
+        return "bulk-invite-preview:{$orgId}:{$token}";
     }
 
     public function bulkUpload(Request $request): RedirectResponse
@@ -278,7 +374,7 @@ class InvitationController extends Controller
                 'status' => 'active',
                 'email_verified_at' => now(),
             ]);
-            $user->assignRole('student');
+            $user->assignRole('employee');
 
             auth()->login($user);
         } elseif (! auth()->check() && $existingUser) {
@@ -295,30 +391,32 @@ class InvitationController extends Controller
         $coursesEnrolled = 0;
         $pathsEnrolled = 0;
 
-        DB::transaction(function () use ($invitation, $user, $org, &$coursesEnrolled, &$pathsEnrolled) {
-            OrganizationMember::create([
-                'organization_id' => $org->id,
-                'user_id' => $user->id,
-                'role' => $invitation->role,
-                'joined_at' => now(),
-            ]);
+        tenancy()->runWithTenant($org, function () use ($invitation, $user, $org, &$coursesEnrolled, &$pathsEnrolled) {
+            DB::transaction(function () use ($invitation, $user, $org, &$coursesEnrolled, &$pathsEnrolled) {
+                OrganizationMember::create([
+                    'organization_id' => $org->id,
+                    'user_id' => $user->id,
+                    'role' => $invitation->role,
+                    'joined_at' => now(),
+                ]);
 
-            $org->increment('seats_used');
+                $org->increment('seats_used');
 
-            $this->ensureEmployeeProfile($user, $invitation);
+                $this->ensureEmployeeProfile($user, $invitation);
 
-            $invitation->update([
-                'accepted_at' => now(),
-                'accepted_user_id' => $user->id,
-            ]);
+                $invitation->update([
+                    'accepted_at' => now(),
+                    'accepted_user_id' => $user->id,
+                ]);
 
-            if ($invitation->position_id) {
-                $fresh = $user->fresh();
-                $courseResult = $this->autoEnroll->syncForUser($fresh, $invitation->position_id);
-                $pathResult = $this->autoEnroll->syncPathsForUser($fresh, $invitation->position_id);
-                $coursesEnrolled = $courseResult['enrolled'] + $pathResult['child_courses_created'];
-                $pathsEnrolled = $pathResult['paths_enrolled'];
-            }
+                if ($invitation->position_id) {
+                    $fresh = $user->fresh();
+                    $courseResult = $this->autoEnroll->syncForUser($fresh, $invitation->position_id);
+                    $pathResult = $this->autoEnroll->syncPathsForUser($fresh, $invitation->position_id);
+                    $coursesEnrolled = $courseResult['enrolled'] + $pathResult['child_courses_created'];
+                    $pathsEnrolled = $pathResult['paths_enrolled'];
+                }
+            });
         });
 
         $message = "Selamat datang di {$org->name}!";
@@ -340,7 +438,7 @@ class InvitationController extends Controller
 
     /**
      * @param  array<int, array{email: string, name: ?string, position_id: ?int, employee_number: ?string, division: ?string, branch: ?string}>  $rows
-     * @return array{0: int, 1: int, 2: int}  [created, skipped, sent]
+     * @return array{0: int, 1: int, 2: int} [created, skipped, sent]
      */
     private function createInvitations(Organization $org, User $inviter, array $rows): array
     {

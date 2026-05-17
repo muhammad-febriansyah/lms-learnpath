@@ -59,6 +59,7 @@ export type AdminNavItem = {
     icon?: LucideIcon;
     permission?: string;
     roles?: string[];
+    badge?: string;
 };
 
 export type AdminNavGroup = {
@@ -76,9 +77,19 @@ export type AdminNavRoot = {
     icon: LucideIcon;
     permission?: string;
     roles?: string[];
+    badge?: string;
 };
 
-export type AdminNavSection = AdminNavRoot | (AdminNavGroup & { type: 'group' });
+export type AdminNavDivider = {
+    type: 'divider';
+    label: string;
+    roles?: string[];
+};
+
+export type AdminNavSection =
+    | AdminNavRoot
+    | (AdminNavGroup & { type: 'group' })
+    | AdminNavDivider;
 
 export const ADMIN_NAV: AdminNavSection[] = [
     {
@@ -122,12 +133,12 @@ export const ADMIN_NAV: AdminNavSection[] = [
         type: 'group',
         label: 'Business',
         icon: Building2,
-        roles: ['super_admin', 'admin', 'hr'],
+        roles: ['superadmin', 'admin_tenant', 'hr'],
         items: [
-            { title: 'Dashboard', href: business.dashboard().url, icon: Gauge, roles: ['super_admin', 'admin', 'hr'] },
-            { title: 'Laporan', href: business.reports.index().url, icon: BarChart3, roles: ['super_admin', 'admin', 'hr'] },
-            { title: 'Members', href: business.members.index().url, icon: Users, roles: ['super_admin', 'admin', 'hr'] },
-            { title: 'Invitations', href: business.invitations.index().url, icon: Mail, roles: ['super_admin', 'admin', 'hr'] },
+            { title: 'Dashboard', href: business.dashboard().url, icon: Gauge, roles: ['superadmin', 'admin_tenant', 'hr'] },
+            { title: 'Laporan', href: business.reports.index().url, icon: BarChart3, roles: ['superadmin', 'admin_tenant', 'hr'] },
+            { title: 'Members', href: business.members.index().url, icon: Users, roles: ['superadmin', 'admin_tenant', 'hr'] },
+            { title: 'Invitations', href: business.invitations.index().url, icon: Mail, roles: ['superadmin', 'admin_tenant', 'hr'] },
         ],
     },
 
@@ -182,18 +193,83 @@ export const ADMIN_NAV: AdminNavSection[] = [
     },
 ];
 
-export const STUDENT_NAV: AdminNavSection[] = [
+export const HR_NAV: AdminNavSection[] = [
+    { type: 'divider', label: 'Menu Utama' },
+    { type: 'item', title: 'Dashboard', href: admin.dashboard().url, icon: LayoutDashboard },
+    { type: 'item', title: 'Karyawan', href: business.members.index().url, icon: Users },
+    { type: 'item', title: 'Undangan', href: business.invitations.index().url, icon: Mail },
+
+    { type: 'divider', label: 'Struktur Organisasi' },
+    { type: 'item', title: 'Posisi & Jabatan', href: admin.positions.index().url, icon: Briefcase },
+    { type: 'item', title: 'Kompetensi', href: admin.competencies.index().url, icon: BadgeCheck },
+    { type: 'item', title: 'Skill Matrix', href: admin.skillMatrix.index().url, icon: Target },
+
+    { type: 'divider', label: 'Pengembangan Karyawan' },
+    { type: 'item', title: 'Skill Gap', href: admin.skillGaps.index().url, icon: TrendingDown },
+    { type: 'item', title: 'Rekomendasi Training', href: admin.trainingRecommendations.index().url, icon: Sparkles },
+    { type: 'item', title: 'Penugasan Training', href: admin.enrollments.index().url, icon: ClipboardList },
+
+    { type: 'divider', label: 'Laporan' },
+    { type: 'item', title: 'Laporan', href: admin.reports.courseProgress().url, icon: BarChart3 },
+];
+
+export const INSTRUCTOR_NAV: AdminNavSection[] = [
+    { type: 'item', title: 'Dashboard', href: admin.dashboard().url, icon: LayoutDashboard },
+    { type: 'item', title: 'Course Saya', href: admin.courses.index().url, icon: BookCopy },
+    { type: 'item', title: 'Peserta Saya', href: admin.myStudents.index().url, icon: Users },
+    { type: 'item', title: 'Ulasan', href: admin.reviews.index().url, icon: Star },
+    { type: 'item', title: 'Pendapatan', href: admin.myEarnings.index().url, icon: Wallet, badge: 'Segera' },
+    { type: 'item', title: 'Pesan', href: messages.index().url, icon: MessageSquare },
+    { type: 'item', title: 'Profil Mentor', href: admin.myProfile.edit().url, icon: GraduationCap },
+];
+
+/**
+ * Employee = karyawan tenant (B2B). Course di-assign HR, fokus pada
+ * pengembangan kompetensi sesuai jabatan. Tidak ada konsep checkout.
+ */
+export const EMPLOYEE_NAV: AdminNavSection[] = [
+    { type: 'divider', label: 'Belajar Saya' },
+    { type: 'item', title: 'Dashboard', href: appDashboard().url, icon: LayoutDashboard },
+    { type: 'item', title: 'Kelas Saya', href: myCourses.index().url, icon: BookOpen },
+    { type: 'item', title: 'Learning Path', href: myPaths.index().url, icon: Compass },
+    { type: 'item', title: 'AI Tutor', href: myTutor.index().url, icon: Bot },
+    { type: 'item', title: 'Catatan Saya', href: myNotes.index().url, icon: NotebookPen },
+
+    { type: 'divider', label: 'Karier' },
+    { type: 'item', title: 'Skill Matrix Saya', href: mySkillMatrix.show().url, icon: Target },
+    { type: 'item', title: 'Rekomendasi Training', href: myRecommendations.index().url, icon: Sparkles },
+    { type: 'item', title: 'Sertifikat Saya', href: myCertificates.index().url, icon: Award },
+    { type: 'item', title: 'Pencapaian Saya', href: myAchievements.index().url, icon: Trophy },
+
+    { type: 'divider', label: 'Komunikasi' },
+    { type: 'item', title: 'Pesan', href: messages.index().url, icon: MessageSquare },
+];
+
+/**
+ * User Public = marketplace customer (B2C). Browse katalog, beli course
+ * sendiri, fokus pada pembelajaran mandiri. Tidak ada skill matrix.
+ */
+export const USER_PUBLIC_NAV: AdminNavSection[] = [
+    { type: 'divider', label: 'Marketplace' },
     { type: 'item', title: 'Dashboard', href: appDashboard().url, icon: LayoutDashboard },
     { type: 'item', title: 'Katalog Kursus', href: courses.index().url, icon: BookCopy },
     { type: 'item', title: 'Paket Kursus', href: bundles.index().url, icon: Package },
     { type: 'item', title: 'Learning Path', href: myPaths.index().url, icon: Compass },
+
+    { type: 'divider', label: 'Pembelajaran' },
     { type: 'item', title: 'Kelas Saya', href: myCourses.index().url, icon: BookOpen },
     { type: 'item', title: 'AI Tutor', href: myTutor.index().url, icon: Bot },
     { type: 'item', title: 'Catatan Saya', href: myNotes.index().url, icon: NotebookPen },
     { type: 'item', title: 'Pencapaian Saya', href: myAchievements.index().url, icon: Trophy },
     { type: 'item', title: 'Sertifikat Saya', href: myCertificates.index().url, icon: Award },
-    { type: 'item', title: 'Skill Matrix Saya', href: mySkillMatrix.show().url, icon: Target },
-    { type: 'item', title: 'Rekomendasi Training', href: myRecommendations.index().url, icon: Sparkles },
-    { type: 'item', title: 'Pesan', href: messages.index().url, icon: MessageSquare },
+
+    { type: 'divider', label: 'Transaksi' },
     { type: 'item', title: 'Pesanan Saya', href: orders.index().url, icon: Receipt },
+    { type: 'item', title: 'Pesan', href: messages.index().url, icon: MessageSquare },
 ];
+
+/**
+ * Backward-compatible default for users who haven't been migrated yet
+ * (fallback when role tidak terdeteksi).
+ */
+export const STUDENT_NAV: AdminNavSection[] = USER_PUBLIC_NAV;

@@ -260,22 +260,22 @@ export default function AssessmentShow({ assessment }: Props) {
                                                 ))}
                                             </ul>
                                         </div>
-                                        <div className="flex shrink-0 gap-1">
+                                        <div className="flex shrink-0 gap-1.5">
                                             <Button
-                                                size="icon"
-                                                variant="ghost"
-                                                className="size-8"
+                                                size="sm"
+                                                className="h-8 rounded-xl bg-emerald-600 text-white shadow-sm hover:bg-emerald-700"
                                                 onClick={() => handleEditQuestion(q)}
                                             >
-                                                <Pencil className="size-4 text-slate-500" />
+                                                <Pencil className="mr-1 size-3.5" />
+                                                Edit
                                             </Button>
                                             <Button
-                                                size="icon"
-                                                variant="ghost"
-                                                className="size-8 text-rose-500 hover:bg-rose-50 hover:text-rose-600"
+                                                size="sm"
+                                                className="h-8 rounded-xl bg-rose-600 text-white shadow-sm hover:bg-rose-700"
                                                 onClick={() => setRemoveId(q.id)}
                                             >
-                                                <Trash2 className="size-4" />
+                                                <Trash2 className="mr-1 size-3.5" />
+                                                Hapus
                                             </Button>
                                         </div>
                                     </div>
@@ -503,13 +503,13 @@ function QuestionEditorDialog({
                                     />
                                     <Button
                                         type="button"
-                                        size="icon"
-                                        variant="ghost"
-                                        className="size-9 text-slate-400 hover:bg-rose-50 hover:text-rose-600"
+                                        size="sm"
+                                        className="h-9 shrink-0 rounded-xl bg-rose-600 text-white shadow-sm hover:bg-rose-700"
                                         onClick={() => removeOption(idx)}
                                         disabled={form.data.options.length <= 2}
                                     >
-                                        <X className="size-4" />
+                                        <X className="mr-1 size-3.5" />
+                                        Hapus
                                     </Button>
                                 </li>
                             ))}

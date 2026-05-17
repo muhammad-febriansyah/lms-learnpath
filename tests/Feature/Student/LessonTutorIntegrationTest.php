@@ -21,9 +21,9 @@ beforeEach(function () {
         ], 200),
     ]);
 
-    Role::findOrCreate('student', 'web');
+    Role::findOrCreate('employee', 'web');
     $this->user = User::factory()->create(['email_verified_at' => now()]);
-    $this->user->assignRole('student');
+    $this->user->assignRole('employee');
 
     $this->course = Course::factory()->create();
     $section = CourseSection::create([

@@ -1,6 +1,6 @@
 import { Head, Link, router } from '@inertiajs/react';
 import type { ColumnDef } from '@tanstack/react-table';
-import { Eye, EyeOff, MessageSquare, Star, Trash2 } from 'lucide-react';
+import { Eye, EyeOff, MessageSquare, Star, Trash2, X } from 'lucide-react';
 import { useState } from 'react';
 
 import { DataTable } from '@/components/data-table/data-table';
@@ -167,33 +167,36 @@ export default function ReviewsIndex({ reviews, filters, stats }: Props) {
             id: 'actions',
             header: '',
             cell: ({ row }) => (
-                <div className="flex items-center justify-end gap-1">
+                <div className="flex items-center justify-end gap-1.5">
                     <Button
-                        variant="ghost"
-                        size="icon"
-                        className="size-8"
+                        size="sm"
+                        className={
+                            row.original.is_public
+                                ? 'h-8 rounded-xl bg-amber-500 text-white shadow-sm hover:bg-amber-600'
+                                : 'h-8 rounded-xl bg-emerald-600 text-white shadow-sm hover:bg-emerald-700'
+                        }
                         onClick={() => toggleVisibility(row.original.id)}
                         title={
                             row.original.is_public ? 'Sembunyikan' : 'Tampilkan'
                         }
                     >
                         {row.original.is_public ? (
-                            <EyeOff className="size-4 text-slate-500" />
+                            <><EyeOff className="mr-1 size-3.5" />Sembunyikan</>
                         ) : (
-                            <Eye className="size-4 text-emerald-600" />
+                            <><Eye className="mr-1 size-3.5" />Tampilkan</>
                         )}
                     </Button>
                     <Button
-                        variant="ghost"
-                        size="icon"
-                        className="size-8 text-rose-500 hover:bg-rose-50 hover:text-rose-600"
+                        size="sm"
+                        className="h-8 rounded-xl bg-rose-600 text-white shadow-sm hover:bg-rose-700"
                         onClick={() => setDeleteId(row.original.id)}
                     >
-                        <Trash2 className="size-4" />
+                        <Trash2 className="mr-1 size-3.5" />
+                        Hapus
                     </Button>
                 </div>
             ),
-            meta: { label: 'Aksi', className: 'w-[100px] text-right' },
+            meta: { label: 'Aksi', className: 'w-[200px] text-right' },
             enableSorting: false,
         },
     ];
@@ -357,6 +360,7 @@ export default function ReviewsIndex({ reviews, filters, stats }: Props) {
                             variant="outline"
                             onClick={() => setDeleteId(null)}
                         >
+                            <X className="mr-1.5 size-4" />
                             Batal
                         </Button>
                         <Button
@@ -364,6 +368,7 @@ export default function ReviewsIndex({ reviews, filters, stats }: Props) {
                             onClick={performDelete}
                             disabled={deleting}
                         >
+                            <Trash2 className="mr-1.5 size-4" />
                             {deleting ? 'Menghapus...' : 'Hapus'}
                         </Button>
                     </DialogFooter>

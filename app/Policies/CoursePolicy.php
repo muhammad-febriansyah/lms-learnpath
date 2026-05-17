@@ -14,7 +14,7 @@ class CoursePolicy
 
     public function view(User $user, Course $course): bool
     {
-        if ($user->hasAnyRole(['super_admin', 'admin'])) {
+        if ($user->hasAnyRole(['superadmin', 'admin_tenant'])) {
             return true;
         }
 

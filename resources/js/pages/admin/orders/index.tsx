@@ -3,8 +3,8 @@ import type { ColumnDef } from '@tanstack/react-table';
 import {
     Banknote,
     CheckCircle2,
-    ChevronRight,
     Clock,
+    Eye,
     Receipt,
 } from 'lucide-react';
 
@@ -153,10 +153,10 @@ export default function OrdersIndex({ orders, filters, stats }: Props) {
             id: 'actions',
             header: '',
             cell: ({ row }) => (
-                <Button asChild size="sm" variant="ghost" className="h-8">
+                <Button asChild size="sm" className="h-8 rounded-xl bg-sky-600 text-white shadow-sm hover:bg-sky-700">
                     <Link href={`/admin/orders/${row.original.order_number}`}>
+                        <Eye className="mr-1 size-3.5" />
                         Detail
-                        <ChevronRight className="ml-1 size-3.5" />
                     </Link>
                 </Button>
             ),

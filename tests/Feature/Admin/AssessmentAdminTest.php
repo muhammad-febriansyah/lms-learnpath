@@ -5,16 +5,16 @@ use App\Models\Course;
 use App\Models\Question;
 use App\Models\QuestionOption;
 use App\Models\User;
-use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 
 beforeEach(function () {
-    Role::findOrCreate('super_admin', 'web');
+    Role::findOrCreate('superadmin', 'web');
     Permission::findOrCreate('assessment.manage', 'web');
-    Role::findByName('super_admin', 'web')->givePermissionTo('assessment.manage');
+    Role::findByName('superadmin', 'web')->givePermissionTo('assessment.manage');
 
     $this->admin = User::factory()->create(['email_verified_at' => now()]);
-    $this->admin->assignRole('super_admin');
+    $this->admin->assignRole('superadmin');
 
     $this->course = Course::factory()->create(['title' => 'Test Course']);
 });

@@ -2,6 +2,8 @@
 
 namespace App\Http\Middleware;
 
+use App\Services\Security\RecaptchaVerifier;
+use App\Support\Setting;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -39,12 +41,13 @@ class HandleInertiaRequests extends Middleware
         $session = $request->session();
 
         $roleLabels = [
-            'super_admin' => 'Super Admin',
-            'admin' => 'Admin',
+            'superadmin' => 'Super Admin',
+            'admin_tenant' => 'Admin Tenant',
             'hr' => 'HR',
             'instructor' => 'Instruktur',
             'supervisor' => 'Supervisor',
-            'student' => 'Peserta',
+            'employee' => 'Karyawan',
+            'user_public' => 'Pengguna Publik',
         ];
         $primaryRole = $user?->getRoleNames()->first();
         $userPayload = null;
@@ -90,17 +93,43 @@ class HandleInertiaRequests extends Middleware
                 'permissions' => $user ? $user->getAllPermissions()->pluck('name')->values()->all() : [],
             ],
             'notifications' => $notifications,
-            'site' => fn () => \App\Support\Setting::publicForFrontend()->all(),
+            'tenant' => $this->resolveTenantPayload(),
+            'site' => fn () => Setting::publicForFrontend()->all(),
             'flash' => [
                 'toast' => $toast,
                 'success' => $session->get('success'),
                 'error' => $session->get('error'),
                 'info' => $session->get('info'),
+                'bulk_preview' => $session->get('bulk_preview'),
             ],
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
             'recaptcha' => [
-                'enabled' => app(\App\Services\Security\RecaptchaVerifier::class)->isEnabled(),
+                'enabled' => app(RecaptchaVerifier::class)->isEnabled(),
             ],
+        ];
+    }
+
+    /**
+     * @return array<string, mixed>|null
+     */
+    private function resolveTenantPayload(): ?array
+    {
+        $tenant = tenant();
+        if (! $tenant) {
+            return null;
+        }
+
+        return [
+            'id' => $tenant->id,
+            'name' => $tenant->name,
+            'slug' => $tenant->slug,
+            'logo_url' => $tenant->logo_path
+                ? asset('storage/'.$tenant->logo_path)
+                : null,
+            'industry' => $tenant->industry,
+            'seat_quota' => $tenant->seat_quota,
+            'seats_used' => $tenant->seats_used,
+            'seats_available' => $tenant->seatsAvailable(),
         ];
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToTenant;
 use Database\Factories\PositionFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -10,6 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 #[Fillable([
+    'tenant_id',
     'name',
     'division',
     'branch',
@@ -19,7 +21,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Position extends Model
 {
     /** @use HasFactory<PositionFactory> */
-    use HasFactory;
+    use BelongsToTenant, HasFactory;
 
     protected function casts(): array
     {

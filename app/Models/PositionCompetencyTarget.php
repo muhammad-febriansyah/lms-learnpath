@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToTenant;
 use Database\Factories\PositionCompetencyTargetFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -9,6 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 #[Fillable([
+    'tenant_id',
     'position_id',
     'competency_id',
     'target_level',
@@ -17,7 +19,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class PositionCompetencyTarget extends Model
 {
     /** @use HasFactory<PositionCompetencyTargetFactory> */
-    use HasFactory;
+    use BelongsToTenant, HasFactory;
 
     protected function casts(): array
     {

@@ -196,13 +196,13 @@ export default function MyTutorIndex({ threads, activeThread, available, quota }
                             </div>
                             {activeThread && (
                                 <Button
-                                    size="icon"
-                                    variant="ghost"
-                                    className="size-8 text-slate-400 hover:bg-rose-50 hover:text-rose-600"
+                                    size="sm"
+                                    className="h-8 rounded-xl bg-rose-600 text-white shadow-sm hover:bg-rose-700"
                                     onClick={() => handleDelete(activeThread.id)}
                                     title="Hapus percakapan"
                                 >
-                                    <Trash2 className="size-4" />
+                                    <Trash2 className="mr-1 size-3.5" />
+                                    Hapus
                                 </Button>
                             )}
                         </div>

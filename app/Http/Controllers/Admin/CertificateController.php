@@ -47,6 +47,8 @@ class CertificateController extends Controller
                 'scope' => str($template->scope)->replace('_', ' ')->title()->toString(),
                 'orientation' => $template->orientation,
                 'status' => $template->status,
+                'background_type' => $template->background_type,
+                'background_preset' => $template->background_preset,
                 'title' => $template->title,
                 'subtitle' => $template->subtitle,
                 'body_text' => $template->body_text,
@@ -65,6 +67,16 @@ class CertificateController extends Controller
         ]);
     }
 
+    public function createTemplate(Request $request): Response
+    {
+        abort_unless($request->user()?->can('certificate.view'), 403);
+
+        return Inertia::render('admin/certificates/template-form', [
+            'template' => null,
+            'backgroundPresets' => array_values(CertificateTemplate::backgroundPresets()),
+        ]);
+    }
+
     public function storeTemplate(Request $request): RedirectResponse
     {
         abort_unless($request->user()?->can('certificate.view'), 403);
@@ -74,6 +86,8 @@ class CertificateController extends Controller
             'scope' => ['required', 'in:course,learning_path,corporate'],
             'orientation' => ['required', 'in:landscape,portrait'],
             'status' => ['required', 'in:draft,active,archived'],
+            'background_type' => ['required', 'in:preset,upload'],
+            'background_preset' => ['nullable', 'string', 'max:64'],
             'title' => ['required', 'string', 'max:160'],
             'subtitle' => ['nullable', 'string', 'max:255'],
             'body_text' => ['nullable', 'string', 'max:2000'],
@@ -92,6 +106,8 @@ class CertificateController extends Controller
             'scope' => 'Cakupan template',
             'orientation' => 'Orientasi',
             'status' => 'Status',
+            'background_type' => 'Tipe background',
+            'background_preset' => 'Preset background',
             'title' => 'Judul sertifikat',
             'subtitle' => 'Subjudul',
             'body_text' => 'Deskripsi',
@@ -101,6 +117,24 @@ class CertificateController extends Controller
             'background' => 'Background',
         ]);
 
+        if (
+            $payload['background_type'] === CertificateTemplate::BACKGROUND_PRESET
+            && blank($payload['background_preset'] ?? null)
+        ) {
+            return back()
+                ->withErrors(['background_preset' => 'Preset background wajib dipilih.'])
+                ->withInput();
+        }
+
+        if (
+            $payload['background_type'] === CertificateTemplate::BACKGROUND_UPLOAD
+            && ! $request->hasFile('background')
+        ) {
+            return back()
+                ->withErrors(['background' => 'Background image wajib diupload.'])
+                ->withInput();
+        }
+
         $backgroundPath = $request->file('background')?->store('certificate-templates', 'public');
 
         CertificateTemplate::query()->create([
@@ -108,6 +142,10 @@ class CertificateController extends Controller
             'scope' => $payload['scope'],
             'orientation' => $payload['orientation'],
             'status' => $payload['status'],
+            'background_type' => $payload['background_type'],
+            'background_preset' => $payload['background_type'] === CertificateTemplate::BACKGROUND_PRESET
+                ? $payload['background_preset']
+                : null,
             'background_path' => $backgroundPath,
             'title' => $payload['title'],
             'subtitle' => $payload['subtitle'] ?? null,

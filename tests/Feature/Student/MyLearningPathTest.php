@@ -8,9 +8,9 @@ use App\Models\User;
 use Spatie\Permission\Models\Role;
 
 beforeEach(function () {
-    Role::findOrCreate('student', 'web');
+    Role::findOrCreate('employee', 'web');
     $this->user = User::factory()->create(['email_verified_at' => now()]);
-    $this->user->assignRole('student');
+    $this->user->assignRole('employee');
 });
 
 it('requires authentication to view my-paths', function () {

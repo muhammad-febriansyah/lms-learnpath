@@ -82,6 +82,45 @@ class SettingsController extends Controller
         return back()->with('success', 'Pengaturan berhasil disimpan.');
     }
 
+    public function editLegalDocument(Request $request, string $document): Response
+    {
+        abort_unless($request->user()?->can('settings.view'), 403);
+
+        $config = $this->legalDocumentConfig($document);
+
+        return Inertia::render('admin/settings/legal-document-form', [
+            'document' => [
+                'type' => $document,
+                'label' => $config['label'],
+                'title' => (string) ($this->settings->get($config['title_key']) ?? ''),
+                'content' => (string) ($this->settings->get($config['content_key']) ?? ''),
+            ],
+        ]);
+    }
+
+    public function updateLegalDocument(Request $request, string $document): RedirectResponse
+    {
+        abort_unless($request->user()?->can('settings.update'), 403);
+
+        $config = $this->legalDocumentConfig($document);
+
+        $payload = $request->validate([
+            'title' => ['required', 'string', 'max:255'],
+            'content' => ['required', 'string', 'max:100000'],
+        ], [
+            'required' => ':attribute wajib diisi.',
+            'max' => ':attribute terlalu panjang.',
+        ], [
+            'title' => 'Title',
+            'content' => 'Isi dokumen',
+        ]);
+
+        $this->settings->set($config['title_key'], $payload['title']);
+        $this->settings->set($config['content_key'], $payload['content']);
+
+        return back()->with('success', $config['label'].' berhasil diperbarui.');
+    }
+
     private function formatValueForFrontend(Setting $s): mixed
     {
         if ($s->type === 'boolean') {
@@ -93,5 +132,25 @@ class SettingsController extends Controller
         }
 
         return $s->value;
+    }
+
+    /**
+     * @return array{label: string, title_key: string, content_key: string}
+     */
+    private function legalDocumentConfig(string $document): array
+    {
+        return match ($document) {
+            'terms' => [
+                'label' => 'Syarat & Ketentuan',
+                'title_key' => 'legal_terms_title',
+                'content_key' => 'legal_terms_content',
+            ],
+            'privacy' => [
+                'label' => 'Kebijakan Privasi',
+                'title_key' => 'legal_privacy_title',
+                'content_key' => 'legal_privacy_content',
+            ],
+            default => abort(404),
+        };
     }
 }

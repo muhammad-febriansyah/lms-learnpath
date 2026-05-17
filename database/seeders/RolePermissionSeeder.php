@@ -43,11 +43,23 @@ class RolePermissionSeeder extends Seeder
             Permission::findOrCreate($perm, 'web');
         }
 
+        /**
+         * Six-role tenant structure (Fase 1):
+         * - superadmin    : platform owner (lihat semua tenant)
+         * - admin_tenant  : admin perusahaan klien
+         * - hr            : pengelola L&D di tenant
+         * - employee      : karyawan tenant (ikut training)
+         * - instructor    : pengajar / mentor pembuat course
+         * - user_public   : marketplace customer B2C
+         *
+         * Note: `supervisor` dipertahankan (deprecated) sampai Fase 3 yang menggantinya
+         * dengan flag is_supervisor di EmployeeProfile.
+         */
         $roles = [
-            'super_admin' => $permissions,
-            'admin' => array_diff($permissions, [
+            'superadmin' => $permissions,
+            'admin_tenant' => array_diff($permissions, [
                 'role.manage', 'user.delete',
-                // Admin hanya bisa lihat course; tidak bisa CRUD atau review
+                // Admin tenant hanya lihat course (course CRUD oleh instructor).
                 'course.create', 'course.update', 'course.delete', 'course.publish', 'course.review',
             ]),
             'hr' => [
@@ -55,18 +67,22 @@ class RolePermissionSeeder extends Seeder
                 'position.manage', 'competency.manage', 'skill_matrix.view', 'skill_matrix.manage',
                 'enrollment.view', 'enrollment.manage', 'report.view',
             ],
+            'employee' => [
+                'course.view', 'enrollment.view', 'certificate.view', 'skill_matrix.view',
+            ],
             'instructor' => [
                 'course.view', 'course.create', 'course.update', 'course.delete',
                 'course.submit_review',
                 'lesson.manage', 'assessment.manage', 'assessment.grade',
                 'enrollment.view', 'certificate.view', 'learning_path.manage',
             ],
+            'user_public' => [
+                'course.view', 'enrollment.view', 'certificate.view',
+            ],
+            // Deprecated — akan dihapus di Fase 3 (digantikan flag is_supervisor di EmployeeProfile).
             'supervisor' => [
                 'enrollment.view', 'skill_matrix.view',
                 'ojt.create', 'ojt.review', 'supervisor_review.create', 'supervisor_review.approve',
-            ],
-            'student' => [
-                'course.view', 'enrollment.view', 'certificate.view',
             ],
         ];
 

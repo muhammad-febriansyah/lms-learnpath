@@ -319,35 +319,35 @@ export default function BundleForm({ bundle, courses }: Props) {
                                             <span className="text-[11.5px] text-slate-500 tabular-nums">
                                                 {formatRupiah(c.price)}
                                             </span>
-                                            <div className="flex items-center gap-0.5">
+                                            <div className="flex items-center gap-1.5">
                                                 <Button
                                                     type="button"
-                                                    variant="ghost"
-                                                    size="icon"
-                                                    className="size-7"
+                                                    size="sm"
+                                                    className="h-7 rounded-xl bg-slate-700 px-2 text-[11.5px] text-white shadow-sm hover:bg-slate-800"
                                                     disabled={idx === 0}
                                                     onClick={() => moveCourse(c.id, -1)}
                                                 >
-                                                    <ChevronUp className="size-3.5" />
+                                                    <ChevronUp className="mr-0.5 size-3.5" />
+                                                    Naik
                                                 </Button>
                                                 <Button
                                                     type="button"
-                                                    variant="ghost"
-                                                    size="icon"
-                                                    className="size-7"
+                                                    size="sm"
+                                                    className="h-7 rounded-xl bg-slate-700 px-2 text-[11.5px] text-white shadow-sm hover:bg-slate-800"
                                                     disabled={idx === selectedCourses.length - 1}
                                                     onClick={() => moveCourse(c.id, 1)}
                                                 >
-                                                    <ChevronDown className="size-3.5" />
+                                                    <ChevronDown className="mr-0.5 size-3.5" />
+                                                    Turun
                                                 </Button>
                                                 <Button
                                                     type="button"
-                                                    variant="ghost"
-                                                    size="icon"
-                                                    className="size-7 text-rose-500 hover:bg-rose-50 hover:text-rose-600"
+                                                    size="sm"
+                                                    className="h-7 rounded-xl bg-rose-600 px-2 text-[11.5px] text-white shadow-sm hover:bg-rose-700"
                                                     onClick={() => removeCourse(c.id)}
                                                 >
-                                                    <X className="size-3.5" />
+                                                    <X className="mr-0.5 size-3.5" />
+                                                    Hapus
                                                 </Button>
                                             </div>
                                         </li>

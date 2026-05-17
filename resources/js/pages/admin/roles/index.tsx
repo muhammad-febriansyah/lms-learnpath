@@ -31,16 +31,16 @@ const ROLE_META: Record<
     string,
     { label: string; description: string; icon: typeof Shield; tint: string; text: string }
 > = {
-    super_admin: {
+    superadmin: {
         label: 'Super Admin',
-        description: 'Akses penuh ke seluruh modul dan setting sistem.',
+        description: 'Akses penuh ke seluruh modul lintas tenant.',
         icon: ShieldCheck,
         tint: 'bg-violet-50',
         text: 'text-violet-600',
     },
-    admin: {
-        label: 'Admin',
-        description: 'Kelola konten, course, peserta, dan transaksi.',
+    admin_tenant: {
+        label: 'Admin Tenant',
+        description: 'Admin perusahaan klien — kelola tenant, billing, branding.',
         icon: Shield,
         tint: 'bg-brand-50',
         text: 'text-brand-600',
@@ -66,12 +66,19 @@ const ROLE_META: Record<
         tint: 'bg-amber-50',
         text: 'text-amber-600',
     },
-    student: {
-        label: 'Peserta',
-        description: 'Ikut course, kerjakan assessment, dapat sertifikat.',
+    employee: {
+        label: 'Karyawan',
+        description: 'Karyawan perusahaan tenant — ikut training & lihat skill matrix.',
         icon: Users,
         tint: 'bg-slate-100',
         text: 'text-slate-600',
+    },
+    user_public: {
+        label: 'Pengguna Publik',
+        description: 'Marketplace customer — beli & belajar course publik.',
+        icon: Users,
+        tint: 'bg-zinc-100',
+        text: 'text-zinc-700',
     },
 };
 

@@ -1,5 +1,6 @@
 import { Head, Link, useForm } from '@inertiajs/react';
 import {
+    AlertTriangle,
     ArrowLeft,
     ArrowRight,
     Check,
@@ -15,6 +16,14 @@ import { RequiredLabel } from '@/components/form/required-label';
 import { RupiahInput } from '@/components/form/rupiah-input';
 import { IconChevR } from '@/components/learnpath-icons';
 import { Button } from '@/components/ui/button';
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import {
     Select,
@@ -30,6 +39,7 @@ import { cn } from '@/lib/utils';
 type Option = { value: string; label: string };
 type CategoryOption = { id: number; name: string };
 type TagOption = { id: number; name: string };
+type ScormOption = { id: number; title: string };
 
 type Course = {
     id: number;
@@ -45,6 +55,8 @@ type Course = {
     compare_at_price: number | null;
     level: string | null;
     delivery_format: string;
+    lms_format: string;
+    scorm_package_id: number | null;
     is_certified: boolean;
     language: string | null;
     duration_minutes: number;
@@ -67,6 +79,8 @@ type Props = {
     course: Course | null;
     categoryOptions: CategoryOption[];
     tagOptions: TagOption[];
+    scormPackageOptions: ScormOption[];
+    lmsFormatOptions: Option[];
     levelOptions: Option[];
     languageOptions: Option[];
     formatOptions: Option[];
@@ -125,12 +139,15 @@ export default function CourseForm({
     course,
     categoryOptions,
     tagOptions,
+    scormPackageOptions,
+    lmsFormatOptions,
     levelOptions,
     languageOptions,
     formatOptions,
 }: Props) {
     const isEdit = !!course;
     const [currentStep, setCurrentStep] = useState(1);
+    const [confirmOpen, setConfirmOpen] = useState(false);
 
     const toLocal = (iso: string | null): string =>
         iso ? iso.slice(0, 16) : '';
@@ -147,6 +164,10 @@ export default function CourseForm({
         compare_at_price: course?.compare_at_price ?? '',
         level: course?.level ?? 'beginner',
         delivery_format: course?.delivery_format ?? 'on_demand',
+        lms_format: course?.lms_format ?? 'video',
+        scorm_package_id: course?.scorm_package_id
+            ? String(course.scorm_package_id)
+            : '',
         is_certified: course?.is_certified ?? false,
         language: course?.language ?? 'id',
         duration_minutes: course?.duration_minutes ?? 0,
@@ -179,6 +200,7 @@ export default function CourseForm({
     };
 
     const needsSchedule = form.data.delivery_format !== 'on_demand';
+    const needsScormPackage = form.data.lms_format === 'scorm';
 
     const stepErrors = useMemo<Record<number, string[]>>(() => {
         const errs: Record<number, string[]> = { 1: [], 2: [], 3: [], 4: [], 5: [] };
@@ -191,6 +213,9 @@ export default function CourseForm({
             errs[2].push('Minimal 1 tujuan pembelajaran.');
 
         if (!form.data.delivery_format) errs[3].push('Format kelas wajib dipilih.');
+        if (!form.data.lms_format) errs[3].push('Format LMS wajib dipilih.');
+        if (needsScormPackage && !form.data.scorm_package_id)
+            errs[3].push('Paket SCORM wajib dipilih.');
         if (needsSchedule && !form.data.schedule_start)
             errs[3].push('Tanggal mulai wajib diisi untuk format ini.');
 
@@ -225,12 +250,22 @@ export default function CourseForm({
 
     const prev = () => setCurrentStep((s) => Math.max(1, s - 1));
 
-    const submit = (event: React.FormEvent, andSubmitReview = false) => {
+    const openConfirm = (event: React.FormEvent) => {
         event.preventDefault();
+        if (totalErrorsRef.current > 0) return;
+        setConfirmOpen(true);
+    };
 
+    const totalErrorsRef = useMemo(() => ({ current: 0 }), []);
+
+    const performSubmit = () => {
         form.transform((data) => ({
             ...data,
             category_id: data.category_id || null,
+            scorm_package_id:
+                data.lms_format === 'scorm' && data.scorm_package_id
+                    ? Number(data.scorm_package_id)
+                    : null,
             compare_at_price:
                 data.compare_at_price === '' || data.compare_at_price === null
                     ? null
@@ -244,21 +279,17 @@ export default function CourseForm({
                     : Number(data.max_participants),
         }));
 
-        const onSuccess = () => {
-            if (andSubmitReview && isEdit) {
-                // setelah update sukses, panggil submit-review terpisah
-                window.location.href = `/admin/courses/${course!.id}`;
-            }
-        };
+        const onFinish = () => setConfirmOpen(false);
 
         if (isEdit) {
-            form.put(`/admin/courses/${course!.id}`, { onSuccess });
+            form.put(`/admin/courses/${course!.id}`, { onFinish });
         } else {
-            form.post('/admin/courses', { onSuccess });
+            form.post('/admin/courses', { onFinish });
         }
     };
 
     const totalErrors = Object.values(stepErrors).flat().length;
+    totalErrorsRef.current = totalErrors;
     const categoryName = useMemo(
         () =>
             categoryOptions.find((c) => String(c.id) === form.data.category_id)?.name ??
@@ -269,6 +300,18 @@ export default function CourseForm({
         () => formatOptions.find((f) => f.value === form.data.delivery_format)?.label ?? '—',
         [formatOptions, form.data.delivery_format],
     );
+    const lmsFormatLabel = useMemo(
+        () => lmsFormatOptions.find((f) => f.value === form.data.lms_format)?.label ?? '—',
+        [lmsFormatOptions, form.data.lms_format],
+    );
+    const scormPackageLabel = useMemo(() => {
+        if (form.data.lms_format !== 'scorm' || !form.data.scorm_package_id) return null;
+        return (
+            scormPackageOptions.find(
+                (p) => String(p.id) === form.data.scorm_package_id,
+            )?.title ?? null
+        );
+    }, [scormPackageOptions, form.data.lms_format, form.data.scorm_package_id]);
 
     return (
         <>
@@ -305,7 +348,7 @@ export default function CourseForm({
                 />
 
                 <form
-                    onSubmit={(e) => submit(e, false)}
+                    onSubmit={openConfirm}
                     className="space-y-5"
                     noValidate
                 >
@@ -524,6 +567,7 @@ export default function CourseForm({
                                     label="Format Kelas"
                                     required
                                     error={form.errors.delivery_format}
+                                    hint="Cara penyampaian: rekaman, live, tatap muka."
                                 >
                                     <Select
                                         value={form.data.delivery_format}
@@ -536,6 +580,34 @@ export default function CourseForm({
                                         </SelectTrigger>
                                         <SelectContent>
                                             {formatOptions.map((opt) => (
+                                                <SelectItem key={opt.value} value={opt.value}>
+                                                    {opt.label}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                </Field>
+
+                                <Field
+                                    label="Format LMS"
+                                    required
+                                    error={form.errors.lms_format}
+                                    hint="Tipe konten utama: video, embed, atau SCORM."
+                                >
+                                    <Select
+                                        value={form.data.lms_format}
+                                        onValueChange={(v) => {
+                                            form.setData('lms_format', v);
+                                            if (v !== 'scorm') {
+                                                form.setData('scorm_package_id', '');
+                                            }
+                                        }}
+                                    >
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Pilih format LMS" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {lmsFormatOptions.map((opt) => (
                                                 <SelectItem key={opt.value} value={opt.value}>
                                                     {opt.label}
                                                 </SelectItem>
@@ -563,6 +635,51 @@ export default function CourseForm({
                                     />
                                 </Field>
                             </div>
+
+                            {needsScormPackage && (
+                                <div className="rounded-xl border border-slate-200 bg-slate-50/60 p-4">
+                                    <h3 className="text-[13px] font-semibold text-slate-800">
+                                        Paket SCORM
+                                    </h3>
+                                    <p className="mb-3 text-[12px] text-slate-500">
+                                        Pilih paket SCORM yang sudah diunggah di menu SCORM
+                                        Package.
+                                    </p>
+                                    <Field
+                                        label="SCORM Package"
+                                        required
+                                        error={form.errors.scorm_package_id}
+                                    >
+                                        {scormPackageOptions.length === 0 ? (
+                                            <p className="text-[12.5px] text-amber-700">
+                                                Belum ada SCORM package yang diunggah.
+                                                Mohon unggah dulu di menu SCORM Package.
+                                            </p>
+                                        ) : (
+                                            <Select
+                                                value={form.data.scorm_package_id}
+                                                onValueChange={(v) =>
+                                                    form.setData('scorm_package_id', v)
+                                                }
+                                            >
+                                                <SelectTrigger>
+                                                    <SelectValue placeholder="Pilih paket SCORM" />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    {scormPackageOptions.map((pkg) => (
+                                                        <SelectItem
+                                                            key={pkg.id}
+                                                            value={String(pkg.id)}
+                                                        >
+                                                            {pkg.title}
+                                                        </SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                        )}
+                                    </Field>
+                                </div>
+                            )}
 
                             {needsSchedule && (
                                 <div className="rounded-xl border border-slate-200 bg-slate-50/60 p-4">
@@ -786,6 +903,8 @@ export default function CourseForm({
                                     )?.label ?? '—'
                                 }
                                 format={formatLabel}
+                                lmsFormat={lmsFormatLabel}
+                                scormPackage={scormPackageLabel}
                                 price={formatRupiah(form.data.price)}
                                 isCertified={form.data.is_certified}
                                 objectivesCount={form.data.learning_objectives.length}
@@ -890,6 +1009,76 @@ export default function CourseForm({
                     </div>
                 </form>
             </div>
+
+            <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
+                <DialogContent className="sm:max-w-md">
+                    <DialogHeader className="items-center text-center">
+                        <div className="mb-2 grid size-14 place-items-center rounded-full bg-amber-100 ring-8 ring-amber-50">
+                            <AlertTriangle className="size-7 text-amber-600" />
+                        </div>
+                        <DialogTitle className="text-lg">
+                            {isEdit ? 'Simpan perubahan course?' : 'Simpan course sebagai draft?'}
+                        </DialogTitle>
+                        <DialogDescription className="text-center">
+                            {isEdit
+                                ? 'Perubahan akan langsung tersimpan. Pastikan data yang Anda isi sudah benar sebelum melanjutkan.'
+                                : 'Course akan tersimpan sebagai draft. Anda masih bisa mengedit dan menambah kurikulum sebelum diajukan untuk review.'}
+                        </DialogDescription>
+                    </DialogHeader>
+
+                    <div className="rounded-xl bg-slate-50 px-4 py-3 text-[12.5px] text-slate-600">
+                        <p className="font-semibold text-slate-900">Ringkasan</p>
+                        <ul className="mt-1.5 space-y-0.5">
+                            <li>
+                                Judul:{' '}
+                                <span className="font-medium text-slate-800">
+                                    {form.data.title || '—'}
+                                </span>
+                            </li>
+                            <li>
+                                Kategori:{' '}
+                                <span className="font-medium text-slate-800">
+                                    {categoryName}
+                                </span>
+                            </li>
+                            <li>
+                                Format LMS:{' '}
+                                <span className="font-medium text-slate-800">
+                                    {lmsFormatLabel}
+                                    {scormPackageLabel ? ` · ${scormPackageLabel}` : ''}
+                                </span>
+                            </li>
+                            <li>
+                                Harga:{' '}
+                                <span className="font-medium text-slate-800">
+                                    {formatRupiah(form.data.price)}
+                                </span>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <DialogFooter className="sm:justify-center sm:gap-2">
+                        <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => setConfirmOpen(false)}
+                            disabled={form.processing}
+                            className="rounded-xl sm:flex-1"
+                        >
+                            Batal
+                        </Button>
+                        <Button
+                            type="button"
+                            onClick={performSubmit}
+                            disabled={form.processing}
+                            className="rounded-xl bg-brand-600 hover:bg-brand-700 sm:flex-1"
+                        >
+                            <Save className="mr-1.5 size-4" />
+                            {form.processing ? 'Menyimpan...' : 'Ya, Simpan'}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </>
     );
 }
@@ -1067,12 +1256,12 @@ function ListEditor({
                         />
                         <Button
                             type="button"
-                            variant="ghost"
-                            size="icon"
-                            className="size-9 shrink-0 text-rose-500 hover:bg-rose-50 hover:text-rose-600"
+                            size="sm"
+                            className="h-9 shrink-0 rounded-xl bg-rose-600 text-white shadow-sm hover:bg-rose-700"
                             onClick={() => removeItem(index)}
                         >
-                            <X className="size-4" />
+                            <X className="mr-1 size-3.5" />
+                            Hapus
                         </Button>
                     </div>
                 ))}
@@ -1098,6 +1287,8 @@ function ReviewSummary({
     category,
     level,
     format,
+    lmsFormat,
+    scormPackage,
     price,
     isCertified,
     objectivesCount,
@@ -1111,6 +1302,8 @@ function ReviewSummary({
     category: string;
     level: string;
     format: string;
+    lmsFormat: string;
+    scormPackage: string | null;
     price: string;
     isCertified: boolean;
     objectivesCount: number;
@@ -1125,7 +1318,11 @@ function ReviewSummary({
             <SummaryItem label="Slug" value={slug || '—'} />
             <SummaryItem label="Kategori" value={category} />
             <SummaryItem label="Level" value={level} />
-            <SummaryItem label="Format" value={format} />
+            <SummaryItem label="Format Kelas" value={format} />
+            <SummaryItem label="Format LMS" value={lmsFormat} />
+            {scormPackage && (
+                <SummaryItem label="Paket SCORM" value={scormPackage} />
+            )}
             <SummaryItem label="Harga" value={price} />
             <SummaryItem
                 label="Sertifikat"

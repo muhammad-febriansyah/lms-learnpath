@@ -1,8 +1,8 @@
 <?php
 
+use App\Actions\Learning\MarkLessonComplete;
 use App\Models\Certificate;
 use App\Models\Course;
-use App\Models\Enrollment;
 use App\Models\LearningPath;
 use App\Models\LearningPathEnrollment;
 use App\Models\Lesson;
@@ -18,7 +18,7 @@ beforeEach(function () {
     ]);
     config()->set('services.mailketing.api_key', 'test-key');
 
-    Role::findOrCreate('student', 'web');
+    Role::findOrCreate('employee', 'web');
 });
 
 it('issues a path certificate when a completed LearningPathEnrollment is passed', function () {
@@ -85,7 +85,7 @@ it('issues path certificate via recompute cascade when all child courses complet
     expect(Certificate::where('subject_type', 'path')->count())->toBe(0);
 
     // Complete the only lesson → course completes → observer fires → path completes → path cert
-    app(\App\Actions\Learning\MarkLessonComplete::class)->execute($user, $lesson);
+    app(MarkLessonComplete::class)->execute($user, $lesson);
 
     $pathCert = Certificate::where('subject_type', 'path')
         ->where('user_id', $user->id)
@@ -169,7 +169,7 @@ it('public verify page renders path certificate with learning_path field', funct
 
 it('my-certificates lists both course and path certificates', function () {
     $user = User::factory()->create(['email_verified_at' => now()]);
-    $user->assignRole('student');
+    $user->assignRole('employee');
 
     $course = Course::factory()->create();
     $path = LearningPath::factory()->create();

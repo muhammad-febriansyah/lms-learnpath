@@ -127,7 +127,7 @@ class MemberController extends Controller
                 'status' => 'active',
                 'email_verified_at' => now(),
             ]);
-            $user->assignRole('student');
+            $user->assignRole('employee');
 
             OrganizationMember::create([
                 'organization_id' => $org->id,

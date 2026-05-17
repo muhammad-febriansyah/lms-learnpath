@@ -88,12 +88,13 @@ type Props = {
 };
 
 const ROLE_LABELS: Record<string, string> = {
-    super_admin: 'Super Admin',
-    admin: 'Admin',
+    superadmin: 'Super Admin',
+    admin_tenant: 'Admin Tenant',
     hr: 'HR',
     instructor: 'Instruktur',
     supervisor: 'Supervisor',
-    student: 'Peserta',
+    employee: 'Karyawan',
+    user_public: 'Pengguna Publik',
 };
 
 const ORDER_TONES: Record<string, string> = {

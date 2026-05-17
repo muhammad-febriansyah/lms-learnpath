@@ -23,6 +23,7 @@ final class TutorService
 
     public function __construct(
         private readonly OpenAIClient $client,
+        private readonly DocumentRetrievalService $retrieval,
     ) {}
 
     /**
@@ -59,7 +60,9 @@ final class TutorService
                 'content' => $userMessage,
             ]);
 
-            $messages = $this->buildMessages($thread, $course, $lesson);
+            $citations = $this->retrieveCitations($userMessage, $course, $lesson);
+
+            $messages = $this->buildMessages($thread, $course, $lesson, $citations);
 
             $result = $this->client->chat($messages);
 
@@ -78,9 +81,10 @@ final class TutorService
     }
 
     /**
+     * @param  list<array{title: string, content: string}>  $citations
      * @return array<int, array{role: string, content: string}>
      */
-    private function buildMessages(ChatThread $thread, ?Course $course, ?Lesson $lesson): array
+    private function buildMessages(ChatThread $thread, ?Course $course, ?Lesson $lesson, array $citations = []): array
     {
         // Resolve context — prefer relations on the thread when not explicitly passed.
         $course ??= $thread->course;
@@ -88,7 +92,7 @@ final class TutorService
 
         $messages = [[
             'role' => ChatMessage::ROLE_SYSTEM,
-            'content' => $this->systemPrompt($course, $lesson),
+            'content' => $this->systemPrompt($course, $lesson, $citations),
         ]];
 
         $history = $thread->messages()
@@ -108,7 +112,35 @@ final class TutorService
         return $messages;
     }
 
-    private function systemPrompt(?Course $course, ?Lesson $lesson): string
+    /**
+     * @return list<array{title: string, content: string}>
+     */
+    private function retrieveCitations(string $query, ?Course $course, ?Lesson $lesson): array
+    {
+        $course ??= $lesson?->course;
+        if (! $course) {
+            return [];
+        }
+
+        try {
+            $hits = $this->retrieval->retrieveForCourse($course, $query, topK: 3);
+        } catch (\Throwable $e) {
+            // Embedding failure must not block the chat — degrade gracefully.
+            return [];
+        }
+
+        return $hits
+            ->map(fn (array $hit) => [
+                'title' => (string) $hit['document']->title,
+                'content' => (string) $hit['chunk']->content,
+            ])
+            ->all();
+    }
+
+    /**
+     * @param  list<array{title: string, content: string}>  $citations
+     */
+    private function systemPrompt(?Course $course, ?Lesson $lesson, array $citations = []): string
     {
         $appName = (string) config('app.name', 'LearnPath');
 
@@ -146,6 +178,17 @@ final class TutorService
 
         if (! $course && ! $lesson) {
             $lines[] = "\nSiswa belum membuka course/lesson tertentu, jadi jawab pertanyaan secara umum.";
+        }
+
+        if ($citations !== []) {
+            $lines[] = "\nREFERENSI MATERI (gunakan ini sebagai sumber otoritatif; saat mengutip, sebutkan '[Sumber N]'):";
+            foreach ($citations as $i => $cite) {
+                $n = $i + 1;
+                $title = $cite['title'] !== '' ? $cite['title'] : "Dokumen #{$n}";
+                $body = Str::limit($cite['content'], 1200);
+                $lines[] = "\n[Sumber {$n}] {$title}\n{$body}";
+            }
+            $lines[] = "\nJika jawaban berasal dari referensi di atas, kutip nomor sumbernya. Jika referensi tidak relevan, jawab dari pengetahuan umum tanpa mengutip.";
         }
 
         return implode("\n", $lines);

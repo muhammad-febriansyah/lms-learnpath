@@ -7,11 +7,15 @@ use App\Http\Controllers\Admin\CertificateController;
 use App\Http\Controllers\Admin\CompetencyController;
 use App\Http\Controllers\Admin\CouponController;
 use App\Http\Controllers\Admin\CourseController;
+use App\Http\Controllers\Admin\CourseDocumentController;
 use App\Http\Controllers\Admin\CourseMappingController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\EnrollmentController;
-use App\Http\Controllers\Admin\LearningPathController as AdminLearningPathController;
 use App\Http\Controllers\Admin\InstructorController;
+use App\Http\Controllers\Admin\LearningPathController as AdminLearningPathController;
+use App\Http\Controllers\Admin\MyEarningController;
+use App\Http\Controllers\Admin\MyProfileController;
+use App\Http\Controllers\Admin\MyStudentController;
 use App\Http\Controllers\Admin\OjtAssessmentController;
 use App\Http\Controllers\Admin\OrderController as AdminOrderController;
 use App\Http\Controllers\Admin\PaymentController as AdminPaymentController;
@@ -30,12 +34,13 @@ use App\Http\Controllers\Admin\TrainingRecommendationController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Api\PakasirWebhookController;
 use App\Http\Controllers\Business\DashboardController as BusinessDashboardController;
-use App\Http\Controllers\Business\ReportController as BusinessReportController;
 use App\Http\Controllers\Business\InvitationController as BusinessInvitationController;
 use App\Http\Controllers\Business\LeaderboardController as BusinessLeaderboardController;
 use App\Http\Controllers\Business\MemberController as BusinessMemberController;
 use App\Http\Controllers\Business\RegistrationController as BusinessRegistrationController;
+use App\Http\Controllers\Business\ReportController as BusinessReportController;
 use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\LearnerDashboardController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\Public\BundleCatalogController;
@@ -95,11 +100,11 @@ Route::post('/api/webhooks/pakasir', PakasirWebhookController::class)
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', function () {
         $user = request()->user();
-        if ($user && $user->hasAnyRole(['super_admin', 'admin', 'hr', 'instructor', 'supervisor'])) {
+        if ($user && $user->hasAnyRole(['superadmin', 'admin_tenant', 'hr', 'instructor', 'supervisor'])) {
             return redirect()->route('admin.dashboard');
         }
 
-        return inertia('dashboard');
+        return app(LearnerDashboardController::class)(request());
     })->name('dashboard');
 
     // ===== Student journey =====
@@ -171,7 +176,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Business / Corporate — admin/HR-only management
     Route::prefix('business')
         ->name('business.')
-        ->middleware('role:super_admin|admin|hr')
+        ->middleware('role:superadmin|admin_tenant|hr')
         ->group(function () {
             Route::get('dashboard', [BusinessDashboardController::class, 'index'])->name('dashboard');
             Route::get('leaderboard', [BusinessLeaderboardController::class, 'index'])->name('leaderboard.index');
@@ -187,6 +192,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
             Route::get('invitations', [BusinessInvitationController::class, 'index'])->name('invitations.index');
             Route::post('invitations', [BusinessInvitationController::class, 'store'])->name('invitations.store');
+            Route::get('invitations/bulk-template', [BusinessInvitationController::class, 'bulkTemplate'])->name('invitations.bulk-template');
+            Route::post('invitations/bulk-preview', [BusinessInvitationController::class, 'bulkPreview'])->name('invitations.bulk-preview');
+            Route::post('invitations/bulk-commit', [BusinessInvitationController::class, 'bulkCommit'])->name('invitations.bulk-commit');
             Route::post('invitations/bulk-upload', [BusinessInvitationController::class, 'bulkUpload'])->name('invitations.bulk-upload');
             Route::post('invitations/{invitation}/resend', [BusinessInvitationController::class, 'resend'])->name('invitations.resend');
             Route::delete('invitations/{invitation}', [BusinessInvitationController::class, 'destroy'])->name('invitations.destroy');
@@ -198,12 +206,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('messages/{message}', [MessageController::class, 'show'])->name('messages.show');
     Route::delete('messages/{message}', [MessageController::class, 'destroy'])->name('messages.destroy');
 
-    // Checkout flow
-    Route::get('/checkout/bundle/{bundle:slug}', [CheckoutController::class, 'showBundle'])->name('checkout.bundle.show');
-    Route::post('/checkout/bundle/{bundle:slug}', [CheckoutController::class, 'storeBundle'])->name('checkout.bundle.store');
+    // Checkout flow (B2C marketplace) — diblok untuk Employee.
+    Route::middleware('employee.no_checkout')->group(function () {
+        Route::get('/checkout/bundle/{bundle:slug}', [CheckoutController::class, 'showBundle'])->name('checkout.bundle.show');
+        Route::post('/checkout/bundle/{bundle:slug}', [CheckoutController::class, 'storeBundle'])->name('checkout.bundle.store');
 
-    Route::get('/checkout/{course:slug}', [CheckoutController::class, 'show'])->name('checkout.show');
-    Route::post('/checkout/{course:slug}', [CheckoutController::class, 'store'])->name('checkout.store');
+        Route::get('/checkout/{course:slug}', [CheckoutController::class, 'show'])->name('checkout.show');
+        Route::post('/checkout/{course:slug}', [CheckoutController::class, 'store'])->name('checkout.store');
+    });
 
     // Student order pages
     Route::get('/orders', [StudentOrderController::class, 'index'])->name('orders.index');
@@ -211,7 +221,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/orders/{order}/pay', [StudentOrderController::class, 'retryPayment'])->name('orders.pay');
 });
 
-Route::middleware(['auth', 'verified', 'role:super_admin|admin|hr|instructor|supervisor'])
+Route::middleware(['auth', 'verified', 'role:superadmin|admin_tenant|hr|instructor|supervisor'])
     ->prefix('admin')
     ->name('admin.')
     ->group(function () {
@@ -228,6 +238,9 @@ Route::middleware(['auth', 'verified', 'role:super_admin|admin|hr|instructor|sup
         Route::post('courses/{course}/submit-review', [CourseController::class, 'submitReview'])->name('courses.submit-review');
         Route::post('courses/{course}/approve', [CourseController::class, 'approve'])->name('courses.approve');
         Route::post('courses/{course}/reject', [CourseController::class, 'reject'])->name('courses.reject');
+        Route::get('courses/{course}/documents', [CourseDocumentController::class, 'index'])->name('courses.documents.index');
+        Route::post('courses/{course}/documents', [CourseDocumentController::class, 'store'])->name('courses.documents.store');
+        Route::delete('courses/{course}/documents/{document}', [CourseDocumentController::class, 'destroy'])->name('courses.documents.destroy');
         Route::resource('categories', CategoryController::class)->except(['show']);
         Route::resource('tags', TagController::class)->except(['show']);
         Route::resource('coupons', CouponController::class)->except(['show']);
@@ -252,6 +265,7 @@ Route::middleware(['auth', 'verified', 'role:super_admin|admin|hr|instructor|sup
         Route::delete('assessments/{assessment}/questions/{question}', [AssessmentController::class, 'destroyQuestion'])->name('assessments.questions.destroy');
 
         Route::get('certificates', [CertificateController::class, 'index'])->name('certificates.index');
+        Route::get('certificates/templates/create', [CertificateController::class, 'createTemplate'])->name('certificates.templates.create');
         Route::post('certificates/templates', [CertificateController::class, 'storeTemplate'])->name('certificates.templates.store');
         Route::post('certificates/{certificate}/revoke', [CertificateController::class, 'revoke'])->name('certificates.revoke');
 
@@ -269,6 +283,12 @@ Route::middleware(['auth', 'verified', 'role:super_admin|admin|hr|instructor|sup
         Route::get('reviews', [AdminReviewController::class, 'index'])->name('reviews.index');
         Route::post('reviews/{review}/toggle', [AdminReviewController::class, 'toggle'])->name('reviews.toggle');
         Route::delete('reviews/{review}', [AdminReviewController::class, 'destroy'])->name('reviews.destroy');
+
+        // ===== Mentor (instructor) workspace =====
+        Route::get('my-students', [MyStudentController::class, 'index'])->name('my-students.index');
+        Route::get('my-profile', [MyProfileController::class, 'edit'])->name('my-profile.edit');
+        Route::match(['put', 'post'], 'my-profile', [MyProfileController::class, 'update'])->name('my-profile.update');
+        Route::get('my-earnings', [MyEarningController::class, 'index'])->name('my-earnings.index');
 
         Route::get('instructors', [InstructorController::class, 'index'])->name('instructors.index');
         Route::get('instructors/{instructor}/edit', [InstructorController::class, 'edit'])->name('instructors.edit');
@@ -322,6 +342,18 @@ Route::middleware(['auth', 'verified', 'role:super_admin|admin|hr|instructor|sup
         // ===== Settings =====
         Route::get('settings', [SettingsController::class, 'index'])->name('settings.index');
         Route::post('settings', [SettingsController::class, 'update'])->name('settings.update');
+        Route::get('settings/legal/terms', [SettingsController::class, 'editLegalDocument'])
+            ->defaults('document', 'terms')
+            ->name('settings.legal.terms.edit');
+        Route::post('settings/legal/terms', [SettingsController::class, 'updateLegalDocument'])
+            ->defaults('document', 'terms')
+            ->name('settings.legal.terms.update');
+        Route::get('settings/legal/privacy', [SettingsController::class, 'editLegalDocument'])
+            ->defaults('document', 'privacy')
+            ->name('settings.legal.privacy.edit');
+        Route::post('settings/legal/privacy', [SettingsController::class, 'updateLegalDocument'])
+            ->defaults('document', 'privacy')
+            ->name('settings.legal.privacy.update');
     });
 
 require __DIR__.'/settings.php';

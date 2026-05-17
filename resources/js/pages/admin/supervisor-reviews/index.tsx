@@ -170,28 +170,28 @@ export default function SupervisorReviewsIndex({ reviews, filters, stats }: Prop
             header: '',
             cell: ({ row }) =>
                 row.original.approval_status === 'pending_review' ? (
-                    <div className="flex items-center justify-end gap-1">
+                    <div className="flex items-center justify-end gap-1.5">
                         <Button
-                            variant="ghost"
-                            size="icon"
-                            className="size-8 text-emerald-600 hover:bg-emerald-50"
+                            size="sm"
+                            className="h-8 rounded-xl bg-emerald-600 text-white shadow-sm hover:bg-emerald-700"
                             title="Setujui"
                             onClick={() => handleStatus(row.original.id, 'approved')}
                         >
-                            <Check className="size-4" />
+                            <Check className="mr-1 size-3.5" />
+                            Setujui
                         </Button>
                         <Button
-                            variant="ghost"
-                            size="icon"
-                            className="size-8 text-rose-500 hover:bg-rose-50"
+                            size="sm"
+                            className="h-8 rounded-xl bg-rose-600 text-white shadow-sm hover:bg-rose-700"
                             title="Tolak"
                             onClick={() => handleStatus(row.original.id, 'rejected')}
                         >
-                            <X className="size-4" />
+                            <X className="mr-1 size-3.5" />
+                            Tolak
                         </Button>
                     </div>
                 ) : null,
-            meta: { label: 'Aksi', className: 'w-[100px] text-right' },
+            meta: { label: 'Aksi', className: 'w-[180px] text-right' },
             enableSorting: false,
         },
     ];

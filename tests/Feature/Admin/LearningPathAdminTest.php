@@ -8,12 +8,12 @@ use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 
 beforeEach(function () {
-    Role::findOrCreate('super_admin', 'web');
+    Role::findOrCreate('superadmin', 'web');
     Permission::findOrCreate('learning_path.manage', 'web');
-    Role::findByName('super_admin', 'web')->givePermissionTo('learning_path.manage');
+    Role::findByName('superadmin', 'web')->givePermissionTo('learning_path.manage');
 
     $this->admin = User::factory()->create(['email_verified_at' => now()]);
-    $this->admin->assignRole('super_admin');
+    $this->admin->assignRole('superadmin');
 });
 
 it('lists learning paths for admins', function () {
@@ -120,7 +120,7 @@ it('attaches a course to the path with the next sort_order', function () {
         ])
         ->assertSessionHas('success');
 
-    $row = \DB::table('learning_path_courses')
+    $row = DB::table('learning_path_courses')
         ->where('learning_path_id', $path->id)
         ->where('course_id', $newCourse->id)
         ->first();
@@ -172,7 +172,7 @@ it('reorders courses according to course_ids array', function () {
         ])
         ->assertSessionHas('success');
 
-    $orders = \DB::table('learning_path_courses')
+    $orders = DB::table('learning_path_courses')
         ->where('learning_path_id', $path->id)
         ->orderBy('sort_order')
         ->pluck('course_id')

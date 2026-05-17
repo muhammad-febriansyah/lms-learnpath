@@ -1,6 +1,6 @@
-import { Head, Link, router, useForm } from '@inertiajs/react';
+import { Head, Link, router } from '@inertiajs/react';
 import type { ColumnDef } from '@tanstack/react-table';
-import { Award, Ban, Copy, ExternalLink, ImagePlus, LayoutTemplate, Sparkles } from 'lucide-react';
+import { Award, Ban, Copy, ExternalLink, LayoutTemplate, Plus, Sparkles } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 
@@ -10,8 +10,6 @@ import {
     
 } from '@/components/data-table/data-table-pagination';
 import type {Paginator} from '@/components/data-table/data-table-pagination';
-import { FieldError } from '@/components/form/field-error';
-import { RequiredLabel } from '@/components/form/required-label';
 import { IconChevR } from '@/components/learnpath-icons';
 import { StatusBadge } from '@/components/status/status-badge';
 import { Button } from '@/components/ui/button';
@@ -30,9 +28,6 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
-import { Input } from '@/components/ui/input';
-import { Switch } from '@/components/ui/switch';
-import { Textarea } from '@/components/ui/textarea';
 import admin from '@/routes/admin';
 
 type Certificate = {
@@ -94,19 +89,6 @@ export default function CertificatesIndex({
     const [revokeId, setRevokeId] = useState<number | null>(null);
     const [revokeNumber, setRevokeNumber] = useState<string>('');
     const [processing, setProcessing] = useState(false);
-    const templateForm = useForm({
-        name: '',
-        scope: 'course',
-        orientation: 'landscape',
-        status: 'draft',
-        title: 'Sertifikat Penyelesaian',
-        subtitle: '',
-        body_text: '',
-        show_qr: true,
-        show_signature: true,
-        sort_order: '0',
-        background: null as File | null,
-    });
 
     const handleFilter = (next: Record<string, string | undefined>) => {
         router.get(
@@ -142,27 +124,6 @@ return;
                 },
             },
         );
-    };
-
-    const submitTemplate = (event: React.FormEvent<HTMLFormElement>) => {
-        event.preventDefault();
-
-        templateForm.transform((data) => ({
-            ...data,
-            sort_order: Number(data.sort_order || 0),
-        })).post(admin.certificates.templates.store(), {
-            preserveScroll: true,
-            onSuccess: () => {
-                templateForm.reset();
-                templateForm.setData('scope', 'course');
-                templateForm.setData('orientation', 'landscape');
-                templateForm.setData('status', 'draft');
-                templateForm.setData('title', 'Sertifikat Penyelesaian');
-                templateForm.setData('show_qr', true);
-                templateForm.setData('show_signature', true);
-                templateForm.setData('sort_order', '0');
-            },
-        });
     };
 
     const columns: ColumnDef<Certificate>[] = [
@@ -239,9 +200,8 @@ return;
             cell: ({ row }) =>
                 row.original.status === 'issued' ? (
                     <Button
-                        variant="ghost"
                         size="sm"
-                        className="h-8 text-rose-500 hover:bg-rose-50 hover:text-rose-600"
+                        className="h-8 rounded-xl bg-rose-600 text-white shadow-sm hover:bg-rose-700"
                         onClick={() => {
                             setRevokeId(row.original.id);
                             setRevokeNumber(row.original.certificate_number);
@@ -296,23 +256,35 @@ return;
                                 </p>
                             </div>
 
-                            <div className="grid gap-3 sm:grid-cols-3">
-                                <BuilderMetric
-                                    label="Total template"
-                                    value={String(builderTemplates.length)}
-                                />
-                                <BuilderMetric
-                                    label="Template aktif"
-                                    value={String(
-                                        builderTemplates.filter(
-                                            (template) => template.status === 'active',
-                                        ).length,
-                                    )}
-                                />
-                                <BuilderMetric
-                                    label="Mode"
-                                    value="Multiple"
-                                />
+                            <div className="flex flex-col items-stretch gap-3 sm:items-end">
+                                <div className="grid gap-3 sm:grid-cols-3">
+                                    <BuilderMetric
+                                        label="Total template"
+                                        value={String(builderTemplates.length)}
+                                    />
+                                    <BuilderMetric
+                                        label="Template aktif"
+                                        value={String(
+                                            builderTemplates.filter(
+                                                (template) => template.status === 'active',
+                                            ).length,
+                                        )}
+                                    />
+                                    <BuilderMetric
+                                        label="Mode"
+                                        value="Multiple"
+                                    />
+                                </div>
+
+                                <Button
+                                    asChild
+                                    className="rounded-xl bg-brand-600 hover:bg-brand-700"
+                                >
+                                    <Link href={admin.certificates.templates.create().url}>
+                                        <Plus className="mr-1.5 size-4" />
+                                        Buat Template
+                                    </Link>
+                                </Button>
                             </div>
                         </div>
                     </div>
@@ -390,248 +362,39 @@ return;
                         </div>
 
                         <aside className="space-y-4">
-                            <form
-                                onSubmit={submitTemplate}
-                                className="rounded-3xl border border-slate-200 bg-white p-5 shadow-[0_8px_30px_rgba(15,23,42,0.05)]"
-                            >
+                            <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-[0_8px_30px_rgba(15,23,42,0.05)]">
                                 <div className="flex items-center gap-3">
                                     <div className="grid size-11 place-items-center rounded-2xl bg-emerald-50 text-emerald-600">
                                         <Sparkles className="size-5" />
                                     </div>
                                     <div>
-                                        <h3 className="font-bold text-slate-900">
-                                            Form Certificate Builder
-                                        </h3>
+                                        <h3 className="font-bold text-slate-900">Builder Page</h3>
                                         <p className="text-sm text-slate-500">
-                                            Buat banyak template sertifikat langsung dari menu ini.
+                                            Form builder sekarang dibuka di page khusus supaya
+                                            proses setup template lebih fokus.
                                         </p>
                                     </div>
                                 </div>
 
-                                <div className="mt-5 space-y-4">
-                                    <div>
-                                        <RequiredLabel htmlFor="template-name" required>
-                                            Nama Template
-                                        </RequiredLabel>
-                                        <Input
-                                            id="template-name"
-                                            value={templateForm.data.name}
-                                            onChange={(event) =>
-                                                templateForm.setData('name', event.target.value)
-                                            }
-                                            placeholder="Contoh: Sertifikat Banking Batch 01"
-                                        />
-                                        <FieldError message={templateForm.errors.name} />
+                                <div className="mt-5 space-y-3 text-sm leading-6 text-slate-600">
+                                    <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
+                                        1. Klik tombol <strong>Buat Template</strong>.
                                     </div>
-
-                                    <div className="grid gap-4 sm:grid-cols-2">
-                                        <div>
-                                            <RequiredLabel htmlFor="template-scope" required>
-                                                Scope
-                                            </RequiredLabel>
-                                            <Select
-                                                value={templateForm.data.scope}
-                                                onValueChange={(value) =>
-                                                    templateForm.setData('scope', value)
-                                                }
-                                            >
-                                                <SelectTrigger id="template-scope">
-                                                    <SelectValue />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    <SelectItem value="course">Course</SelectItem>
-                                                    <SelectItem value="learning_path">
-                                                        Learning Path
-                                                    </SelectItem>
-                                                    <SelectItem value="corporate">
-                                                        Corporate
-                                                    </SelectItem>
-                                                </SelectContent>
-                                            </Select>
-                                            <FieldError message={templateForm.errors.scope} />
-                                        </div>
-
-                                        <div>
-                                            <RequiredLabel htmlFor="template-orientation" required>
-                                                Orientasi
-                                            </RequiredLabel>
-                                            <Select
-                                                value={templateForm.data.orientation}
-                                                onValueChange={(value) =>
-                                                    templateForm.setData('orientation', value)
-                                                }
-                                            >
-                                                <SelectTrigger id="template-orientation">
-                                                    <SelectValue />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    <SelectItem value="landscape">
-                                                        Landscape
-                                                    </SelectItem>
-                                                    <SelectItem value="portrait">
-                                                        Portrait
-                                                    </SelectItem>
-                                                </SelectContent>
-                                            </Select>
-                                            <FieldError message={templateForm.errors.orientation} />
-                                        </div>
+                                    <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
+                                        2. Isi metadata sertifikat, upload background, dan atur QR atau signature.
                                     </div>
-
-                                    <div className="grid gap-4 sm:grid-cols-2">
-                                        <div>
-                                            <RequiredLabel htmlFor="template-status" required>
-                                                Status
-                                            </RequiredLabel>
-                                            <Select
-                                                value={templateForm.data.status}
-                                                onValueChange={(value) =>
-                                                    templateForm.setData('status', value)
-                                                }
-                                            >
-                                                <SelectTrigger id="template-status">
-                                                    <SelectValue />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    <SelectItem value="draft">Draft</SelectItem>
-                                                    <SelectItem value="active">Active</SelectItem>
-                                                    <SelectItem value="archived">Archived</SelectItem>
-                                                </SelectContent>
-                                            </Select>
-                                            <FieldError message={templateForm.errors.status} />
-                                        </div>
-
-                                        <div>
-                                            <RequiredLabel htmlFor="template-order">
-                                                Urutan
-                                            </RequiredLabel>
-                                            <Input
-                                                id="template-order"
-                                                type="number"
-                                                min={0}
-                                                value={templateForm.data.sort_order}
-                                                onChange={(event) =>
-                                                    templateForm.setData('sort_order', event.target.value)
-                                                }
-                                            />
-                                            <FieldError message={templateForm.errors.sort_order} />
-                                        </div>
-                                    </div>
-
-                                    <div>
-                                        <RequiredLabel htmlFor="template-title" required>
-                                            Judul Sertifikat
-                                        </RequiredLabel>
-                                        <Input
-                                            id="template-title"
-                                            value={templateForm.data.title}
-                                            onChange={(event) =>
-                                                templateForm.setData('title', event.target.value)
-                                            }
-                                        />
-                                        <FieldError message={templateForm.errors.title} />
-                                    </div>
-
-                                    <div>
-                                        <RequiredLabel htmlFor="template-subtitle">
-                                            Subjudul
-                                        </RequiredLabel>
-                                        <Input
-                                            id="template-subtitle"
-                                            value={templateForm.data.subtitle}
-                                            onChange={(event) =>
-                                                templateForm.setData('subtitle', event.target.value)
-                                            }
-                                            placeholder="Teks pengantar di bawah judul"
-                                        />
-                                        <FieldError message={templateForm.errors.subtitle} />
-                                    </div>
-
-                                    <div>
-                                        <RequiredLabel htmlFor="template-body">
-                                            Deskripsi
-                                        </RequiredLabel>
-                                        <Textarea
-                                            id="template-body"
-                                            rows={4}
-                                            value={templateForm.data.body_text}
-                                            onChange={(event) =>
-                                                templateForm.setData('body_text', event.target.value)
-                                            }
-                                            placeholder="Jelaskan kapan template ini dipakai."
-                                        />
-                                        <FieldError message={templateForm.errors.body_text} />
-                                    </div>
-
-                                    <div>
-                                        <RequiredLabel htmlFor="template-background">
-                                            Background
-                                        </RequiredLabel>
-                                        <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-4 py-4">
-                                            <div className="mb-3 flex items-center gap-2 text-sm text-slate-500">
-                                                <ImagePlus className="size-4" />
-                                                Upload JPG, PNG, atau WEBP maksimal 4MB
-                                            </div>
-                                            <Input
-                                                id="template-background"
-                                                type="file"
-                                                accept=".jpg,.jpeg,.png,.webp"
-                                                onChange={(event) =>
-                                                    templateForm.setData(
-                                                        'background',
-                                                        event.target.files?.[0] ?? null,
-                                                    )
-                                                }
-                                            />
-                                        </div>
-                                        <FieldError message={templateForm.errors.background} />
-                                    </div>
-
-                                    <div className="grid gap-4 sm:grid-cols-2">
-                                        <div className="flex items-center justify-between rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
-                                            <div>
-                                                <p className="font-medium text-slate-900">
-                                                    Tampilkan QR
-                                                </p>
-                                                <p className="text-xs text-slate-500">
-                                                    Untuk verifikasi publik
-                                                </p>
-                                            </div>
-                                            <Switch
-                                                checked={templateForm.data.show_qr}
-                                                onCheckedChange={(checked) =>
-                                                    templateForm.setData('show_qr', checked)
-                                                }
-                                            />
-                                        </div>
-
-                                        <div className="flex items-center justify-between rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
-                                            <div>
-                                                <p className="font-medium text-slate-900">
-                                                    Tampilkan Tanda Tangan
-                                                </p>
-                                                <p className="text-xs text-slate-500">
-                                                    Untuk approval instruktur
-                                                </p>
-                                            </div>
-                                            <Switch
-                                                checked={templateForm.data.show_signature}
-                                                onCheckedChange={(checked) =>
-                                                    templateForm.setData('show_signature', checked)
-                                                }
-                                            />
-                                        </div>
+                                    <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
+                                        3. Simpan lalu template akan muncul di daftar ini.
                                     </div>
                                 </div>
 
-                                <div className="mt-5 flex items-center justify-between gap-3 border-t border-slate-200 pt-4">
-                                    <p className="text-xs leading-5 text-slate-500">
-                                        Template baru akan langsung muncul di daftar template sertifikat.
-                                    </p>
-                                    <Button type="submit" disabled={templateForm.processing}>
-                                        {templateForm.processing ? 'Menyimpan...' : 'Simpan Template'}
-                                    </Button>
-                                </div>
-                            </form>
+                                <Button asChild className="mt-5 w-full rounded-xl">
+                                    <Link href={admin.certificates.templates.create().url}>
+                                        <Plus className="mr-1.5 size-4" />
+                                        Buka Form Builder
+                                    </Link>
+                                </Button>
+                            </div>
                         </aside>
                     </div>
                 </section>

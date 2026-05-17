@@ -32,8 +32,8 @@ const footerNavItems: NavItem[] = [
     },
 ];
 
-const ADMIN_ROLES = ['super_admin', 'admin', 'hr', 'instructor', 'supervisor'];
-const LEARNER_ROLES = ['student', 'instructor', 'supervisor'];
+const ADMIN_ROLES = ['superadmin', 'admin_tenant', 'hr', 'instructor', 'supervisor'];
+const LEARNER_ROLES = ['employee', 'user_public', 'instructor', 'supervisor'];
 
 export function AppSidebar() {
     const { hasRole, roles } = usePermission();

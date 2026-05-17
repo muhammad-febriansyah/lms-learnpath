@@ -268,35 +268,35 @@ export default function LearningPathShow({ path, availableCourses }: Props) {
                                             )}
                                         </div>
                                     </div>
-                                    <div className="flex shrink-0 items-center gap-1">
+                                    <div className="flex shrink-0 items-center gap-1.5">
                                         <Button
-                                            size="icon"
-                                            variant="ghost"
-                                            className="size-8"
+                                            size="sm"
+                                            className="h-8 rounded-xl bg-slate-700 text-white shadow-sm hover:bg-slate-800"
                                             disabled={idx === 0}
                                             onClick={() => moveCourse(idx, 'up')}
                                             title="Pindah ke atas"
                                         >
-                                            <ArrowUp className="size-4" />
+                                            <ArrowUp className="mr-1 size-3.5" />
+                                            Naik
                                         </Button>
                                         <Button
-                                            size="icon"
-                                            variant="ghost"
-                                            className="size-8"
+                                            size="sm"
+                                            className="h-8 rounded-xl bg-slate-700 text-white shadow-sm hover:bg-slate-800"
                                             disabled={idx === path.courses.length - 1}
                                             onClick={() => moveCourse(idx, 'down')}
                                             title="Pindah ke bawah"
                                         >
-                                            <ArrowDown className="size-4" />
+                                            <ArrowDown className="mr-1 size-3.5" />
+                                            Turun
                                         </Button>
                                         <DropdownMenu>
                                             <DropdownMenuTrigger asChild>
                                                 <Button
-                                                    size="icon"
-                                                    variant="ghost"
-                                                    className="size-8"
+                                                    size="sm"
+                                                    className="h-8 rounded-xl bg-slate-700 text-white shadow-sm hover:bg-slate-800"
                                                 >
-                                                    <ChevronDown className="size-4 text-slate-500" />
+                                                    <ChevronDown className="mr-1 size-3.5" />
+                                                    Aksi
                                                 </Button>
                                             </DropdownMenuTrigger>
                                             <DropdownMenuContent align="end">

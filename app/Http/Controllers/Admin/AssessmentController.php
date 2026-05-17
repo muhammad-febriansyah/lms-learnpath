@@ -20,9 +20,16 @@ class AssessmentController extends Controller
 {
     public function index(Request $request): Response
     {
+        $user = $request->user();
+        $isInstructorOnly = $user->hasRole('instructor')
+            && ! $user->hasAnyRole(['superadmin', 'admin_tenant']);
+
         $assessments = Assessment::query()
             ->with(['course:id,title,slug'])
             ->withCount(['questions', 'attempts'])
+            ->when($isInstructorOnly, function ($query) use ($user) {
+                $query->whereHas('course', fn ($q) => $q->forInstructor($user->id));
+            })
             ->when($request->string('search')->toString(), function ($query, $search) {
                 $query->where('title', 'like', "%{$search}%");
             })

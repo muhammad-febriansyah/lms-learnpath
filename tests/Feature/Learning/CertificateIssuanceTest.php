@@ -16,7 +16,7 @@ beforeEach(function () {
     ]);
     config()->set('services.mailketing.api_key', 'test-key');
 
-    Role::findOrCreate('student', 'web');
+    Role::findOrCreate('employee', 'web');
     $this->service = app(CertificateIssuanceService::class);
 });
 

@@ -32,10 +32,16 @@ class CreateNewUser implements CreatesNewUsers
             'register',
         );
 
-        return User::create([
+        $user = User::create([
             'name' => $input['name'],
             'email' => $input['email'],
             'password' => $input['password'],
         ]);
+
+        // Public self-registration → role user_public (B2C marketplace).
+        // Employee account dibuat lewat HR invitation, bukan self-register.
+        $user->assignRole('user_public');
+
+        return $user;
     }
 }

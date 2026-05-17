@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToTenant;
 use Database\Factories\CourseCompetencyMappingFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -9,6 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 #[Fillable([
+    'tenant_id',
     'course_id',
     'competency_id',
     'weight',
@@ -17,7 +19,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class CourseCompetencyMapping extends Model
 {
     /** @use HasFactory<CourseCompetencyMappingFactory> */
-    use HasFactory;
+    use BelongsToTenant, HasFactory;
 
     protected function casts(): array
     {

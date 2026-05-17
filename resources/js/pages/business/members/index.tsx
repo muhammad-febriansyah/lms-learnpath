@@ -253,31 +253,31 @@ export default function MembersIndex({ members, organization, filters }: Props) 
                                         </Badge>
                                         {m.user?.position_id && (
                                             <Button
-                                                variant="ghost"
-                                                size="icon"
-                                                className="size-8 text-brand-600 hover:bg-brand-50 hover:text-brand-700"
+                                                size="sm"
+                                                className="h-8 rounded-xl bg-sky-600 text-white shadow-sm hover:bg-sky-700"
                                                 title="Sinkron course sesuai jabatan"
                                                 disabled={resyncingId === m.id}
                                                 onClick={() => resyncEnrollments(m.id)}
                                             >
                                                 <RefreshCw
                                                     className={cn(
-                                                        'size-4',
+                                                        'mr-1 size-3.5',
                                                         resyncingId === m.id && 'animate-spin',
                                                     )}
                                                 />
+                                                Sinkron
                                             </Button>
                                         )}
                                         <Button
-                                            variant="ghost"
-                                            size="icon"
-                                            className="size-8 text-rose-500 hover:bg-rose-50 hover:text-rose-600"
+                                            size="sm"
+                                            className="h-8 rounded-xl bg-rose-600 text-white shadow-sm hover:bg-rose-700"
                                             onClick={() => {
                                                 setRemoveId(m.id);
                                                 setRemoveName(m.user?.name ?? '');
                                             }}
                                         >
-                                            <Trash2 className="size-4" />
+                                            <Trash2 className="mr-1 size-3.5" />
+                                            Hapus
                                         </Button>
                                     </div>
                                 </li>

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToTenant;
 use Database\Factories\SupervisorReviewFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -9,6 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 #[Fillable([
+    'tenant_id',
     'user_id',
     'competency_id',
     'reviewer_id',
@@ -21,7 +23,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class SupervisorReview extends Model
 {
     /** @use HasFactory<SupervisorReviewFactory> */
-    use HasFactory;
+    use BelongsToTenant, HasFactory;
 
     protected function casts(): array
     {

@@ -4,10 +4,13 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Certificate;
+use App\Models\Competency;
 use App\Models\Course;
 use App\Models\Enrollment;
 use App\Models\Order;
+use App\Models\OrganizationInvitation;
 use App\Models\Payment;
+use App\Models\Position;
 use App\Models\Review;
 use App\Models\SkillGap;
 use App\Models\User;
@@ -20,6 +23,16 @@ class DashboardController extends Controller
 {
     public function index(Request $request): Response
     {
+        $user = $request->user();
+
+        if ($user->hasRole('instructor') && ! $user->hasAnyRole(['superadmin', 'admin_tenant', 'hr', 'supervisor'])) {
+            return $this->mentorDashboard($user);
+        }
+
+        if ($user->hasRole('hr') && ! $user->hasAnyRole(['superadmin', 'admin_tenant'])) {
+            return $this->hrDashboard($user);
+        }
+
         $now = now();
         $monthStart = $now->copy()->startOfMonth();
         $lastMonthStart = $now->copy()->subMonth()->startOfMonth();
@@ -58,7 +71,7 @@ class DashboardController extends Controller
 
         $kpis = [
             'students' => [
-                'total' => User::role('student')->count(),
+                'total' => User::role('employee')->count(),
                 'new_this_month' => $thisMonthUsers,
                 'delta_pct' => $this->delta($thisMonthUsers, $lastMonthUsers),
             ],
@@ -187,5 +200,118 @@ class DashboardController extends Controller
         }
 
         return round((($current - $previous) / $previous) * 100, 1);
+    }
+
+    private function mentorDashboard(User $mentor): Response
+    {
+        $myCourseIds = Course::query()->forInstructor($mentor->id)->pluck('id');
+
+        $totalCourses = $myCourseIds->count();
+        $draftCount = Course::forInstructor($mentor->id)
+            ->where('review_status', Course::REVIEW_DRAFT)->count();
+        $pendingCount = Course::forInstructor($mentor->id)
+            ->where('review_status', Course::REVIEW_PENDING)->count();
+        $publishedCount = Course::forInstructor($mentor->id)
+            ->where('review_status', Course::REVIEW_PUBLISHED)->count();
+        $rejectedCount = Course::forInstructor($mentor->id)
+            ->where('review_status', Course::REVIEW_REJECTED)->count();
+
+        $totalStudents = Enrollment::whereIn('course_id', $myCourseIds)->count();
+        $newStudentsWeek = Enrollment::whereIn('course_id', $myCourseIds)
+            ->where('enrolled_at', '>=', now()->subWeek())
+            ->count();
+
+        $totalReviews = Review::whereIn('course_id', $myCourseIds)->count();
+        $avgRating = (float) Review::whereIn('course_id', $myCourseIds)->avg('rating');
+
+        $recentCourses = Course::forInstructor($mentor->id)
+            ->withCount(['enrollments', 'sections', 'lessons'])
+            ->latest('updated_at')
+            ->limit(5)
+            ->get(['id', 'title', 'slug', 'review_status', 'updated_at']);
+
+        $pendingReviewCourses = Course::forInstructor($mentor->id)
+            ->where('review_status', Course::REVIEW_PENDING)
+            ->latest('submitted_at')
+            ->limit(5)
+            ->get(['id', 'title', 'submitted_at']);
+
+        return Inertia::render('admin/dashboard-mentor', [
+            'mentor' => [
+                'name' => $mentor->name,
+                'email' => $mentor->email,
+                'avatar' => $mentor->avatar,
+            ],
+            'stats' => [
+                'total_courses' => $totalCourses,
+                'draft' => $draftCount,
+                'pending' => $pendingCount,
+                'published' => $publishedCount,
+                'rejected' => $rejectedCount,
+                'total_students' => $totalStudents,
+                'new_students_week' => $newStudentsWeek,
+                'total_reviews' => $totalReviews,
+                'avg_rating' => round($avgRating, 2),
+            ],
+            'recentCourses' => $recentCourses,
+            'pendingReviewCourses' => $pendingReviewCourses,
+        ]);
+    }
+
+    private function hrDashboard(User $hr): Response
+    {
+        $totalEmployees = User::query()->role('employee')->count();
+        $totalPositions = Position::count();
+        $totalCompetencies = Competency::count();
+
+        $skillGapTotal = SkillGap::count();
+        $skillGapCritical = SkillGap::where('gap', '>=', 2)->count();
+
+        $enrollInProgress = Enrollment::where('status', 'active')->count();
+        $enrollCompleted = Enrollment::where('status', 'completed')->count();
+        $completionRate = ($enrollInProgress + $enrollCompleted) > 0
+            ? round(($enrollCompleted / max(1, $enrollInProgress + $enrollCompleted)) * 100, 1)
+            : 0.0;
+
+        $pendingInvitations = OrganizationInvitation::query()
+            ->whereNull('accepted_at')
+            ->count();
+
+        $topSkillGaps = SkillGap::query()
+            ->select('competency_id')
+            ->selectRaw('COUNT(*) as affected_count')
+            ->selectRaw('AVG(gap) as avg_gap')
+            ->with('competency:id,name')
+            ->where('gap', '>', 0)
+            ->groupBy('competency_id')
+            ->orderByDesc('affected_count')
+            ->limit(5)
+            ->get();
+
+        $recentEnrollments = Enrollment::query()
+            ->with(['user:id,name,email', 'course:id,title,slug'])
+            ->latest('enrolled_at')
+            ->limit(6)
+            ->get(['id', 'user_id', 'course_id', 'status', 'progress_percent', 'enrolled_at']);
+
+        return Inertia::render('admin/dashboard-hr', [
+            'hr' => [
+                'name' => $hr->name,
+                'email' => $hr->email,
+            ],
+            'stats' => [
+                'total_employees' => $totalEmployees,
+                'total_positions' => $totalPositions,
+                'total_competencies' => $totalCompetencies,
+                'skill_gap_total' => $skillGapTotal,
+                'skill_gap_critical' => $skillGapCritical,
+                'enroll_in_progress' => $enrollInProgress,
+                'enroll_completed' => $enrollCompleted,
+                'completion_rate' => $completionRate,
+                'pending_invitations' => $pendingInvitations,
+            ],
+            'topSkillGaps' => $topSkillGaps,
+            'recentEnrollments' => $recentEnrollments,
+        ]);
     }
 }

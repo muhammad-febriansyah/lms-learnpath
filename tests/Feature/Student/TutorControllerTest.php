@@ -3,7 +3,6 @@
 use App\Models\ChatMessage;
 use App\Models\ChatThread;
 use App\Models\Course;
-use App\Models\Lesson;
 use App\Models\User;
 use Illuminate\Support\Facades\Http;
 use Spatie\Permission\Models\Role;
@@ -18,9 +17,9 @@ beforeEach(function () {
             'model' => 'gpt-5',
         ], 200),
     ]);
-    Role::findOrCreate('student', 'web');
+    Role::findOrCreate('employee', 'web');
     $this->user = User::factory()->create(['email_verified_at' => now()]);
-    $this->user->assignRole('student');
+    $this->user->assignRole('employee');
 });
 
 it('requires authentication', function () {

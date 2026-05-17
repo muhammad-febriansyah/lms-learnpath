@@ -33,12 +33,13 @@ type Props = {
 };
 
 const ROLE_LABELS: Record<string, string> = {
-    super_admin: 'Super Admin',
-    admin: 'Admin',
+    superadmin: 'Super Admin',
+    admin_tenant: 'Admin Tenant',
     hr: 'HR',
     instructor: 'Instruktur',
     supervisor: 'Supervisor',
-    student: 'Peserta',
+    employee: 'Karyawan',
+    user_public: 'Pengguna Publik',
 };
 
 export default function UserForm({ user, roleOptions }: Props) {
@@ -53,7 +54,7 @@ export default function UserForm({ user, roleOptions }: Props) {
         phone: user?.phone ?? '',
         password: '',
         password_confirmation: '',
-        role: user?.role ?? 'student',
+        role: user?.role ?? 'employee',
         status: user?.status ?? 'active',
     });
 

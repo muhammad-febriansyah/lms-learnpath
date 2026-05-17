@@ -1,6 +1,6 @@
 import { Head, Link, router } from '@inertiajs/react';
 import type { ColumnDef } from '@tanstack/react-table';
-import { Pencil, Plus, Tag, Trash2 } from 'lucide-react';
+import { Pencil, Plus, Tag, Trash2, X } from 'lucide-react';
 import { useState } from 'react';
 
 import { DataTable } from '@/components/data-table/data-table';
@@ -166,21 +166,20 @@ export default function CouponsIndex({ coupons, filters }: Props) {
             id: 'actions',
             header: '',
             cell: ({ row }) => (
-                <div className="flex items-center justify-end gap-1">
-                    <Button asChild variant="ghost" size="icon" className="size-8">
+                <div className="flex items-center justify-end gap-1.5">
+                    <Button asChild size="sm" className="h-8 rounded-xl bg-emerald-600 text-white shadow-sm hover:bg-emerald-700">
                         <Link href={`/admin/coupons/${row.original.id}/edit`}>
-                            <Pencil className="size-4" />
-                            <span className="sr-only">Edit</span>
+                            <Pencil className="mr-1 size-3.5" />
+                            Edit
                         </Link>
                     </Button>
                     <Button
-                        variant="ghost"
-                        size="icon"
-                        className="size-8 text-rose-500 hover:bg-rose-50 hover:text-rose-600"
+                        size="sm"
+                        className="h-8 rounded-xl bg-rose-600 text-white shadow-sm hover:bg-rose-700"
                         onClick={() => confirmDelete(row.original)}
                     >
-                        <Trash2 className="size-4" />
-                        <span className="sr-only">Hapus</span>
+                        <Trash2 className="mr-1 size-3.5" />
+                        Hapus
                     </Button>
                 </div>
             ),
@@ -250,6 +249,7 @@ export default function CouponsIndex({ coupons, filters }: Props) {
                     </DialogHeader>
                     <DialogFooter>
                         <Button variant="outline" onClick={() => setDeleteId(null)}>
+                            <X className="mr-1.5 size-4" />
                             Batal
                         </Button>
                         <Button
@@ -257,6 +257,7 @@ export default function CouponsIndex({ coupons, filters }: Props) {
                             onClick={performDelete}
                             disabled={deleting}
                         >
+                            <Trash2 className="mr-1.5 size-4" />
                             {deleting ? 'Menghapus...' : 'Hapus'}
                         </Button>
                     </DialogFooter>

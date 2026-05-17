@@ -10,6 +10,19 @@ use Illuminate\Validation\ValidationException;
 class RecaptchaVerifier
 {
     /**
+     * Cache of already-verified tokens for the current request.
+     *
+     * Google's siteverify rejects a token as "timeout-or-duplicate" the
+     * second time it is submitted, so any pipeline that hits verify() more
+     * than once with the same token (e.g. Fortify with 2FA, which runs both
+     * RedirectIfTwoFactorAuthenticatable and AttemptToAuthenticate) must
+     * reuse the result of the first call.
+     *
+     * @var array<string, true>
+     */
+    private array $verifiedTokens = [];
+
+    /**
      * Verify a reCAPTCHA v3 token for the expected action.
      *
      * @throws ValidationException
@@ -24,6 +37,12 @@ class RecaptchaVerifier
             throw ValidationException::withMessages([
                 'recaptcha_token' => 'Verifikasi reCAPTCHA gagal. Silakan coba lagi.',
             ]);
+        }
+
+        $cacheKey = $action.'|'.$token;
+
+        if (isset($this->verifiedTokens[$cacheKey])) {
+            return;
         }
 
         /** @var Response $response */
@@ -71,6 +90,8 @@ class RecaptchaVerifier
                 'recaptcha_token' => 'Verifikasi reCAPTCHA gagal. Silakan coba lagi.',
             ]);
         }
+
+        $this->verifiedTokens[$cacheKey] = true;
     }
 
     public function isEnabled(): bool

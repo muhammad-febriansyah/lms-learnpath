@@ -3,9 +3,9 @@ import type { ColumnDef } from '@tanstack/react-table';
 import {
     Banknote,
     CheckCircle2,
-    ChevronRight,
     Clock,
     CreditCard,
+    Eye,
 } from 'lucide-react';
 
 import { DataTable } from '@/components/data-table/data-table';
@@ -171,15 +171,16 @@ export default function PaymentsIndex({ payments, filters, stats }: Props) {
             id: 'actions',
             header: '',
             cell: ({ row }) => (
-                <Button asChild size="sm" variant="ghost" className="h-8">
+                <Button asChild size="sm" className="h-8 rounded-xl bg-sky-600 text-white shadow-sm hover:bg-sky-700">
                     <Link
                         href={`/admin/orders/${row.original.order?.order_number}`}
                     >
-                        <ChevronRight className="size-3.5" />
+                        <Eye className="mr-1 size-3.5" />
+                        Detail
                     </Link>
                 </Button>
             ),
-            meta: { label: 'Aksi', className: 'w-[60px] text-right' },
+            meta: { label: 'Aksi', className: 'w-[100px] text-right' },
             enableSorting: false,
         },
     ];

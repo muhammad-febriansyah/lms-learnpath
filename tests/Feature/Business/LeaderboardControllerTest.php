@@ -8,7 +8,7 @@ use Spatie\Permission\Models\Role;
 
 beforeEach(function () {
     Role::findOrCreate('hr', 'web');
-    Role::findOrCreate('student', 'web');
+    Role::findOrCreate('employee', 'web');
 
     $this->org = Organization::create([
         'name' => 'Acme',
@@ -57,7 +57,7 @@ it('renders the leaderboard for HR with entries', function () {
 
 it('forbids users that are not org admins', function () {
     $stranger = User::factory()->create(['email_verified_at' => now()]);
-    $stranger->assignRole('student');
+    $stranger->assignRole('employee');
 
     $this->actingAs($stranger)
         ->get('/business/leaderboard')

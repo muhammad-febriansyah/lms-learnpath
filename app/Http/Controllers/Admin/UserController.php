@@ -125,7 +125,7 @@ class UserController extends Controller
             return back()->with('error', 'Anda tidak dapat menghapus akun sendiri.');
         }
 
-        if ($user->hasRole('super_admin')) {
+        if ($user->hasRole('superadmin')) {
             return back()->with('error', 'Super Admin tidak dapat dihapus.');
         }
 

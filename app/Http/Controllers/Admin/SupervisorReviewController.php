@@ -29,7 +29,7 @@ class SupervisorReviewController extends Controller
                 'competency:id,name,category',
             ]);
 
-        if ($user->hasRole('supervisor') && ! $user->hasAnyRole(['admin', 'super_admin', 'hr'])) {
+        if ($user->hasRole('supervisor') && ! $user->hasAnyRole(['admin_tenant', 'superadmin', 'hr'])) {
             $query->where('reviewer_id', $user->id);
         }
 

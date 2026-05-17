@@ -6,6 +6,8 @@ use App\Models\Category;
 use App\Models\Competency;
 use App\Models\EmployeeProfile;
 use App\Models\InstructorProfile;
+use App\Models\Organization;
+use App\Models\OrganizationMember;
 use App\Models\Position;
 use App\Models\PositionCompetencyTarget;
 use App\Models\User;
@@ -39,7 +41,7 @@ class DatabaseSeeder extends Seeder
             'email' => 'admin@example.com',
             'username' => 'superadmin',
         ]);
-        $admin->assignRole('super_admin');
+        $admin->assignRole('superadmin');
 
         $hr = User::factory()->create([
             'name' => 'HR Manager',
@@ -47,6 +49,15 @@ class DatabaseSeeder extends Seeder
             'username' => 'hr',
         ]);
         $hr->assignRole('hr');
+
+        // Attach HR as admin of the demo organization so /business/* routes work.
+        $defaultOrg = Organization::query()->first();
+        if ($defaultOrg) {
+            OrganizationMember::firstOrCreate(
+                ['organization_id' => $defaultOrg->id, 'user_id' => $hr->id],
+                ['role' => 'admin', 'joined_at' => now()],
+            );
+        }
 
         $instructor = User::factory()->create([
             'name' => 'Instructor One',
@@ -72,7 +83,15 @@ class DatabaseSeeder extends Seeder
             'email' => 'andi@example.com',
             'username' => 'andi',
         ]);
-        $student->assignRole('student');
+        $student->assignRole('employee');
+
+        // Karyawan harus jadi member tenant.
+        if ($defaultOrg) {
+            OrganizationMember::firstOrCreate(
+                ['organization_id' => $defaultOrg->id, 'user_id' => $student->id],
+                ['role' => 'member', 'joined_at' => now()],
+            );
+        }
 
         EmployeeProfile::factory()->create([
             'user_id' => $student->id,

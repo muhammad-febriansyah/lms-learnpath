@@ -23,13 +23,20 @@ import {
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { usePermission } from '@/hooks/use-permission';
-import { ADMIN_NAV, STUDENT_NAV } from '@/lib/admin-nav';
+import {
+    ADMIN_NAV,
+    EMPLOYEE_NAV,
+    HR_NAV,
+    INSTRUCTOR_NAV,
+    STUDENT_NAV,
+    USER_PUBLIC_NAV,
+} from '@/lib/admin-nav';
 import type { AdminNavSection } from '@/lib/admin-nav';
 import { dashboard, logout } from '@/routes';
 import { edit as editProfile } from '@/routes/profile';
 import type { User } from '@/types';
 
-const ADMIN_ROLES = ['super_admin', 'admin', 'hr', 'instructor', 'supervisor'];
+const ADMIN_ROLES = ['superadmin', 'admin_tenant', 'hr', 'instructor', 'supervisor'];
 
 const COLLAPSED_KEY = 'lp_sb_collapsed';
 const GROUP_STATE_KEY = 'lp_sb_groups';
@@ -49,13 +56,47 @@ export function LearnpathSidebar({
 }: SidebarProps) {
     const { url: currentUrl, props } = usePage<{
         auth: { user: User | null };
+        tenant: {
+            id: number;
+            name: string;
+            slug: string;
+            logo_url: string | null;
+            industry: string | null;
+            seat_quota: number;
+            seats_used: number;
+            seats_available: number;
+        } | null;
     }>();
     const user = props.auth.user;
+    const tenant = props.tenant;
     const { hasRole, hasPermission } = usePermission();
 
     const isAdmin = hasRole(ADMIN_ROLES);
-    const isPrivilegedAdmin = hasRole(['super_admin', 'admin']);
-    const navSource = isAdmin ? ADMIN_NAV : STUDENT_NAV;
+    const isPrivilegedAdmin = hasRole(['superadmin', 'admin_tenant']);
+    const isInstructorOnly =
+        hasRole(['instructor']) &&
+        !hasRole(['superadmin', 'admin_tenant', 'hr', 'supervisor']);
+    const isHrOnly =
+        hasRole(['hr']) &&
+        !hasRole(['superadmin', 'admin_tenant']);
+    const isEmployeeOnly =
+        hasRole(['employee']) &&
+        !hasRole(['superadmin', 'admin_tenant', 'hr', 'instructor', 'supervisor']);
+    const isUserPublic =
+        hasRole(['user_public']) &&
+        !hasRole(['superadmin', 'admin_tenant', 'hr', 'instructor', 'supervisor', 'employee']);
+
+    const navSource = isHrOnly
+        ? HR_NAV
+        : isInstructorOnly
+            ? INSTRUCTOR_NAV
+            : isAdmin
+                ? ADMIN_NAV
+                : isEmployeeOnly
+                    ? EMPLOYEE_NAV
+                    : isUserPublic
+                        ? USER_PUBLIC_NAV
+                        : STUDENT_NAV;
 
     const visibleNav = useMemo(
         () => filterByPermission(navSource, hasPermission),
@@ -109,6 +150,28 @@ export function LearnpathSidebar({
                     </div>
                 </div>
 
+                {/* Tenant context card */}
+                {tenant && !isUserPublic && (
+                    <TenantCard tenant={tenant} collapsed={collapsed} />
+                )}
+                {!tenant && hasRole(['superadmin']) && !collapsed && (
+                    <div className="mx-3 mt-3 rounded-xl border border-violet-200 bg-violet-50 px-3 py-2">
+                        <div className="flex items-center gap-2">
+                            <span className="grid size-6 place-items-center rounded-full bg-violet-200 text-[10px] font-bold text-violet-700">
+                                SA
+                            </span>
+                            <div className="min-w-0 flex-1">
+                                <div className="text-[11px] font-bold tracking-wider text-violet-700 uppercase">
+                                    Global View
+                                </div>
+                                <div className="truncate text-[11.5px] text-violet-600">
+                                    Akses lintas tenant
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
                 <button
                     onClick={onToggleCollapse}
                     title={collapsed ? 'Perluas sidebar' : 'Ciutkan sidebar'}
@@ -127,18 +190,35 @@ export function LearnpathSidebar({
                         (collapsed ? 'px-3 lg:px-2' : 'px-3')
                     }
                 >
-                    {visibleNav.map((section) =>
-                        section.type === 'item' ? (
-                            <SingleLink
-                                key={section.title}
-                                href={section.href}
-                                title={section.title}
-                                Icon={section.icon}
-                                collapsed={collapsed}
-                                isActive={isUrlActive(currentUrl, section.href)}
-                                onClick={onCloseMobile}
-                            />
-                        ) : (
+                    {visibleNav.map((section, idx) => {
+                        if (section.type === 'divider') {
+                            return (
+                                <div
+                                    key={`divider-${idx}-${section.label}`}
+                                    className={
+                                        'mt-3 mb-1 px-3 pt-1 text-[10.5px] font-bold tracking-wider text-slate-400 uppercase ' +
+                                        (collapsed ? 'lg:hidden' : '')
+                                    }
+                                >
+                                    {section.label}
+                                </div>
+                            );
+                        }
+                        if (section.type === 'item') {
+                            return (
+                                <SingleLink
+                                    key={section.title}
+                                    href={section.href}
+                                    title={section.title}
+                                    Icon={section.icon}
+                                    badge={section.badge}
+                                    collapsed={collapsed}
+                                    isActive={isUrlActive(currentUrl, section.href)}
+                                    onClick={onCloseMobile}
+                                />
+                            );
+                        }
+                        return (
                             <NavGroup
                                 key={section.label}
                                 section={section}
@@ -146,8 +226,8 @@ export function LearnpathSidebar({
                                 currentUrl={currentUrl}
                                 onClickItem={onCloseMobile}
                             />
-                        ),
-                    )}
+                        );
+                    })}
                 </nav>
 
                 {isAdmin && !isPrivilegedAdmin && (
@@ -214,10 +294,112 @@ export function LearnpathSidebar({
     );
 }
 
+function TenantCard({
+    tenant,
+    collapsed,
+}: {
+    tenant: {
+        id: number;
+        name: string;
+        slug: string;
+        logo_url: string | null;
+        seat_quota: number;
+        seats_used: number;
+        seats_available: number;
+    };
+    collapsed: boolean;
+}) {
+    const initials = tenant.name
+        .split(' ')
+        .filter(Boolean)
+        .slice(0, 2)
+        .map((s) => s[0])
+        .join('')
+        .toUpperCase();
+
+    const seatPct = tenant.seat_quota > 0
+        ? Math.round((tenant.seats_used / tenant.seat_quota) * 100)
+        : 0;
+
+    if (collapsed) {
+        return (
+            <div className="mt-3 hidden justify-center lg:flex">
+                <div
+                    title={tenant.name}
+                    className="grid size-9 place-items-center rounded-xl bg-gradient-to-br from-brand-100 to-brand-200 text-[12px] font-bold text-brand-700 ring-1 ring-brand-200"
+                >
+                    {tenant.logo_url ? (
+                        <img
+                            src={tenant.logo_url}
+                            alt={tenant.name}
+                            className="size-9 rounded-xl object-cover"
+                        />
+                    ) : (
+                        initials
+                    )}
+                </div>
+            </div>
+        );
+    }
+
+    return (
+        <div className="mx-3 mt-3 rounded-xl bg-gradient-to-br from-brand-50 to-brand-100/60 p-3 ring-1 ring-brand-200/60">
+            <div className="flex items-center gap-2.5">
+                <div className="grid size-10 shrink-0 place-items-center overflow-hidden rounded-lg bg-white text-[12px] font-bold text-brand-700 ring-1 ring-brand-200">
+                    {tenant.logo_url ? (
+                        <img
+                            src={tenant.logo_url}
+                            alt={tenant.name}
+                            className="size-10 object-cover"
+                        />
+                    ) : (
+                        initials
+                    )}
+                </div>
+                <div className="min-w-0 flex-1">
+                    <div className="text-[9.5px] font-bold tracking-[0.14em] text-brand-700/70 uppercase">
+                        Tenant
+                    </div>
+                    <div
+                        className="truncate text-[12.5px] font-bold text-slate-900"
+                        title={tenant.name}
+                    >
+                        {tenant.name}
+                    </div>
+                </div>
+            </div>
+            {tenant.seat_quota > 0 && (
+                <div className="mt-2.5">
+                    <div className="mb-1 flex items-center justify-between text-[10.5px] font-semibold">
+                        <span className="text-slate-600">Seat</span>
+                        <span className="text-slate-700 tabular-nums">
+                            {tenant.seats_used}/{tenant.seat_quota}
+                        </span>
+                    </div>
+                    <div className="h-1.5 overflow-hidden rounded-full bg-white">
+                        <div
+                            className={
+                                'h-full rounded-full transition-all ' +
+                                (seatPct >= 90
+                                    ? 'bg-rose-500'
+                                    : seatPct >= 70
+                                        ? 'bg-amber-500'
+                                        : 'bg-brand-500')
+                            }
+                            style={{ width: `${Math.min(100, seatPct)}%` }}
+                        />
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+}
+
 function SingleLink({
     href,
     title,
     Icon,
+    badge,
     collapsed,
     isActive,
     onClick,
@@ -225,6 +407,7 @@ function SingleLink({
     href: string;
     title: string;
     Icon?: React.ComponentType<{ className?: string; size?: number }>;
+    badge?: string;
     collapsed: boolean;
     isActive: boolean;
     onClick?: () => void;
@@ -239,8 +422,8 @@ function SingleLink({
             className={
                 'group/item relative flex w-full items-center rounded-xl text-[14px] font-medium transition ' +
                 (collapsed
-                    ? 'gap-3 px-3 py-2.5 lg:justify-center lg:px-0 lg:py-2.5'
-                    : 'gap-3 px-3 py-2.5') +
+                    ? 'gap-3 px-3 py-2.5 lg:justify-center lg:px-0 lg:py-2.5 '
+                    : 'gap-3 px-3 py-2.5 ') +
                 (isActive
                     ? 'bg-brand-600 text-white shadow-[0_8px_18px_-10px_rgba(18,35,125,0.6)]'
                     : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900')
@@ -257,6 +440,18 @@ function SingleLink({
                 />
             )}
             <span className={'flex-1 text-left ' + labelHidden}>{title}</span>
+            {badge && !collapsed && (
+                <span
+                    className={
+                        'rounded-full px-1.5 py-0.5 text-[10px] font-semibold ' +
+                        (isActive
+                            ? 'bg-white/20 text-white'
+                            : 'bg-amber-100 text-amber-700')
+                    }
+                >
+                    {badge}
+                </span>
+            )}
             {collapsed && (
                 <span className="pointer-events-none absolute top-1/2 left-full z-50 ml-3 hidden -translate-y-1/2 rounded-lg bg-slate-900 px-2.5 py-1.5 text-[12px] font-medium whitespace-nowrap text-white opacity-0 shadow-lg transition group-hover/item:opacity-100 lg:block">
                     {title}
@@ -418,6 +613,10 @@ function filterByPermission(
 ): AdminNavSection[] {
     return sections
         .map((section) => {
+            if (section.type === 'divider') {
+                return section;
+            }
+
             if (section.type === 'item') {
                 if (section.permission && !hasPermission(section.permission)) {
                     return null;

@@ -20,22 +20,8 @@ beforeEach(function () {
         'app.mailketing.co.id/*' => Http::response(['status' => 'success'], 200),
     ]);
     config()->set('services.mailketing.api_key', 'test-key');
-    Role::findOrCreate('student', 'web');
+    Role::findOrCreate('employee', 'web');
     Role::findOrCreate('hr', 'web');
-
-    $this->position = Position::factory()->create();
-    $this->competency = Competency::factory()->create();
-    PositionCompetencyTarget::factory()->create([
-        'position_id' => $this->position->id,
-        'competency_id' => $this->competency->id,
-        'is_required' => true,
-    ]);
-
-    $this->mappedCourse = Course::factory()->create();
-    CourseCompetencyMapping::factory()->create([
-        'course_id' => $this->mappedCourse->id,
-        'competency_id' => $this->competency->id,
-    ]);
 
     $this->org = Organization::create([
         'name' => 'Acme Indonesia',
@@ -46,6 +32,22 @@ beforeEach(function () {
         'seats_used' => 0,
         'status' => 'active',
     ]);
+
+    tenancy()->runWithTenant($this->org, function () {
+        $this->position = Position::factory()->create();
+        $this->competency = Competency::factory()->create();
+        PositionCompetencyTarget::factory()->create([
+            'position_id' => $this->position->id,
+            'competency_id' => $this->competency->id,
+            'is_required' => true,
+        ]);
+
+        $this->mappedCourse = Course::factory()->create();
+        CourseCompetencyMapping::factory()->create([
+            'course_id' => $this->mappedCourse->id,
+            'competency_id' => $this->competency->id,
+        ]);
+    });
 
     $this->hr = User::factory()->create(['email_verified_at' => now()]);
     $this->hr->assignRole('hr');
@@ -130,11 +132,13 @@ it('exposes a re-sync endpoint that enrolls into newly-mapped courses', function
     $member = OrganizationMember::where('user_id', $user->id)->first();
     expect(Enrollment::where('user_id', $user->id)->count())->toBe(1);
 
-    $newCourse = Course::factory()->create();
-    CourseCompetencyMapping::factory()->create([
-        'course_id' => $newCourse->id,
-        'competency_id' => $this->competency->id,
-    ]);
+    tenancy()->runWithTenant($this->org, function () {
+        $newCourse = Course::factory()->create();
+        CourseCompetencyMapping::factory()->create([
+            'course_id' => $newCourse->id,
+            'competency_id' => $this->competency->id,
+        ]);
+    });
 
     $this->actingAs($this->hr)
         ->post(route('business.members.resync-enrollments', ['member' => $member->id]))
@@ -144,9 +148,13 @@ it('exposes a re-sync endpoint that enrolls into newly-mapped courses', function
 });
 
 it('auto-enrolls into linked learning paths when invitation accepted', function () {
-    $path = LearningPath::factory()->create(['position_id' => $this->position->id]);
-    $pathCourse = Course::factory()->create();
-    $path->courses()->sync([$pathCourse->id => ['sort_order' => 1, 'is_required' => true]]);
+    $path = tenancy()->runWithTenant($this->org, function () {
+        $path = LearningPath::factory()->create(['position_id' => $this->position->id]);
+        $pathCourse = Course::factory()->create();
+        $path->courses()->sync([$pathCourse->id => ['sort_order' => 1, 'is_required' => true]]);
+
+        return $path;
+    });
 
     $invitation = OrganizationInvitation::create([
         'organization_id' => $this->org->id,
@@ -189,10 +197,11 @@ it('resync endpoint enrolls into newly-linked paths', function () {
     $member = OrganizationMember::where('user_id', $user->id)->first();
     expect(LearningPathEnrollment::where('user_id', $user->id)->count())->toBe(0);
 
-    // HR creates a new path linked to this position later
-    $path = LearningPath::factory()->create(['position_id' => $this->position->id]);
-    $newCourse = Course::factory()->create();
-    $path->courses()->sync([$newCourse->id => ['sort_order' => 1, 'is_required' => true]]);
+    tenancy()->runWithTenant($this->org, function () {
+        $path = LearningPath::factory()->create(['position_id' => $this->position->id]);
+        $newCourse = Course::factory()->create();
+        $path->courses()->sync([$newCourse->id => ['sort_order' => 1, 'is_required' => true]]);
+    });
 
     $this->actingAs($this->hr)
         ->post(route('business.members.resync-enrollments', ['member' => $member->id]))

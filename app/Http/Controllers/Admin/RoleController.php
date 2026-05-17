@@ -15,7 +15,7 @@ use Spatie\Permission\PermissionRegistrar;
 
 class RoleController extends Controller
 {
-    private const LOCKED_ROLES = ['super_admin'];
+    private const LOCKED_ROLES = ['superadmin'];
 
     public function index(Request $request): Response
     {

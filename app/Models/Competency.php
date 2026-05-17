@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToTenant;
 use Database\Factories\CompetencyFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -9,6 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 #[Fillable([
+    'tenant_id',
     'name',
     'category',
     'description',
@@ -17,7 +19,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Competency extends Model
 {
     /** @use HasFactory<CompetencyFactory> */
-    use HasFactory;
+    use BelongsToTenant, HasFactory;
 
     protected function casts(): array
     {

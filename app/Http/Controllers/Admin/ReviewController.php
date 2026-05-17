@@ -18,9 +18,18 @@ class ReviewController extends Controller
 
     public function index(Request $request): Response
     {
-        abort_unless($request->user()?->can('review.moderate'), 403);
+        $user = $request->user();
+        $isInstructorOnly = $user?->hasRole('instructor')
+            && ! $user?->hasAnyRole(['superadmin', 'admin_tenant']);
 
-        $reviews = Review::query()
+        abort_unless($user?->can('review.moderate') || $isInstructorOnly, 403);
+
+        $baseQuery = Review::query()
+            ->when($isInstructorOnly, function ($q) use ($user) {
+                $q->whereHas('course', fn ($cq) => $cq->forInstructor($user->id));
+            });
+
+        $reviews = (clone $baseQuery)
             ->with([
                 'user:id,name,email',
                 'course:id,title,slug',
@@ -48,10 +57,10 @@ class ReviewController extends Controller
             'reviews' => $reviews,
             'filters' => $request->only('search', 'rating', 'visibility'),
             'stats' => [
-                'total' => Review::count(),
-                'public' => Review::where('is_public', true)->count(),
-                'hidden' => Review::where('is_public', false)->count(),
-                'avg_rating' => round((float) Review::avg('rating'), 2),
+                'total' => (clone $baseQuery)->count(),
+                'public' => (clone $baseQuery)->where('is_public', true)->count(),
+                'hidden' => (clone $baseQuery)->where('is_public', false)->count(),
+                'avg_rating' => round((float) (clone $baseQuery)->avg('rating'), 2),
             ],
         ]);
     }

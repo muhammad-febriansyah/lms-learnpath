@@ -26,6 +26,8 @@ class CertificateTemplateFactory extends Factory
             ]),
             'orientation' => $this->faker->randomElement(['landscape', 'portrait']),
             'status' => $this->faker->randomElement(['draft', 'active']),
+            'background_type' => CertificateTemplate::BACKGROUND_PRESET,
+            'background_preset' => $this->faker->randomElement(array_keys(CertificateTemplate::backgroundPresets())),
             'background_path' => null,
             'title' => 'Sertifikat Penyelesaian',
             'subtitle' => 'Diberikan kepada peserta terbaik',

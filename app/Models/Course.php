@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Database\Factories\CourseFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -49,6 +50,8 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
     'reviewed_at',
     'reviewed_by',
     'max_participants',
+    'lms_format',
+    'scorm_package_id',
 ])]
 class Course extends Model
 {
@@ -88,6 +91,21 @@ class Course extends Model
         self::REVIEW_REJECTED,
     ];
 
+    public const LMS_VIDEO = 'video';
+
+    public const LMS_EMBED_LINK = 'embed_link';
+
+    public const LMS_EMBED_YOUTUBE = 'embed_youtube';
+
+    public const LMS_SCORM = 'scorm';
+
+    public const LMS_FORMATS = [
+        self::LMS_VIDEO,
+        self::LMS_EMBED_LINK,
+        self::LMS_EMBED_YOUTUBE,
+        self::LMS_SCORM,
+    ];
+
     protected function casts(): array
     {
         return [
@@ -115,12 +133,12 @@ class Course extends Model
         ];
     }
 
-    public function scopeForInstructor(\Illuminate\Database\Eloquent\Builder $query, int $userId): \Illuminate\Database\Eloquent\Builder
+    public function scopeForInstructor(Builder $query, int $userId): Builder
     {
         return $query->where('instructor_id', $userId);
     }
 
-    public function scopePendingReview(\Illuminate\Database\Eloquent\Builder $query): \Illuminate\Database\Eloquent\Builder
+    public function scopePendingReview(Builder $query): Builder
     {
         return $query->where('review_status', self::REVIEW_PENDING);
     }
@@ -128,6 +146,11 @@ class Course extends Model
     public function reviewer(): BelongsTo
     {
         return $this->belongsTo(User::class, 'reviewed_by');
+    }
+
+    public function scormPackage(): BelongsTo
+    {
+        return $this->belongsTo(ScormPackage::class);
     }
 
     public function savings(): int

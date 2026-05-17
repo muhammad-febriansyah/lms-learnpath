@@ -242,11 +242,14 @@ export default function InstructorsIndex({
             id: 'actions',
             header: '',
             cell: ({ row }) => (
-                <div className="flex items-center justify-end gap-1">
+                <div className="flex items-center justify-end gap-1.5">
                     <Button
-                        variant="ghost"
-                        size="icon"
-                        className="size-8"
+                        size="sm"
+                        className={
+                            row.original.instructor_profile?.is_verified
+                                ? 'h-8 rounded-xl bg-amber-500 text-white shadow-sm hover:bg-amber-600'
+                                : 'h-8 rounded-xl bg-emerald-600 text-white shadow-sm hover:bg-emerald-700'
+                        }
                         title={
                             row.original.instructor_profile?.is_verified
                                 ? 'Cabut verifikasi'
@@ -254,29 +257,26 @@ export default function InstructorsIndex({
                         }
                         onClick={() => toggleVerified(row.original.id)}
                     >
-                        <BadgeCheck
-                            className={
-                                row.original.instructor_profile?.is_verified
-                                    ? 'size-4 text-sky-500'
-                                    : 'size-4 text-slate-400'
-                            }
-                        />
+                        <BadgeCheck className="mr-1 size-3.5" />
+                        {row.original.instructor_profile?.is_verified
+                            ? 'Cabut'
+                            : 'Verifikasi'}
                     </Button>
                     <Button
                         asChild
-                        variant="ghost"
-                        size="icon"
-                        className="size-8"
+                        size="sm"
+                        className="h-8 rounded-xl bg-emerald-600 text-white shadow-sm hover:bg-emerald-700"
                     >
                         <Link
                             href={`/admin/instructors/${row.original.id}/edit`}
                         >
-                            <Pencil className="size-4 text-slate-500" />
+                            <Pencil className="mr-1 size-3.5" />
+                            Edit
                         </Link>
                     </Button>
                 </div>
             ),
-            meta: { label: 'Aksi', className: 'w-[100px] text-right' },
+            meta: { label: 'Aksi', className: 'w-[200px] text-right' },
             enableSorting: false,
         },
     ];

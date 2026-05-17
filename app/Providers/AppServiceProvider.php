@@ -8,6 +8,8 @@ use App\Listeners\Learning\NotifyUserOnCertificate;
 use App\Listeners\Marketplace\AddSeatsOnB2BPayment;
 use App\Listeners\Marketplace\AutoEnrollAfterPayment;
 use App\Listeners\Marketplace\NotifyUserOnPayment;
+use App\Services\Security\RecaptchaVerifier;
+use App\Support\TenantManager;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
@@ -22,7 +24,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->singleton(RecaptchaVerifier::class);
+        $this->app->singleton(TenantManager::class);
     }
 
     /**

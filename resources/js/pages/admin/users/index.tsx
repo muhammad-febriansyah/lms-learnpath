@@ -8,6 +8,7 @@ import {
     Trash2,
     User as UserIcon,
     Users,
+    X,
     XCircle,
 } from 'lucide-react';
 import { useState } from 'react';
@@ -69,21 +70,23 @@ type Props = {
 };
 
 const ROLE_LABELS: Record<string, string> = {
-    super_admin: 'Super Admin',
-    admin: 'Admin',
+    superadmin: 'Super Admin',
+    admin_tenant: 'Admin Tenant',
     hr: 'HR',
     instructor: 'Instruktur',
     supervisor: 'Supervisor',
-    student: 'Peserta',
+    employee: 'Karyawan',
+    user_public: 'Pengguna Publik',
 };
 
 const ROLE_TONES: Record<string, string> = {
-    super_admin: 'border-transparent bg-violet-50 text-violet-700',
-    admin: 'border-transparent bg-brand-50 text-brand-700',
+    superadmin: 'border-transparent bg-violet-50 text-violet-700',
+    admin_tenant: 'border-transparent bg-brand-50 text-brand-700',
     hr: 'border-transparent bg-sky-50 text-sky-700',
     instructor: 'border-transparent bg-emerald-50 text-emerald-700',
     supervisor: 'border-transparent bg-amber-50 text-amber-700',
-    student: 'border-transparent bg-slate-100 text-slate-600',
+    employee: 'border-transparent bg-slate-100 text-slate-600',
+    user_public: 'border-transparent bg-zinc-100 text-zinc-700',
 };
 
 const STATUS_TONES: Record<string, string> = {
@@ -227,20 +230,19 @@ return;
             id: 'actions',
             header: '',
             cell: ({ row }) => {
-                const isSuperAdmin = row.original.roles[0]?.name === 'super_admin';
+                const isSuperAdmin = row.original.roles[0]?.name === 'superadmin';
 
                 return (
-                    <div className="flex items-center justify-end gap-1">
-                        <Button asChild variant="ghost" size="icon" className="size-8">
+                    <div className="flex items-center justify-end gap-1.5">
+                        <Button asChild size="sm" className="h-8 rounded-xl bg-emerald-600 text-white shadow-sm hover:bg-emerald-700">
                             <Link href={`/admin/users/${row.original.id}/edit`}>
-                                <Pencil className="size-4" />
-                                <span className="sr-only">Edit</span>
+                                <Pencil className="mr-1 size-3.5" />
+                                Edit
                             </Link>
                         </Button>
                         <Button
-                            variant="ghost"
-                            size="icon"
-                            className="size-8 text-rose-500 hover:bg-rose-50 hover:text-rose-600 disabled:opacity-40"
+                            size="sm"
+                            className="h-8 rounded-xl bg-rose-600 text-white shadow-sm hover:bg-rose-700 disabled:opacity-40"
                             disabled={isSuperAdmin}
                             onClick={() => {
                                 setDeleteId(row.original.id);
@@ -248,8 +250,8 @@ return;
                             }}
                             title={isSuperAdmin ? 'Super Admin tidak dapat dihapus' : 'Hapus'}
                         >
-                            <Trash2 className="size-4" />
-                            <span className="sr-only">Hapus</span>
+                            <Trash2 className="mr-1 size-3.5" />
+                            Hapus
                         </Button>
                     </div>
                 );
@@ -427,6 +429,7 @@ return;
                     </DialogHeader>
                     <DialogFooter>
                         <Button variant="outline" onClick={() => setDeleteId(null)}>
+                            <X className="mr-1.5 size-4" />
                             Batal
                         </Button>
                         <Button
@@ -434,6 +437,7 @@ return;
                             onClick={performDelete}
                             disabled={deleting}
                         >
+                            <Trash2 className="mr-1.5 size-4" />
                             {deleting ? 'Menghapus...' : 'Hapus User'}
                         </Button>
                     </DialogFooter>

@@ -17,13 +17,8 @@ beforeEach(function () {
 
     config()->set('services.mailketing.api_key', 'test-key');
 
-    Role::findOrCreate('student', 'web');
+    Role::findOrCreate('employee', 'web');
     Role::findOrCreate('hr', 'web');
-
-    Position::create(['name' => 'HR Officer', 'is_active' => true]);
-
-    $this->hr = User::factory()->create(['email_verified_at' => now()]);
-    $this->hr->assignRole('hr');
 
     $this->org = Organization::create([
         'name' => 'Acme Indonesia',
@@ -34,6 +29,13 @@ beforeEach(function () {
         'seats_used' => 0,
         'status' => 'active',
     ]);
+
+    tenancy()->runWithTenant($this->org, function () {
+        Position::create(['name' => 'HR Officer', 'is_active' => true]);
+    });
+
+    $this->hr = User::factory()->create(['email_verified_at' => now()]);
+    $this->hr->assignRole('hr');
 
     OrganizationMember::create([
         'organization_id' => $this->org->id,
@@ -79,7 +81,9 @@ it('resends an invitation email and updates last_sent_at', function () {
 });
 
 it('parses a CSV bulk upload and creates invitations per row', function () {
-    Position::create(['name' => 'Sales Rep', 'is_active' => true]);
+    tenancy()->runWithTenant($this->org, function () {
+        Position::create(['name' => 'Sales Rep', 'is_active' => true]);
+    });
 
     $csv = "name,email,employee_number,position,division,branch\n"
         ."Andi Sales,andi@acme.test,A001,Sales Rep,Sales,Jakarta\n"
@@ -118,7 +122,7 @@ it('directly creates a user and sends a temp password email', function () {
 
     $user = User::where('email', 'citra@acme.test')->first();
     expect($user)->not->toBeNull();
-    expect($user->hasRole('student'))->toBeTrue();
+    expect($user->hasRole('employee'))->toBeTrue();
 
     expect(OrganizationMember::where('user_id', $user->id)->where('organization_id', $this->org->id)->exists())->toBeTrue();
     expect(EmployeeProfile::where('user_id', $user->id)->first()->position_id)->toBe($position->id);

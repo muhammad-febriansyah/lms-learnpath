@@ -2,15 +2,18 @@
 
 use App\Models\Certificate;
 use App\Models\Course;
+use App\Models\EmployeeProfile;
 use App\Models\Enrollment;
 use App\Models\Organization;
 use App\Models\OrganizationMember;
+use App\Models\Position;
 use App\Models\User;
+use Carbon\CarbonInterface;
 use Spatie\Permission\Models\Role;
 
 beforeEach(function () {
     Role::findOrCreate('hr', 'web');
-    Role::findOrCreate('student', 'web');
+    Role::findOrCreate('employee', 'web');
 
     $this->org = Organization::create([
         'name' => 'Acme',
@@ -32,7 +35,7 @@ beforeEach(function () {
     ]);
 });
 
-function orgEnroll(Organization $org, User $user, Course $course, string $status = 'active', ?\Carbon\CarbonInterface $enrolledAt = null): Enrollment
+function orgEnroll(Organization $org, User $user, Course $course, string $status = 'active', ?CarbonInterface $enrolledAt = null): Enrollment
 {
     OrganizationMember::firstOrCreate([
         'organization_id' => $org->id,
@@ -53,7 +56,7 @@ function orgEnroll(Organization $org, User $user, Course $course, string $status
 
 it('requires HR/admin role', function () {
     $student = User::factory()->create();
-    $student->assignRole('student');
+    $student->assignRole('employee');
 
     $this->actingAs($student)
         ->get('/business/reports')
@@ -97,11 +100,11 @@ it('aggregates per position', function () {
     $course = Course::factory()->create();
     orgEnroll($this->org, $member, $course, status: 'completed');
 
-    $position = \App\Models\Position::create([
+    $position = Position::create([
         'name' => 'Account Officer',
         'level' => 'junior',
     ]);
-    \App\Models\EmployeeProfile::create([
+    EmployeeProfile::create([
         'user_id' => $member->id,
         'position_id' => $position->id,
         'division' => 'Kredit',

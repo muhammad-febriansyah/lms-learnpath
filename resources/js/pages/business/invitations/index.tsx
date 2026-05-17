@@ -1,8 +1,11 @@
-import { Head, Link, router, useForm } from '@inertiajs/react';
+import { Head, Link, router, useForm, usePage } from '@inertiajs/react';
 import {
+    AlertTriangle,
+    ArrowLeft,
     CheckCircle2,
     Clock,
     Copy,
+    Download,
     FileSpreadsheet,
     Mail,
     RefreshCw,
@@ -12,7 +15,7 @@ import {
     UserPlus,
     X,
 } from 'lucide-react';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 
 import { FieldError } from '@/components/form/field-error';
@@ -79,8 +82,17 @@ function formatDate(iso: string | null): string {
 }
 
 export default function InvitationsIndex({ invitations, organization, positions }: Props) {
-    const [tab, setTab] = useState<Tab>('paste');
+    const pageProps = usePage<{ flash?: { bulk_preview?: PreviewPayload } }>().props;
+    const [tab, setTab] = useState<Tab>(() =>
+        pageProps.flash?.bulk_preview ? 'csv' : 'paste',
+    );
     const [deleteId, setDeleteId] = useState<number | null>(null);
+
+    useEffect(() => {
+        if (pageProps.flash?.bulk_preview) {
+            setTab('csv');
+        }
+    }, [pageProps.flash?.bulk_preview]);
 
     return (
         <>
@@ -326,14 +338,45 @@ function PasteForm({ positions }: { positions: Position[] }) {
     );
 }
 
-function CsvForm() {
-    const fileRef = useRef<HTMLInputElement | null>(null);
-    const form = useForm<{ file: File | null }>({ file: null });
+type PreviewRow = {
+    row_number: number;
+    email: string;
+    name: string | null;
+    employee_number: string | null;
+    position_id: number | null;
+    position_name: string | null;
+    division: string | null;
+    branch: string | null;
+    status: 'ready' | 'skipped';
+    reason: string | null;
+};
 
-    function submit(event: React.FormEvent) {
+type PreviewPayload = {
+    token: string;
+    rows: PreviewRow[];
+    summary: { total: number; ready: number; skipped: number; seat_remaining: number };
+};
+
+function CsvForm() {
+    const page = usePage<{ flash?: { bulk_preview?: PreviewPayload } }>();
+    const fileRef = useRef<HTMLInputElement | null>(null);
+    const [preview, setPreview] = useState<PreviewPayload | null>(null);
+    const [readyOnly, setReadyOnly] = useState(false);
+
+    const form = useForm<{ file: File | null }>({ file: null });
+    const commitForm = useForm<{ token: string }>({ token: '' });
+
+    useEffect(() => {
+        const incoming = page.props.flash?.bulk_preview;
+        if (incoming) {
+            setPreview(incoming);
+        }
+    }, [page.props.flash?.bulk_preview]);
+
+    function submitPreview(event: React.FormEvent) {
         event.preventDefault();
         if (!form.data.file) return;
-        form.post('/business/invitations/bulk-upload', {
+        form.post('/business/invitations/bulk-preview', {
             preserveScroll: true,
             forceFormData: true,
             onSuccess: () => {
@@ -343,15 +386,189 @@ function CsvForm() {
         });
     }
 
+    function submitCommit() {
+        if (!preview) return;
+        commitForm.setData('token', preview.token);
+        commitForm.transform(() => ({ token: preview.token }));
+        commitForm.post('/business/invitations/bulk-commit', {
+            preserveScroll: true,
+            onSuccess: () => {
+                setPreview(null);
+                commitForm.reset();
+            },
+        });
+    }
+
+    if (preview) {
+        const filtered = readyOnly
+            ? preview.rows.filter((r) => r.status === 'ready')
+            : preview.rows;
+        return (
+            <div className="space-y-4">
+                <button
+                    type="button"
+                    onClick={() => setPreview(null)}
+                    className="inline-flex items-center gap-1.5 text-[12px] font-semibold text-slate-600 hover:text-slate-900"
+                >
+                    <ArrowLeft className="size-3.5" />
+                    Pilih file lain
+                </button>
+
+                <div className="grid gap-3 sm:grid-cols-4">
+                    <SummaryCard
+                        label="Total baris"
+                        value={preview.summary.total}
+                        tone="slate"
+                    />
+                    <SummaryCard
+                        label="Siap diimpor"
+                        value={preview.summary.ready}
+                        tone="emerald"
+                    />
+                    <SummaryCard
+                        label="Dilewati"
+                        value={preview.summary.skipped}
+                        tone="amber"
+                    />
+                    <SummaryCard
+                        label="Seat tersisa"
+                        value={preview.summary.seat_remaining}
+                        tone="brand"
+                    />
+                </div>
+
+                {preview.summary.ready === 0 && (
+                    <div className="flex items-start gap-2 rounded-xl border border-amber-200 bg-amber-50 p-3 text-[12px] text-amber-800">
+                        <AlertTriangle className="mt-0.5 size-4 shrink-0" />
+                        <span>
+                            Tidak ada baris siap diimpor. Periksa kolom email, jabatan, atau
+                            seat tersisa.
+                        </span>
+                    </div>
+                )}
+
+                <div className="flex items-center justify-between gap-3">
+                    <label className="inline-flex items-center gap-2 text-[12px] text-slate-600">
+                        <input
+                            type="checkbox"
+                            className="size-3.5 rounded border-slate-300"
+                            checked={readyOnly}
+                            onChange={(e) => setReadyOnly(e.target.checked)}
+                        />
+                        Hanya tampilkan baris siap
+                    </label>
+                    <p className="text-[11px] text-slate-500">
+                        Menampilkan {filtered.length} dari {preview.rows.length} baris
+                    </p>
+                </div>
+
+                <div className="overflow-x-auto rounded-xl ring-1 ring-slate-200">
+                    <table className="w-full text-left text-[12px]">
+                        <thead className="bg-slate-50 text-[11px] uppercase tracking-wide text-slate-500">
+                            <tr>
+                                <th className="px-3 py-2">Baris</th>
+                                <th className="px-3 py-2">Email</th>
+                                <th className="px-3 py-2">Nama</th>
+                                <th className="px-3 py-2">Jabatan</th>
+                                <th className="px-3 py-2">Divisi</th>
+                                <th className="px-3 py-2">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-100">
+                            {filtered.map((r) => (
+                                <tr key={r.row_number} className="bg-white">
+                                    <td className="px-3 py-2 font-mono text-[11px] text-slate-500">
+                                        {r.row_number}
+                                    </td>
+                                    <td className="px-3 py-2 text-slate-900">
+                                        {r.email || (
+                                            <span className="text-slate-400">(kosong)</span>
+                                        )}
+                                    </td>
+                                    <td className="px-3 py-2 text-slate-700">
+                                        {r.name || '-'}
+                                    </td>
+                                    <td className="px-3 py-2 text-slate-700">
+                                        {r.position_name || '-'}
+                                        {r.position_name && !r.position_id && (
+                                            <span className="ml-1 text-[10px] text-rose-600">
+                                                (tidak ditemukan)
+                                            </span>
+                                        )}
+                                    </td>
+                                    <td className="px-3 py-2 text-slate-700">
+                                        {r.division || '-'}
+                                    </td>
+                                    <td className="px-3 py-2">
+                                        {r.status === 'ready' ? (
+                                            <Badge className="border-transparent bg-emerald-50 text-emerald-700 text-[10px] hover:bg-emerald-50">
+                                                <CheckCircle2 className="mr-1 size-3" />
+                                                Siap
+                                            </Badge>
+                                        ) : (
+                                            <span className="inline-flex items-center gap-1.5">
+                                                <Badge className="border-transparent bg-rose-50 text-rose-700 text-[10px] hover:bg-rose-50">
+                                                    <X className="mr-1 size-3" />
+                                                    Skip
+                                                </Badge>
+                                                <span className="text-[11px] text-slate-500">
+                                                    {r.reason}
+                                                </span>
+                                            </span>
+                                        )}
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+
+                <div className="flex flex-wrap items-center justify-end gap-2">
+                    <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => setPreview(null)}
+                        disabled={commitForm.processing}
+                    >
+                        Batal
+                    </Button>
+                    <Button
+                        type="button"
+                        onClick={submitCommit}
+                        disabled={
+                            commitForm.processing || preview.summary.ready === 0
+                        }
+                        className="rounded-xl bg-brand-600 hover:bg-brand-700"
+                    >
+                        <Send className="mr-1.5 size-4" />
+                        {commitForm.processing
+                            ? 'Memproses...'
+                            : `Konfirmasi & Kirim (${preview.summary.ready})`}
+                    </Button>
+                </div>
+            </div>
+        );
+    }
+
     return (
-        <form onSubmit={submit} className="space-y-4">
-            <p className="text-[12px] text-slate-500">
-                Upload file CSV dengan kolom:{' '}
-                <code className="rounded bg-slate-100 px-1 py-0.5 font-mono text-[11px]">
-                    name, email, employee_number, position, division, branch
-                </code>
-                . Hanya kolom <code className="font-mono text-[11px]">email</code> yang wajib.
-            </p>
+        <form onSubmit={submitPreview} className="space-y-4">
+            <div className="flex flex-wrap items-start justify-between gap-3">
+                <p className="text-[12px] text-slate-500">
+                    Upload file CSV dengan kolom:{' '}
+                    <code className="rounded bg-slate-100 px-1 py-0.5 font-mono text-[11px]">
+                        name, email, employee_number, position, division, branch
+                    </code>
+                    . Hanya kolom{' '}
+                    <code className="font-mono text-[11px]">email</code> yang wajib.
+                </p>
+                <a
+                    href="/business/invitations/bulk-template"
+                    className="inline-flex items-center gap-1.5 rounded-lg bg-slate-100 px-3 py-1.5 text-[11.5px] font-semibold text-slate-700 hover:bg-slate-200"
+                >
+                    <Download className="size-3.5" />
+                    Unduh template
+                </a>
+            </div>
 
             <div className="space-y-1.5">
                 <RequiredLabel required>File CSV</RequiredLabel>
@@ -363,17 +580,8 @@ function CsvForm() {
                 />
                 <FieldError message={form.errors.file} />
                 <p className="text-[11px] text-slate-500">
-                    Maksimal 2MB. Position yang tidak cocok dengan master jabatan akan diabaikan.
+                    Maksimal 2MB. Anda akan melihat preview sebelum undangan dikirim.
                 </p>
-            </div>
-
-            <div className="rounded-xl bg-slate-50 p-3 font-mono text-[11px] text-slate-700">
-                <div className="mb-1 font-bold text-slate-900">Contoh CSV:</div>
-                name,email,employee_number,position,division,branch
-                <br />
-                Andi,andi@perusahaan.com,A001,Sales Rep,Sales,Jakarta
-                <br />
-                Budi,budi@perusahaan.com,B002,HR Officer,HR,Bandung
             </div>
 
             <div className="flex items-center justify-end">
@@ -383,10 +591,35 @@ function CsvForm() {
                     className="rounded-xl bg-brand-600 hover:bg-brand-700"
                 >
                     <Upload className="mr-1.5 size-4" />
-                    {form.processing ? 'Mengupload...' : 'Upload & Kirim'}
+                    {form.processing ? 'Memproses...' : 'Upload & Preview'}
                 </Button>
             </div>
         </form>
+    );
+}
+
+function SummaryCard({
+    label,
+    value,
+    tone,
+}: {
+    label: string;
+    value: number;
+    tone: 'slate' | 'emerald' | 'amber' | 'brand';
+}) {
+    const tones = {
+        slate: 'bg-slate-50 text-slate-900 ring-slate-200',
+        emerald: 'bg-emerald-50 text-emerald-900 ring-emerald-200',
+        amber: 'bg-amber-50 text-amber-900 ring-amber-200',
+        brand: 'bg-brand-50 text-brand-900 ring-brand-200',
+    };
+    return (
+        <div className={cn('rounded-xl p-3 ring-1', tones[tone])}>
+            <div className="text-[10.5px] font-bold uppercase tracking-wide opacity-70">
+                {label}
+            </div>
+            <div className="mt-0.5 text-xl font-extrabold">{value}</div>
+        </div>
     );
 }
 
@@ -629,37 +862,37 @@ function InvitationRow({
                     {!invitation.accepted_at && (
                         <>
                             <Button
-                                variant="ghost"
-                                size="icon"
-                                className="size-8"
+                                size="sm"
+                                className="h-8 rounded-xl bg-sky-600 text-white shadow-sm hover:bg-sky-700"
                                 title="Kirim ulang email"
                                 onClick={resend}
                                 disabled={resending}
                             >
                                 <RefreshCw
                                     className={cn(
-                                        'size-4 text-slate-500',
+                                        'mr-1 size-3.5',
                                         resending && 'animate-spin',
                                     )}
                                 />
+                                Kirim Ulang
                             </Button>
                             <Button
-                                variant="ghost"
-                                size="icon"
-                                className="size-8"
+                                size="sm"
+                                className="h-8 rounded-xl bg-slate-700 text-white shadow-sm hover:bg-slate-800"
                                 title="Salin link undangan"
                                 onClick={() => copyLink(invitation.invite_url)}
                             >
-                                <Copy className="size-4 text-slate-500" />
+                                <Copy className="mr-1 size-3.5" />
+                                Salin
                             </Button>
                             <Button
-                                variant="ghost"
-                                size="icon"
-                                className="size-8 text-rose-500 hover:bg-rose-50 hover:text-rose-600"
+                                size="sm"
+                                className="h-8 rounded-xl bg-rose-600 text-white shadow-sm hover:bg-rose-700"
                                 title="Batalkan undangan"
                                 onClick={onDelete}
                             >
-                                <Trash2 className="size-4" />
+                                <Trash2 className="mr-1 size-3.5" />
+                                Batalkan
                             </Button>
                         </>
                     )}

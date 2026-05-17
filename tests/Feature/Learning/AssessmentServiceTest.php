@@ -1,5 +1,6 @@
 <?php
 
+use App\Actions\Learning\MarkLessonComplete;
 use App\Models\Assessment;
 use App\Models\AssessmentAttempt;
 use App\Models\Certificate;
@@ -19,7 +20,7 @@ beforeEach(function () {
     ]);
     config()->set('services.mailketing.api_key', 'test-key');
 
-    Role::findOrCreate('student', 'web');
+    Role::findOrCreate('employee', 'web');
     $this->service = app(AssessmentService::class);
 });
 
@@ -271,7 +272,7 @@ it('lessons reaching 100% do NOT auto-complete when course requires post_test th
         'enrolled_at' => now(),
     ]);
 
-    app(\App\Actions\Learning\MarkLessonComplete::class)->execute($user, $lesson);
+    app(MarkLessonComplete::class)->execute($user, $lesson);
 
     $fresh = Enrollment::where('user_id', $user->id)->first();
     expect($fresh->progress_percent)->toBe(100);

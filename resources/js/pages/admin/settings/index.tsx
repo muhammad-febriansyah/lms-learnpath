@@ -25,6 +25,7 @@ import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
+import admin from '@/routes/admin';
 
 type SettingItem = {
     key: string;
@@ -265,6 +266,34 @@ function SettingGroupForm({ group }: { group: SettingGroup }) {
             </div>
 
             <div className="space-y-5 p-5 sm:p-6">
+                {group.group === 'legal' && (
+                    <div className="grid gap-4 lg:grid-cols-2">
+                        <Link
+                            href={admin.settings.legal.terms.edit().url}
+                            className="rounded-2xl border border-slate-200 bg-slate-50 p-4 transition hover:border-brand-300 hover:bg-brand-50/60"
+                        >
+                            <div className="text-sm font-bold text-slate-900">
+                                Edit Syarat & Ketentuan
+                            </div>
+                            <p className="mt-1 text-[12.5px] leading-6 text-slate-500">
+                                Kelola judul dan isi dokumen syarat & ketentuan dengan rich editor.
+                            </p>
+                        </Link>
+
+                        <Link
+                            href={admin.settings.legal.privacy.edit().url}
+                            className="rounded-2xl border border-slate-200 bg-slate-50 p-4 transition hover:border-brand-300 hover:bg-brand-50/60"
+                        >
+                            <div className="text-sm font-bold text-slate-900">
+                                Edit Kebijakan Privasi
+                            </div>
+                            <p className="mt-1 text-[12.5px] leading-6 text-slate-500">
+                                Kelola judul dan isi dokumen kebijakan privasi untuk publik.
+                            </p>
+                        </Link>
+                    </div>
+                )}
+
                 {group.items.map((item) => (
                     <SettingFieldRenderer
                         key={item.key}

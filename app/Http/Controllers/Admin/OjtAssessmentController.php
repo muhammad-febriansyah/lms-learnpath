@@ -6,7 +6,6 @@ use App\Actions\SkillMatrix\SyncUserCompetencyFromSources;
 use App\Http\Controllers\Controller;
 use App\Models\Competency;
 use App\Models\Course;
-use App\Models\EmployeeProfile;
 use App\Models\OjtAssessment;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
@@ -30,7 +29,7 @@ class OjtAssessmentController extends Controller
             ]);
 
         // Supervisors see only their own assessments by default.
-        if ($user->hasRole('supervisor') && ! $user->hasAnyRole(['admin', 'super_admin', 'hr'])) {
+        if ($user->hasRole('supervisor') && ! $user->hasAnyRole(['admin_tenant', 'superadmin', 'hr'])) {
             $query->where('supervisor_id', $user->id);
         }
 

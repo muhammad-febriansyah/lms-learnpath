@@ -1,5 +1,7 @@
 <?php
 
+use App\Models\User;
+use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Support\Facades\Http;
 use Laravel\Fortify\Features;
 
@@ -7,6 +9,7 @@ beforeEach(function () {
     $this->skipUnlessFortifyHas(Features::registration());
     config()->set('services.recaptcha.site_key', null);
     config()->set('services.recaptcha.secret_key', null);
+    $this->seed(RolePermissionSeeder::class);
 });
 
 test('registration screen can be rendered', function () {
@@ -15,7 +18,7 @@ test('registration screen can be rendered', function () {
     $response->assertOk();
 });
 
-test('new users can register', function () {
+test('new users can register and are assigned the user_public role', function () {
     $response = $this->post(route('register.store'), [
         'name' => 'Test User',
         'email' => 'test@example.com',
@@ -25,6 +28,10 @@ test('new users can register', function () {
 
     $this->assertAuthenticated();
     $response->assertRedirect(route('dashboard', absolute: false));
+
+    $user = User::where('email', 'test@example.com')->first();
+    expect($user)->not->toBeNull()
+        ->and($user->hasRole('user_public'))->toBeTrue();
 });
 
 test('new users can register with a valid recaptcha token when recaptcha is enabled', function () {

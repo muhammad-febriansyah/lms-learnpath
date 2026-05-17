@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Assessment;
+use App\Models\AssessmentAnswer;
 use App\Models\AssessmentAttempt;
 use App\Models\Course;
 use App\Models\Enrollment;
@@ -16,9 +17,9 @@ beforeEach(function () {
     ]);
     config()->set('services.mailketing.api_key', 'test-key');
 
-    Role::findOrCreate('student', 'web');
+    Role::findOrCreate('employee', 'web');
     $this->user = User::factory()->create(['email_verified_at' => now()]);
-    $this->user->assignRole('student');
+    $this->user->assignRole('employee');
     $this->course = Course::factory()->create();
 
     Enrollment::create([
@@ -68,7 +69,7 @@ it('renders the assessment landing page for enrolled user', function () {
 
 it('redirects user that is not enrolled when accessing the assessment landing', function () {
     $stranger = User::factory()->create(['email_verified_at' => now()]);
-    $stranger->assignRole('student');
+    $stranger->assignRole('employee');
 
     $this->actingAs($stranger)
         ->get("/learn/{$this->course->slug}/assessments/{$this->assessment->id}")
@@ -131,7 +132,7 @@ it('renders the result page with question pembahasan', function () {
     ]);
 
     foreach ($this->correctOptions as $questionId => $optionId) {
-        \App\Models\AssessmentAnswer::create([
+        AssessmentAnswer::create([
             'assessment_attempt_id' => $attempt->id,
             'question_id' => $questionId,
             'selected_option_id' => $optionId,

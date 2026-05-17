@@ -266,24 +266,24 @@ function NoteCard({
                     <span className="text-[10.5px] text-slate-400">
                         {formatDate(note.updated_at ?? note.created_at)}
                     </span>
-                    <div className="flex items-center gap-0.5">
+                    <div className="flex items-center gap-1.5">
                         <Button
-                            size="icon"
-                            variant="ghost"
-                            className="size-7 text-slate-400 hover:text-slate-700"
+                            size="sm"
+                            className="h-7 rounded-xl bg-emerald-600 px-2 text-[11.5px] text-white shadow-sm hover:bg-emerald-700"
                             onClick={onEdit}
                             title="Edit"
                         >
-                            <Pencil className="size-3.5" />
+                            <Pencil className="mr-1 size-3.5" />
+                            Edit
                         </Button>
                         <Button
-                            size="icon"
-                            variant="ghost"
-                            className="size-7 text-slate-400 hover:bg-rose-50 hover:text-rose-600"
+                            size="sm"
+                            className="h-7 rounded-xl bg-rose-600 px-2 text-[11.5px] text-white shadow-sm hover:bg-rose-700"
                             onClick={onDelete}
                             title="Hapus"
                         >
-                            <Trash2 className="size-3.5" />
+                            <Trash2 className="mr-1 size-3.5" />
+                            Hapus
                         </Button>
                     </div>
                 </div>

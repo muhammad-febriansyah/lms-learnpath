@@ -1,8 +1,8 @@
 <?php
 
 use App\Models\User;
-use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\RateLimiter;
 use Laravel\Fortify\Features;
 
 beforeEach(function () {
@@ -124,4 +124,30 @@ test('users can not authenticate without a valid recaptcha token when recaptcha 
     $response->assertRedirect(route('login'));
     $response->assertSessionHasErrors('recaptcha_token');
     $this->assertGuest();
+});
+
+test('recaptcha token is verified only once per request even when fortify pipeline calls authenticateUsing twice', function () {
+    config()->set('services.recaptcha.enabled', true);
+    config()->set('services.recaptcha.site_key', 'test-site-key');
+    config()->set('services.recaptcha.secret_key', 'test-secret-key');
+
+    Http::fake([
+        'https://www.google.com/recaptcha/api/siteverify' => Http::response([
+            'success' => true,
+            'score' => 0.9,
+            'action' => 'login',
+        ]),
+    ]);
+
+    $user = User::factory()->create();
+
+    $this->post(route('login.store'), [
+        'email' => $user->email,
+        'password' => 'password',
+        'recaptcha_token' => 'single-use-token',
+    ]);
+
+    $this->assertAuthenticated();
+
+    Http::assertSentCount(1);
 });

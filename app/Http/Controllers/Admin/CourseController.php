@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\CourseRequest;
 use App\Models\Category;
 use App\Models\Course;
+use App\Models\ScormPackage;
 use App\Models\Tag;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -18,7 +19,7 @@ class CourseController extends Controller
     public function index(Request $request): Response
     {
         $user = $request->user();
-        $isInstructor = $user->hasRole('instructor') && ! $user->hasAnyRole(['super_admin', 'admin']);
+        $isInstructor = $user->hasRole('instructor') && ! $user->hasAnyRole(['superadmin', 'admin_tenant']);
 
         $courses = Course::query()
             ->with([
@@ -72,8 +73,11 @@ class CourseController extends Controller
             'instructor:id,name,email',
             'reviewer:id,name',
             'tags:id,name',
+            'scormPackage:id,title',
             'sections:id,course_id,title,sort_order',
             'lessons:id,course_id,title,sort_order',
+            'preTest' => fn ($q) => $q->withCount('questions'),
+            'postTest' => fn ($q) => $q->withCount('questions'),
         ]);
         $course->loadCount(['sections', 'lessons', 'enrollments']);
 
@@ -111,6 +115,10 @@ class CourseController extends Controller
         $data['review_status'] = Course::REVIEW_DRAFT;
         $data['is_published'] = false;
 
+        if (($data['lms_format'] ?? null) !== Course::LMS_SCORM) {
+            $data['scorm_package_id'] = null;
+        }
+
         $tagIds = $data['tag_ids'] ?? [];
         unset($data['tag_ids']);
 
@@ -142,6 +150,10 @@ class CourseController extends Controller
         $data['pre_test_required'] = (bool) ($data['pre_test_required'] ?? false);
         $data['post_test_required'] = (bool) ($data['post_test_required'] ?? false);
         $data['is_certified'] = (bool) ($data['is_certified'] ?? false);
+
+        if (($data['lms_format'] ?? null) !== Course::LMS_SCORM) {
+            $data['scorm_package_id'] = null;
+        }
 
         // Jika sebelumnya rejected, edit membuatnya draft lagi
         if ($course->review_status === Course::REVIEW_REJECTED) {
@@ -239,6 +251,15 @@ class CourseController extends Controller
             'tagOptions' => Tag::query()
                 ->orderBy('name')
                 ->get(['id', 'name']),
+            'scormPackageOptions' => ScormPackage::query()
+                ->orderBy('title')
+                ->get(['id', 'title']),
+            'lmsFormatOptions' => [
+                ['value' => Course::LMS_VIDEO, 'label' => 'Video'],
+                ['value' => Course::LMS_EMBED_LINK, 'label' => 'Embed Link'],
+                ['value' => Course::LMS_EMBED_YOUTUBE, 'label' => 'Embed YouTube'],
+                ['value' => Course::LMS_SCORM, 'label' => 'SCORM Package'],
+            ],
             'levelOptions' => [
                 ['value' => 'beginner', 'label' => 'Pemula'],
                 ['value' => 'intermediate', 'label' => 'Menengah'],

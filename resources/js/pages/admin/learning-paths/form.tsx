@@ -391,13 +391,13 @@ function ArrayEditor({
                         />
                         <Button
                             type="button"
-                            size="icon"
-                            variant="ghost"
-                            className="size-9 text-slate-400 hover:bg-rose-50 hover:text-rose-600"
+                            size="sm"
+                            className="h-9 shrink-0 rounded-xl bg-rose-600 text-white shadow-sm hover:bg-rose-700"
                             onClick={() => onRemove(idx)}
                             disabled={values.length <= 1}
                         >
-                            <X className="size-4" />
+                            <X className="mr-1 size-3.5" />
+                            Hapus
                         </Button>
                     </li>
                 ))}

@@ -1,6 +1,6 @@
 import { Head, Link, router, useForm } from '@inertiajs/react';
 import type { ColumnDef } from '@tanstack/react-table';
-import { Package, Plus, Trash2, Upload } from 'lucide-react';
+import { Package, Plus, Trash2, Upload, X } from 'lucide-react';
 import { useState } from 'react';
 
 import { DataTable } from '@/components/data-table/data-table';
@@ -163,19 +163,21 @@ return;
             id: 'actions',
             header: '',
             cell: ({ row }) => (
-                <Button
-                    variant="ghost"
-                    size="icon"
-                    className="size-8 text-rose-500 hover:bg-rose-50 hover:text-rose-600"
-                    onClick={() => {
-                        setDeleteId(row.original.id);
-                        setDeleteName(row.original.title);
-                    }}
-                >
-                    <Trash2 className="size-4" />
-                </Button>
+                <div className="flex items-center justify-end gap-1.5">
+                    <Button
+                        size="sm"
+                        className="h-8 rounded-xl bg-rose-600 text-white shadow-sm hover:bg-rose-700"
+                        onClick={() => {
+                            setDeleteId(row.original.id);
+                            setDeleteName(row.original.title);
+                        }}
+                    >
+                        <Trash2 className="mr-1 size-3.5" />
+                        Hapus
+                    </Button>
+                </div>
             ),
-            meta: { label: 'Aksi', className: 'w-[80px] text-right' },
+            meta: { label: 'Aksi', className: 'w-[120px] text-right' },
             enableSorting: false,
             enableHiding: false,
         },
@@ -356,6 +358,7 @@ return;
                     </DialogHeader>
                     <DialogFooter>
                         <Button variant="outline" onClick={() => setDeleteId(null)}>
+                            <X className="mr-1.5 size-4" />
                             Batal
                         </Button>
                         <Button
@@ -363,6 +366,7 @@ return;
                             onClick={performDelete}
                             disabled={deleting}
                         >
+                            <Trash2 className="mr-1.5 size-4" />
                             {deleting ? 'Menghapus...' : 'Hapus'}
                         </Button>
                     </DialogFooter>
