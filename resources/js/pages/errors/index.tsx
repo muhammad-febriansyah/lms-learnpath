@@ -60,9 +60,9 @@ const META: Record<number, Meta> = {
         description:
             'Untuk keamanan, sesi Anda otomatis berakhir setelah tidak aktif. Silakan muat ulang dan coba lagi.',
         icon: TimerReset,
-        accent: 'text-violet-600',
-        accentBg: 'from-violet-100 to-violet-200',
-        accentRing: 'ring-violet-200',
+        accent: 'text-brand-600',
+        accentBg: 'from-brand-100 to-brand-200',
+        accentRing: 'ring-brand-200',
     },
     429: {
         title: 'Terlalu banyak permintaan',
@@ -136,24 +136,21 @@ export default function ErrorPage({ status, message, site }: Props) {
                     {/* Logo */}
                     <Link
                         href="/"
-                        className="mb-10 inline-flex items-center gap-2.5 transition hover:opacity-80"
+                        className="mb-10 inline-flex items-center justify-center transition hover:opacity-80"
                     >
                         {brandLogoUrl ? (
                             <img
                                 src={brandLogoUrl}
                                 alt={brandName}
-                                className="h-9 w-auto max-w-[180px] object-contain"
+                                className="h-20 w-20 object-cover object-center sm:h-24 sm:w-24"
                             />
                         ) : (
-                            <span className="grid size-9 place-items-center rounded-xl bg-brand-600 text-white shadow-[0_8px_18px_-10px_rgba(18,35,125,0.6)]">
-                                <span className="text-[14px] font-extrabold">
+                            <span className="grid size-14 place-items-center rounded-2xl bg-brand-600 text-white shadow-[0_8px_18px_-10px_rgba(18,35,125,0.6)] sm:size-16">
+                                <span className="text-[22px] font-extrabold">
                                     {brandName.charAt(0).toUpperCase()}
                                 </span>
                             </span>
                         )}
-                        <span className="text-[17px] font-extrabold tracking-tight text-slate-900">
-                            {brandName}
-                        </span>
                     </Link>
 
                     {/* Big number + Icon */}

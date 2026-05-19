@@ -37,6 +37,7 @@ import {
     HR_NAV,
     INSTRUCTOR_NAV,
     STUDENT_NAV,
+    SUPERADMIN_NAV,
     USER_PUBLIC_NAV,
 } from '@/lib/admin-nav';
 import type { AdminNavSection } from '@/lib/admin-nav';
@@ -89,6 +90,7 @@ export function LearnpathSidebar({
     const { hasRole, hasPermission } = usePermission();
 
     const isAdmin = hasRole(ADMIN_ROLES);
+    const isSuperAdmin = hasRole(['superadmin']);
     const isInstructorOnly =
         hasRole(['instructor']) &&
         !hasRole(['superadmin', 'admin_tenant', 'hr', 'supervisor']);
@@ -102,17 +104,19 @@ export function LearnpathSidebar({
         hasRole(['user_public']) &&
         !hasRole(['superadmin', 'admin_tenant', 'hr', 'instructor', 'supervisor', 'employee']);
 
-    const navSource = isHrOnly
-        ? HR_NAV
-        : isInstructorOnly
-            ? INSTRUCTOR_NAV
-            : isAdmin
-                ? ADMIN_NAV
-                : isEmployeeOnly
-                    ? EMPLOYEE_NAV
-                    : isUserPublic
-                        ? USER_PUBLIC_NAV
-                        : STUDENT_NAV;
+    const navSource = isSuperAdmin
+        ? SUPERADMIN_NAV
+        : isHrOnly
+            ? HR_NAV
+            : isInstructorOnly
+                ? INSTRUCTOR_NAV
+                : isAdmin
+                    ? ADMIN_NAV
+                    : isEmployeeOnly
+                        ? EMPLOYEE_NAV
+                        : isUserPublic
+                            ? USER_PUBLIC_NAV
+                            : STUDENT_NAV;
 
     const visibleNav = useMemo(
         () => filterByPermission(navSource, hasPermission, hasRole),
@@ -174,16 +178,16 @@ export function LearnpathSidebar({
                     <TenantCard tenant={tenant} collapsed={collapsed} />
                 )}
                 {!tenant && hasRole(['superadmin']) && !collapsed && (
-                    <div className="mx-3 mt-3 rounded-xl border border-violet-200 bg-violet-50 px-3 py-2">
+                    <div className="mx-3 mt-3 rounded-xl border border-brand-200 bg-brand-50 px-3 py-2">
                         <div className="flex items-center gap-2">
-                            <span className="grid size-6 place-items-center rounded-full bg-violet-200 text-[10px] font-bold text-violet-700">
+                            <span className="grid size-6 place-items-center rounded-full bg-brand-200 text-[10px] font-bold text-brand-700">
                                 SA
                             </span>
                             <div className="min-w-0 flex-1">
-                                <div className="text-[11px] font-bold tracking-wider text-violet-700 uppercase">
+                                <div className="text-[11px] font-bold tracking-wider text-brand-700 uppercase">
                                     Global View
                                 </div>
-                                <div className="truncate text-[11.5px] text-violet-600">
+                                <div className="truncate text-[11.5px] text-brand-600">
                                     Akses lintas tenant
                                 </div>
                             </div>
@@ -732,7 +736,9 @@ export function LearnpathTopbar({
     breadcrumbs = [],
 }: TopbarProps) {
     const { props } = usePage<{ auth: { user: User | null } }>();
+    const { hasRole } = usePermission();
     const user = props.auth.user;
+    const isSuperAdmin = hasRole(['superadmin']);
     const last = breadcrumbs[breadcrumbs.length - 1];
 
     return (
@@ -776,7 +782,7 @@ export function LearnpathTopbar({
                 <QuickSearch />
 
                 <div className="flex items-center gap-2">
-                    {user && <PointsBadge />}
+                    {user && !isSuperAdmin && <PointsBadge />}
                     <NotificationDropdown />
                     {user && <UserDropdown user={user} />}
                 </div>

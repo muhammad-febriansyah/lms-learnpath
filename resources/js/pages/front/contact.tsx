@@ -88,7 +88,7 @@ export default function ContactPage({ contact }: { contact: ContactData }) {
             href: contact.phone
                 ? `tel:${contact.phone.replace(/\s+/g, '')}`
                 : undefined,
-            accent: 'bg-indigo-50 text-indigo-700',
+            accent: 'bg-brand-50 text-brand-700',
         },
         {
             icon: MessageCircle,

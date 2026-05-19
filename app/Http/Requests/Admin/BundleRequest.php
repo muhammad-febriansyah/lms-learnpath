@@ -27,7 +27,8 @@ class BundleRequest extends FormRequest
                 Rule::unique('bundles', 'slug')->ignore($bundleId),
             ],
             'description' => ['nullable', 'string'],
-            'thumbnail' => ['nullable', 'string', 'max:255'],
+            'thumbnail' => ['nullable', 'image', 'mimes:png,jpg,jpeg,webp', 'max:2048'],
+            'thumbnail_remove' => ['nullable', 'boolean'],
             'price' => ['required', 'integer', 'min:0'],
             'compare_at_price' => ['nullable', 'integer', 'min:0', 'gte:price'],
             'course_ids' => ['required', 'array', 'min:1'],
@@ -53,6 +54,9 @@ class BundleRequest extends FormRequest
             'gte' => ':attribute harus lebih besar atau sama dengan harga.',
             'exists' => ':attribute tidak ditemukan.',
             'boolean' => ':attribute harus benar atau salah.',
+            'image' => ':attribute harus berupa gambar.',
+            'mimes' => ':attribute harus berformat png, jpg, jpeg, atau webp.',
+            'thumbnail.max' => 'Thumbnail maksimal 2 MB.',
         ];
     }
 
@@ -80,6 +84,7 @@ class BundleRequest extends FormRequest
     {
         $data = parent::validated($key, $default);
         $data['is_published'] = (bool) ($data['is_published'] ?? false);
+        $data['thumbnail_remove'] = (bool) ($data['thumbnail_remove'] ?? false);
 
         return $data;
     }

@@ -69,7 +69,7 @@ const CATEGORY_GRADIENT: Record<string, string> = {
     milestone: 'from-amber-400 via-orange-500 to-rose-500',
     streak: 'from-rose-500 via-red-500 to-orange-500',
     mastery: 'from-emerald-500 via-teal-500 to-cyan-500',
-    path: 'from-violet-500 via-indigo-500 to-blue-500',
+    path: 'from-brand-500 via-brand-500 to-blue-500',
 };
 
 function formatDate(iso: string | null): string {
@@ -184,7 +184,7 @@ export default function AchievementsIndex({ groups, streak, stats }: Props) {
                                 Lulus assessment dengan 100%
                             </li>
                             <li className="flex items-center gap-2">
-                                <Compass className="size-3.5 text-indigo-500" />
+                                <Compass className="size-3.5 text-brand-500" />
                                 Tuntaskan learning path
                             </li>
                         </ul>
@@ -228,7 +228,7 @@ export default function AchievementsIndex({ groups, streak, stats }: Props) {
                         </Link>
                         <Link
                             href="/my-paths"
-                            className="inline-flex items-center gap-1.5 rounded-xl bg-indigo-600 px-4 py-2 text-[12.5px] font-bold text-white hover:bg-indigo-700"
+                            className="inline-flex items-center gap-1.5 rounded-xl bg-brand-600 px-4 py-2 text-[12.5px] font-bold text-white hover:bg-brand-700"
                         >
                             <Compass className="size-3.5" />
                             Path Saya

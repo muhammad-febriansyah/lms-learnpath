@@ -44,7 +44,9 @@ export function NavUserMenu({ user }: { user: User }) {
                     className="group inline-flex items-center gap-1.5 rounded-full p-0.5 pr-2 transition-colors hover:bg-slate-100 dark:hover:bg-neutral-800"
                 >
                     <Avatar className="size-8 overflow-hidden rounded-full ring-2 ring-white dark:ring-neutral-950">
-                        <AvatarImage src={user.avatar} alt={user.name} />
+                        {(user.avatar_url || user.avatar) && (
+                            <AvatarImage src={user.avatar_url ?? user.avatar} alt={user.name} />
+                        )}
                         <AvatarFallback className="rounded-full bg-brand-100 text-[12px] font-bold text-brand-700">
                             {getInitials(user.name)}
                         </AvatarFallback>
@@ -59,7 +61,9 @@ export function NavUserMenu({ user }: { user: User }) {
                         className="flex items-center gap-3 rounded-md px-2 py-2.5 transition hover:bg-slate-50 dark:hover:bg-neutral-900"
                     >
                         <Avatar className="size-10 overflow-hidden rounded-full">
-                            <AvatarImage src={user.avatar} alt={user.name} />
+                            {(user.avatar_url || user.avatar) && (
+                            <AvatarImage src={user.avatar_url ?? user.avatar} alt={user.name} />
+                        )}
                             <AvatarFallback className="rounded-full bg-brand-100 text-[13px] font-bold text-brand-700">
                                 {getInitials(user.name)}
                             </AvatarFallback>

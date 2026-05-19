@@ -165,7 +165,7 @@ export default function OrganizationWalletShow({
                 </div>
 
                 <div className="grid gap-4 lg:grid-cols-[1fr_320px]">
-                    <div className="rounded-2xl bg-gradient-to-br from-brand-600 to-violet-600 p-1 shadow-md">
+                    <div className="rounded-2xl bg-gradient-to-br from-brand-600 to-brand-600 p-1 shadow-md">
                         <div className="rounded-[14px] bg-white p-6">
                             <div className="flex flex-wrap items-start justify-between gap-3">
                                 <div>

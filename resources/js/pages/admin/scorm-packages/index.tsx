@@ -114,7 +114,7 @@ return;
             header: 'Package',
             cell: ({ row }) => (
                 <div className="flex items-center gap-3">
-                    <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-violet-50 text-violet-600">
+                    <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-brand-50 text-brand-600">
                         <Package className="size-4" />
                     </div>
                     <div className="min-w-0">
@@ -230,7 +230,7 @@ return;
                         onSearchChange={handleSearch}
                         emptyState={
                             <div className="py-12 text-center">
-                                <div className="mx-auto mb-3 grid size-14 place-items-center rounded-2xl bg-violet-50 text-violet-600">
+                                <div className="mx-auto mb-3 grid size-14 place-items-center rounded-2xl bg-brand-50 text-brand-600">
                                     <Package className="size-5" />
                                 </div>
                                 <p className="text-sm font-semibold text-slate-900">

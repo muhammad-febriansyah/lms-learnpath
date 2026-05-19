@@ -216,8 +216,8 @@ export default function OrdersIndex({ orders, filters, stats }: Props) {
                         label="Total Revenue"
                         value={formatRupiah(stats.revenue)}
                         icon={Banknote}
-                        tint="bg-violet-50"
-                        text="text-violet-600"
+                        tint="bg-brand-50"
+                        text="text-brand-600"
                     />
                 </div>
 

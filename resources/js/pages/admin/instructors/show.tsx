@@ -270,9 +270,9 @@ export default function InstructorShow({
                 </nav>
 
                 {/* Hero */}
-                <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 via-slate-900 to-indigo-950 p-6 text-white shadow-[0_10px_40px_-20px_rgba(15,23,42,0.5)] sm:p-8 dark:from-neutral-950 dark:via-neutral-950 dark:to-indigo-950">
-                    <div className="pointer-events-none absolute -top-24 -right-24 size-72 rounded-full bg-indigo-500/20 blur-3xl" />
-                    <div className="pointer-events-none absolute -bottom-24 -left-32 size-72 rounded-full bg-violet-500/10 blur-3xl" />
+                <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 via-slate-900 to-brand-950 p-6 text-white shadow-[0_10px_40px_-20px_rgba(15,23,42,0.5)] sm:p-8 dark:from-neutral-950 dark:via-neutral-950 dark:to-brand-950">
+                    <div className="pointer-events-none absolute -top-24 -right-24 size-72 rounded-full bg-brand-500/20 blur-3xl" />
+                    <div className="pointer-events-none absolute -bottom-24 -left-32 size-72 rounded-full bg-brand-500/10 blur-3xl" />
 
                     <div className="relative flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
                         <div className="flex min-w-0 flex-1 items-start gap-5">
@@ -283,7 +283,7 @@ export default function InstructorShow({
                                         alt={instructor.name}
                                     />
                                 )}
-                                <AvatarFallback className="bg-gradient-to-br from-indigo-500 to-violet-600 text-[20px] font-bold text-white">
+                                <AvatarFallback className="bg-gradient-to-br from-brand-500 to-brand-600 text-[20px] font-bold text-white">
                                     {initials(instructor.name)}
                                 </AvatarFallback>
                             </Avatar>
@@ -467,7 +467,7 @@ export default function InstructorShow({
                                     {profile.expertise.map((tag) => (
                                         <Badge
                                             key={tag}
-                                            className="border-transparent bg-gradient-to-br from-violet-50 to-indigo-50 px-3 py-1 text-[12px] font-semibold text-violet-700 ring-1 ring-violet-100 dark:from-violet-500/15 dark:to-indigo-500/15 dark:text-violet-200 dark:ring-violet-500/20"
+                                            className="border-transparent bg-gradient-to-br from-brand-50 to-brand-50 px-3 py-1 text-[12px] font-semibold text-brand-700 ring-1 ring-brand-100 dark:from-brand-500/15 dark:to-brand-500/15 dark:text-brand-200 dark:ring-brand-500/20"
                                         >
                                             {tag}
                                         </Badge>
@@ -506,7 +506,7 @@ export default function InstructorShow({
                                                         className="size-14 shrink-0 rounded-lg object-cover ring-1 ring-slate-200 dark:ring-neutral-800"
                                                     />
                                                 ) : (
-                                                    <span className="grid size-14 shrink-0 place-items-center rounded-lg bg-gradient-to-br from-indigo-50 to-violet-50 text-indigo-600 ring-1 ring-indigo-100 dark:from-indigo-500/15 dark:to-violet-500/15 dark:text-indigo-300 dark:ring-indigo-500/20">
+                                                    <span className="grid size-14 shrink-0 place-items-center rounded-lg bg-gradient-to-br from-brand-50 to-brand-50 text-brand-600 ring-1 ring-brand-100 dark:from-brand-500/15 dark:to-brand-500/15 dark:text-brand-300 dark:ring-brand-500/20">
                                                         <BookOpen className="size-5" />
                                                     </span>
                                                 )}
@@ -744,7 +744,7 @@ function Card({
             <div className="mb-4 flex items-center justify-between gap-3">
                 <h2 className="inline-flex items-center gap-2 text-[14.5px] font-bold text-slate-900 dark:text-neutral-100">
                     {icon && (
-                        <span className="grid size-7 place-items-center rounded-lg bg-indigo-50 text-indigo-600 dark:bg-indigo-500/15 dark:text-indigo-300">
+                        <span className="grid size-7 place-items-center rounded-lg bg-brand-50 text-brand-600 dark:bg-brand-500/15 dark:text-brand-300">
                             {icon}
                         </span>
                     )}

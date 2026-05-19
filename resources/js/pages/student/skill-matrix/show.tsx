@@ -1,5 +1,17 @@
 import { Head, Link } from '@inertiajs/react';
-import { Award, BarChart3, Briefcase, ChevronRight, TrendingUp } from 'lucide-react';
+import {
+    Award,
+    BarChart3,
+    Briefcase,
+    ChevronRight,
+    ClipboardCheck,
+    Info,
+    Lightbulb,
+    Sparkles,
+    Target,
+    TrendingUp,
+    UserCheck,
+} from 'lucide-react';
 
 import { IconChevR } from '@/components/learnpath-icons';
 import { Badge } from '@/components/ui/badge';
@@ -39,11 +51,20 @@ type Gap = {
     status: string;
 };
 
+type TargetCompetency = {
+    id: number;
+    name: string | null;
+    category: string | null;
+    target_level: number;
+    is_required: boolean;
+};
+
 type Props = {
     profile: Profile;
     position: Position;
     competencies: Competency[];
     gaps: Gap[];
+    targetCompetencies: TargetCompetency[];
     totalCompetencies: number;
 };
 
@@ -56,7 +77,13 @@ const SOURCE_LABELS: Record<string, string> = {
 
 const LEVEL_LABELS = ['—', 'Awareness', 'Basic', 'Intermediate', 'Advanced', 'Expert'];
 
-export default function MySkillMatrix({ position, competencies, gaps, totalCompetencies }: Props) {
+export default function MySkillMatrix({
+    position,
+    competencies,
+    gaps,
+    targetCompetencies,
+    totalCompetencies,
+}: Props) {
     const assessed = competencies.length;
     const onTarget = gaps.filter((g) => g.status === 'on_target' || g.status === 'exceed').length;
     const totalGap = gaps.filter((g) => g.status === 'gap').length;
@@ -120,9 +147,130 @@ export default function MySkillMatrix({ position, competencies, gaps, totalCompe
                 ) : (
                     <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
                         <StatCard label="Total Kompetensi" value={totalCompetencies} icon={Award} tint="bg-brand-50" text="text-brand-600" />
-                        <StatCard label="Sudah Dinilai" value={assessed} icon={BarChart3} tint="bg-violet-50" text="text-violet-600" />
+                        <StatCard label="Sudah Dinilai" value={assessed} icon={BarChart3} tint="bg-brand-50" text="text-brand-600" />
                         <StatCard label="On Target" value={onTarget} icon={TrendingUp} tint="bg-emerald-50" text="text-emerald-600" />
                         <StatCard label="Ada Gap" value={totalGap} icon={TrendingUp} tint="bg-rose-50" text="text-rose-600" />
+                    </div>
+                )}
+
+                {/* Empty state — assessed = 0 */}
+                {position && competencies.length === 0 && (
+                    <div className="overflow-hidden rounded-2xl bg-gradient-to-br from-brand-50 to-brand-50 p-6 ring-1 ring-brand-100 sm:p-7">
+                        <div className="flex flex-col items-start gap-4 sm:flex-row">
+                            <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-brand-500 to-brand-600 text-white shadow-md">
+                                <Lightbulb className="size-5" />
+                            </span>
+                            <div className="min-w-0 flex-1">
+                                <div className="text-[10.5px] font-bold tracking-[0.18em] text-brand-700 uppercase">
+                                    Bagaimana cara mengisi skill matrix?
+                                </div>
+                                <h2 className="mt-1 text-[16px] font-extrabold text-slate-900">
+                                    Anda belum dinilai pada satupun kompetensi
+                                </h2>
+                                <p className="mt-1 text-[12.5px] leading-relaxed text-slate-600">
+                                    Skill matrix terisi otomatis dari 3 sumber
+                                    di bawah. Hubungi supervisor atau HR untuk
+                                    memulai penilaian pertama Anda.
+                                </p>
+
+                                <div className="mt-4 grid gap-3 sm:grid-cols-3">
+                                    <SourceHint
+                                        icon={<ClipboardCheck className="size-4" />}
+                                        title="OJT Assessment"
+                                        desc="Penilaian on-the-job oleh atasan langsung"
+                                        tone="bg-blue-50 text-blue-700 ring-blue-100"
+                                    />
+                                    <SourceHint
+                                        icon={<UserCheck className="size-4" />}
+                                        title="Supervisor Review"
+                                        desc="Review periodik berdasarkan observasi"
+                                        tone="bg-brand-50 text-brand-700 ring-brand-100"
+                                    />
+                                    <SourceHint
+                                        icon={<Sparkles className="size-4" />}
+                                        title="Course & Sertifikat"
+                                        desc="Otomatis terisi dari kursus selesai"
+                                        tone="bg-emerald-50 text-emerald-700 ring-emerald-100"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* Target competencies — show when user has nothing yet but position has targets */}
+                {position && competencies.length === 0 && targetCompetencies.length > 0 && (
+                    <div className="rounded-2xl bg-card p-5 shadow-[0_1px_2px_rgba(15,23,42,0.04)] ring-1 ring-slate-200/70 sm:p-6">
+                        <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
+                            <div>
+                                <h2 className="inline-flex items-center gap-2 text-[15px] font-bold text-slate-900">
+                                    <Target className="size-4 text-brand-600" />
+                                    Kompetensi yang Diharapkan untuk Jabatan Anda
+                                </h2>
+                                <p className="mt-0.5 text-[12px] text-slate-500">
+                                    {targetCompetencies.length} kompetensi
+                                    dengan target level dari jabatan{' '}
+                                    <strong>{position.name}</strong>
+                                </p>
+                            </div>
+                        </div>
+
+                        <ul className="divide-y divide-slate-100">
+                            {targetCompetencies.map((t) => (
+                                <li
+                                    key={t.id}
+                                    className="flex flex-wrap items-center justify-between gap-2 py-3 first:pt-0 last:pb-0"
+                                >
+                                    <div className="min-w-0">
+                                        <div className="flex flex-wrap items-center gap-1.5">
+                                            <span className="text-[13px] font-semibold text-slate-900">
+                                                {t.name ?? '—'}
+                                            </span>
+                                            {t.is_required && (
+                                                <Badge className="border-transparent bg-rose-50 px-1.5 py-0 text-[10px] font-bold tracking-wider text-rose-700 uppercase">
+                                                    Wajib
+                                                </Badge>
+                                            )}
+                                        </div>
+                                        {t.category && (
+                                            <Badge className="mt-1 border-transparent bg-brand-50 px-1.5 py-0 text-[10.5px] font-semibold text-brand-700">
+                                                {t.category}
+                                            </Badge>
+                                        )}
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <span className="text-[10.5px] font-semibold tracking-wider text-slate-500 uppercase">
+                                            Target
+                                        </span>
+                                        <div className="flex items-center gap-0.5">
+                                            {[1, 2, 3, 4, 5].map((lv) => (
+                                                <div
+                                                    key={lv}
+                                                    className={cn(
+                                                        'size-4 rounded',
+                                                        lv <= t.target_level
+                                                            ? 'bg-brand-500/70'
+                                                            : 'bg-slate-100',
+                                                    )}
+                                                />
+                                            ))}
+                                        </div>
+                                        <span className="text-[11.5px] font-bold text-slate-700 tabular-nums">
+                                            {LEVEL_LABELS[t.target_level]}
+                                        </span>
+                                    </div>
+                                </li>
+                            ))}
+                        </ul>
+
+                        <div className="mt-5 flex items-start gap-2.5 rounded-xl border border-dashed border-slate-200 bg-slate-50/60 p-3 text-[11.5px] text-slate-600">
+                            <Info className="mt-0.5 size-3.5 shrink-0 text-slate-400" />
+                            <span>
+                                Level aktual Anda akan muncul di sini setelah
+                                supervisor mengisi OJT/Supervisor Review, atau
+                                setelah Anda menyelesaikan course terkait.
+                            </span>
+                        </div>
                     </div>
                 )}
 
@@ -140,7 +288,7 @@ export default function MySkillMatrix({ position, competencies, gaps, totalCompe
                                                 {gap.competency_name}
                                             </div>
                                             {gap.category && (
-                                                <Badge className="mt-0.5 border-transparent bg-violet-50 px-1.5 py-0 text-[10.5px] font-semibold text-violet-700">
+                                                <Badge className="mt-0.5 border-transparent bg-brand-50 px-1.5 py-0 text-[10.5px] font-semibold text-brand-700">
                                                     {gap.category}
                                                 </Badge>
                                             )}
@@ -191,7 +339,7 @@ export default function MySkillMatrix({ position, competencies, gaps, totalCompe
                                 className="rounded-2xl bg-card p-5 shadow-[0_1px_2px_rgba(15,23,42,0.04)] ring-1 ring-slate-200/70"
                             >
                                 <h3 className="mb-3 inline-flex items-center gap-2 text-[13px] font-bold text-slate-900">
-                                    <Badge className="border-transparent bg-violet-50 text-violet-700">
+                                    <Badge className="border-transparent bg-brand-50 text-brand-700">
                                         {category}
                                     </Badge>
                                 </h3>
@@ -266,6 +414,32 @@ function StatCard({
                     </div>
                 </div>
             </div>
+        </div>
+    );
+}
+
+function SourceHint({
+    icon,
+    title,
+    desc,
+    tone,
+}: {
+    icon: React.ReactNode;
+    title: string;
+    desc: string;
+    tone: string;
+}) {
+    return (
+        <div className="rounded-xl bg-white p-3 ring-1 ring-slate-200/70">
+            <span className={cn('inline-flex size-7 items-center justify-center rounded-lg ring-1', tone)}>
+                {icon}
+            </span>
+            <div className="mt-2 text-[12.5px] font-bold text-slate-900">
+                {title}
+            </div>
+            <p className="mt-0.5 text-[11px] leading-relaxed text-slate-500">
+                {desc}
+            </p>
         </div>
     );
 }

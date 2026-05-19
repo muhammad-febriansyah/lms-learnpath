@@ -188,7 +188,7 @@ export default function PositionTargetsIndex({ positions, position, targets }: P
                                         className="rounded-2xl bg-card p-5 shadow-[0_1px_2px_rgba(15,23,42,0.04)] ring-1 ring-slate-200/70"
                                     >
                                         <h3 className="mb-4 inline-flex items-center gap-2 text-[13px] font-bold text-slate-900">
-                                            <Badge className="border-transparent bg-violet-50 text-violet-700">
+                                            <Badge className="border-transparent bg-brand-50 text-brand-700">
                                                 {category}
                                             </Badge>
                                             <span className="text-[11.5px] font-normal text-slate-500">

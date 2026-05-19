@@ -23,6 +23,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
+import { storageUrl } from '@/lib/storage-url';
 import { cn } from '@/lib/utils';
 
 type Enrollment = {
@@ -174,25 +175,27 @@ export default function MyCoursesIndex({ enrollments, filters, stats }: Props) {
 
 function CourseCard({ enrollment }: { enrollment: Enrollment }) {
     if (!enrollment.course) {
-return null;
-}
+        return null;
+    }
 
     const c = enrollment.course;
     const progress = enrollment.progress_percent;
     const isCompleted = enrollment.status === 'completed' || progress >= 100;
     const hasCertificate = enrollment.certificate_status === 'issued';
+    const thumbUrl = storageUrl(c.thumbnail);
 
     return (
-        <div className="group flex flex-col overflow-hidden rounded-2xl bg-card shadow-[0_1px_2px_rgba(15,23,42,0.04)] ring-1 ring-slate-200/70 transition hover:-translate-y-0.5 hover:ring-slate-300">
+        <div className="group flex flex-col overflow-hidden rounded-2xl bg-card shadow-[0_1px_2px_rgba(15,23,42,0.04)] ring-1 ring-slate-200/70 transition hover:-translate-y-0.5 hover:shadow-[0_12px_28px_-12px_rgba(15,23,42,0.18)] hover:ring-brand-200">
             <Link
                 href={`/learn/${c.slug}`}
-                className="relative aspect-[16/9] overflow-hidden bg-gradient-to-br from-brand-500 to-brand-700"
+                className="relative block aspect-[16/9] overflow-hidden bg-gradient-to-br from-brand-500 to-brand-700"
             >
-                {c.thumbnail ? (
+                {thumbUrl ? (
                     <img
-                        src={c.thumbnail}
-                        alt={c.title}
-                        className="size-full object-cover"
+                        src={thumbUrl}
+                        alt=""
+                        loading="lazy"
+                        className="size-full object-cover transition duration-500 group-hover:scale-105"
                     />
                 ) : (
                     <div className="grid size-full place-items-center text-white/40">
@@ -200,22 +203,27 @@ return null;
                     </div>
                 )}
                 {isCompleted && (
-                    <Badge className="absolute top-3 right-3 border-transparent bg-emerald-500 text-white">
+                    <Badge className="absolute top-3 right-3 border-transparent bg-emerald-500 text-white shadow-sm">
                         <CheckCircle2 className="mr-1 size-3" />
                         Selesai
                     </Badge>
                 )}
-                <div className="absolute inset-x-0 bottom-0 flex h-1.5 bg-black/20">
+                <div className="absolute inset-x-0 bottom-0 h-1.5 bg-black/30">
                     <div
-                        className="h-full bg-gradient-to-r from-brand-400 to-brand-300"
+                        className={cn(
+                            'h-full transition-all',
+                            isCompleted
+                                ? 'bg-gradient-to-r from-emerald-400 to-emerald-300'
+                                : 'bg-gradient-to-r from-amber-400 to-amber-300',
+                        )}
                         style={{ width: `${progress}%` }}
                     />
                 </div>
             </Link>
 
-            <div className="flex flex-1 flex-col gap-2 p-4">
+            <div className="flex flex-1 flex-col gap-3 p-4">
                 {c.category && (
-                    <span className="text-[11px] font-semibold text-brand-600">
+                    <span className="text-[10.5px] font-semibold tracking-wider text-brand-700 uppercase">
                         {c.category.name}
                     </span>
                 )}
@@ -231,23 +239,34 @@ return null;
                     </div>
                 )}
 
-                <div className="mt-auto space-y-3 pt-2">
-                    <div className="flex items-center justify-between text-[12px]">
-                        <span className="font-semibold text-slate-700">
-                            Progress {progress}%
+                <div className="mt-auto space-y-2.5 border-t border-slate-100 pt-3">
+                    <div className="flex items-center justify-between text-[11.5px]">
+                        <span className="font-semibold text-slate-700 tabular-nums">
+                            {progress}%
                         </span>
                         <span className="inline-flex items-center gap-1 text-slate-500">
                             <Clock className="size-3.5" />
                             {formatDuration(c.duration_minutes)}
                         </span>
                     </div>
+                    <div className="h-1.5 overflow-hidden rounded-full bg-slate-100">
+                        <div
+                            className={cn(
+                                'h-full transition-all',
+                                isCompleted
+                                    ? 'bg-gradient-to-r from-emerald-500 to-emerald-400'
+                                    : 'bg-gradient-to-r from-brand-600 to-brand-400',
+                            )}
+                            style={{ width: `${progress}%` }}
+                        />
+                    </div>
 
-                    <div className="flex gap-2">
+                    <div className="flex gap-2 pt-1">
                         <Button
                             asChild
                             size="sm"
                             className={cn(
-                                'flex-1 rounded-xl',
+                                'flex-1 rounded-xl shadow-sm',
                                 isCompleted
                                     ? 'bg-emerald-600 hover:bg-emerald-700'
                                     : 'bg-brand-600 hover:bg-brand-700',
@@ -268,6 +287,7 @@ return null;
                                 size="sm"
                                 variant="outline"
                                 className="rounded-xl"
+                                title="Lihat sertifikat"
                             >
                                 <Link href="/my-certificates">
                                     <Trophy className="size-4" />

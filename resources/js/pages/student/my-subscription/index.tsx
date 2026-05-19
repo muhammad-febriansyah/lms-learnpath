@@ -113,7 +113,7 @@ export default function MySubscriptionIndex({ active, history }: Props) {
             <div className="space-y-5">
                 <div>
                     <h1 className="inline-flex items-center gap-2 text-2xl font-extrabold tracking-tight text-slate-900">
-                        <Crown className="size-6 text-violet-600" />
+                        <Crown className="size-6 text-brand-600" />
                         Langganan Saya
                     </h1>
                     <p className="mt-1 text-[13.5px] text-slate-500">
@@ -122,7 +122,7 @@ export default function MySubscriptionIndex({ active, history }: Props) {
                 </div>
 
                 {active ? (
-                    <div className="overflow-hidden rounded-2xl bg-gradient-to-br from-violet-600 via-fuchsia-600 to-pink-600 p-1 shadow-[0_20px_50px_-20px_rgba(124,58,237,0.5)]">
+                    <div className="overflow-hidden rounded-2xl bg-gradient-to-br from-brand-600 via-brand-600 to-pink-600 p-1 shadow-[0_20px_50px_-20px_rgba(18,35,125,0.5)]">
                         <div className="rounded-[1rem] bg-white p-6">
                             <div className="flex flex-wrap items-start justify-between gap-4">
                                 <div>
@@ -145,7 +145,7 @@ export default function MySubscriptionIndex({ active, history }: Props) {
                                 <div className="flex flex-wrap gap-2">
                                     <Link
                                         href="/subscribe"
-                                        className="inline-flex items-center gap-1.5 rounded-lg bg-violet-600 px-3 py-2 text-[12.5px] font-semibold text-white hover:bg-violet-700"
+                                        className="inline-flex items-center gap-1.5 rounded-lg bg-brand-600 px-3 py-2 text-[12.5px] font-semibold text-white hover:bg-brand-700"
                                     >
                                         Perpanjang / Upgrade
                                         <ArrowRight className="size-3.5" />
@@ -220,7 +220,7 @@ export default function MySubscriptionIndex({ active, history }: Props) {
                     </div>
                 ) : (
                     <div className="rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50 p-10 text-center">
-                        <div className="mx-auto grid size-14 place-items-center rounded-2xl bg-violet-100 text-violet-600">
+                        <div className="mx-auto grid size-14 place-items-center rounded-2xl bg-brand-100 text-brand-600">
                             <Crown className="size-7" />
                         </div>
                         <h2 className="mt-3 text-[16px] font-bold text-slate-900">
@@ -231,7 +231,7 @@ export default function MySubscriptionIndex({ active, history }: Props) {
                         </p>
                         <Link
                             href="/subscribe"
-                            className="mt-4 inline-flex items-center gap-1.5 rounded-xl bg-violet-600 px-4 py-2.5 text-[13px] font-bold text-white hover:bg-violet-700"
+                            className="mt-4 inline-flex items-center gap-1.5 rounded-xl bg-brand-600 px-4 py-2.5 text-[13px] font-bold text-white hover:bg-brand-700"
                         >
                             Lihat Paket Langganan
                             <ArrowRight className="size-4" />

@@ -127,9 +127,9 @@ function RolePicker({ onPick }: { onPick: (role: IntendedRole) => void }) {
 
                 <Link
                     href="/business/register"
-                    className="group flex w-full items-center gap-4 rounded-2xl border border-slate-200 bg-white p-4 text-left transition hover:border-violet-300 hover:bg-violet-50/40"
+                    className="group flex w-full items-center gap-4 rounded-2xl border border-slate-200 bg-white p-4 text-left transition hover:border-brand-300 hover:bg-brand-50/40"
                 >
-                    <div className="grid size-12 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-violet-500 to-violet-700 text-white">
+                    <div className="grid size-12 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-brand-500 to-brand-700 text-white">
                         <Building2 className="size-5" />
                     </div>
                     <div className="min-w-0 flex-1">
@@ -140,7 +140,7 @@ function RolePicker({ onPick }: { onPick: (role: IntendedRole) => void }) {
                             Buat tenant baru untuk training karyawan, dapat seat HR.
                         </div>
                     </div>
-                    <IconChevR size={16} className="text-slate-400 transition group-hover:text-violet-600" />
+                    <IconChevR size={16} className="text-slate-400 transition group-hover:text-brand-600" />
                 </Link>
 
                 <p className="pt-2 text-center text-[12.5px] text-slate-500">
@@ -660,13 +660,13 @@ function InstructorStep2({
                         {data.expertise.map((tag) => (
                             <span
                                 key={tag}
-                                className="inline-flex items-center gap-1 rounded-full bg-violet-50 px-2.5 py-1 text-[12px] font-semibold text-violet-700"
+                                className="inline-flex items-center gap-1 rounded-full bg-brand-50 px-2.5 py-1 text-[12px] font-semibold text-brand-700"
                             >
                                 {tag}
                                 <button
                                     type="button"
                                     onClick={() => removeExpertise(tag)}
-                                    className="rounded-full p-0.5 transition hover:bg-violet-100"
+                                    className="rounded-full p-0.5 transition hover:bg-brand-100"
                                     aria-label={`Hapus ${tag}`}
                                 >
                                     <X className="size-3" />

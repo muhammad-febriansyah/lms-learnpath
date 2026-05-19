@@ -1,5 +1,6 @@
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import {
+    ArrowRight,
     Award,
     BookOpen,
     Calendar,
@@ -7,6 +8,7 @@ import {
     Circle,
     Clock,
     GraduationCap,
+    Layers,
     PlayCircle,
     Sparkles,
     Target,
@@ -91,6 +93,29 @@ function levelLabel(level: string | null): string {
             advanced: 'Lanjutan',
         }[level] ?? level
     );
+}
+
+function resolveThumbnail(path: string | null): string | null {
+    if (!path) return null;
+    if (path.startsWith('http')) return path;
+    return `/storage/${path}`;
+}
+
+const COURSE_GRADIENTS = [
+    'from-blue-500 via-brand-600 to-brand-800',
+    'from-brand-500 via-brand-600 to-brand-800',
+    'from-emerald-500 via-teal-600 to-cyan-800',
+    'from-rose-500 via-pink-600 to-rose-800',
+    'from-amber-500 via-orange-600 to-red-700',
+    'from-sky-500 via-blue-600 to-brand-800',
+];
+
+function gradientFor(seed: string): string {
+    let h = 0;
+    for (let i = 0; i < seed.length; i++) {
+        h = (h * 31 + seed.charCodeAt(i)) | 0;
+    }
+    return COURSE_GRADIENTS[Math.abs(h) % COURSE_GRADIENTS.length];
 }
 
 export default function PathShow({ path, userEnrollment, courseProgress, pointOffer }: Props) {
@@ -252,39 +277,57 @@ export default function PathShow({ path, userEnrollment, courseProgress, pointOf
 
                         {/* Course sequence */}
                         <div className="rounded-2xl bg-card p-6 ring-1 ring-slate-200/70 shadow-[0_1px_2px_rgba(15,23,42,0.04)]">
-                            <div className="flex items-center justify-between">
-                                <h2 className="text-[18px] font-extrabold text-slate-900">
-                                    Kurikulum
-                                </h2>
-                                <span className="text-[12px] text-slate-500">
-                                    {path.courses.length} course berurutan
-                                </span>
+                            <div className="flex flex-wrap items-center justify-between gap-2">
+                                <div>
+                                    <h2 className="flex items-center gap-2 text-[18px] font-extrabold text-slate-900">
+                                        <Layers className="size-5 text-brand-600" />
+                                        Kurikulum
+                                    </h2>
+                                    <p className="mt-1 text-[12px] text-slate-500">
+                                        {path.courses.length} course tersusun
+                                        berurutan — selesaikan dari atas ke bawah
+                                    </p>
+                                </div>
+                                {userEnrollment && (
+                                    <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1 text-[11px] font-bold text-emerald-700 ring-1 ring-emerald-200">
+                                        <CheckCircle2 className="size-3" />
+                                        {userEnrollment.courses_completed}/
+                                        {path.total_courses} selesai
+                                    </span>
+                                )}
                             </div>
 
-                            <ol className="mt-5 space-y-3">
+                            <ol className="relative mt-6 space-y-4">
+                                {/* Vertical connection line */}
+                                <div
+                                    aria-hidden
+                                    className="absolute top-3 bottom-3 left-[18px] w-px bg-gradient-to-b from-brand-200 via-slate-200 to-slate-100"
+                                />
+
                                 {path.courses.map((course, idx) => {
                                     const progress = courseProgress[course.id];
                                     const completed = progress?.status === 'completed';
-                                    const inProgress = !!progress && !completed && progress.progress_percent > 0;
+                                    const inProgress =
+                                        !!progress &&
+                                        !completed &&
+                                        progress.progress_percent > 0;
+                                    const thumb = resolveThumbnail(course.thumbnail);
+                                    const gradient = gradientFor(course.title);
+
                                     return (
                                         <li
                                             key={course.id}
-                                            className={cn(
-                                                'group relative flex gap-4 rounded-xl border p-4 transition',
-                                                completed
-                                                    ? 'border-emerald-200 bg-emerald-50/50'
-                                                    : 'border-slate-200 bg-white hover:border-slate-300',
-                                            )}
+                                            className="relative flex items-stretch gap-3"
                                         >
-                                            {/* Step number */}
+                                            {/* Step number (on top of line) */}
                                             <div
                                                 className={cn(
-                                                    'grid size-9 shrink-0 place-items-center rounded-full text-[12.5px] font-extrabold ring-2',
+                                                    'relative z-10 mt-3 grid size-9 shrink-0 place-items-center rounded-full text-[12.5px] font-extrabold ring-4 ring-white',
                                                     completed
-                                                        ? 'bg-emerald-500 text-white ring-emerald-200'
+                                                        ? 'bg-emerald-500 text-white'
                                                         : inProgress
-                                                          ? 'bg-brand-500 text-white ring-brand-200'
-                                                          : 'bg-slate-100 text-slate-600 ring-slate-200',
+                                                          ? 'bg-brand-600 text-white'
+                                                          : 'bg-white text-slate-700 shadow-[inset_0_0_0_2px] shadow-slate-200',
                                                 )}
                                             >
                                                 {completed ? (
@@ -294,64 +337,130 @@ export default function PathShow({ path, userEnrollment, courseProgress, pointOf
                                                 )}
                                             </div>
 
-                                            <div className="min-w-0 flex-1">
-                                                <div className="flex flex-wrap items-center gap-1.5">
-                                                    {course.category && (
-                                                        <Badge className="border-transparent bg-slate-100 text-slate-700 text-[10px] font-bold hover:bg-slate-100">
-                                                            {course.category.name}
-                                                        </Badge>
-                                                    )}
-                                                    {!course.is_required && (
-                                                        <Badge className="border-transparent bg-amber-100 text-amber-800 text-[10px] font-bold hover:bg-amber-100">
-                                                            Opsional
-                                                        </Badge>
-                                                    )}
-                                                </div>
-                                                <Link
-                                                    href={`/courses/${course.slug}`}
-                                                    className="mt-1 line-clamp-1 block text-[14.5px] font-bold text-slate-900 transition hover:text-brand-700"
-                                                >
-                                                    {course.title}
-                                                </Link>
-                                                {course.subtitle && (
-                                                    <p className="mt-0.5 line-clamp-1 text-[12px] text-slate-500">
-                                                        {course.subtitle}
-                                                    </p>
+                                            {/* Card */}
+                                            <Link
+                                                href={`/courses/${course.slug}`}
+                                                className={cn(
+                                                    'group flex flex-1 gap-3 overflow-hidden rounded-xl border bg-white p-3 transition hover:-translate-y-0.5',
+                                                    completed
+                                                        ? 'border-emerald-200 bg-emerald-50/40 hover:border-emerald-300'
+                                                        : 'border-slate-200 hover:border-brand-300 hover:shadow-[0_8px_24px_-12px_rgba(15,23,42,0.15)]',
                                                 )}
-                                                <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-slate-500">
-                                                    {course.instructor && (
-                                                        <span>{course.instructor.name}</span>
+                                            >
+                                                {/* Thumbnail */}
+                                                <div className="relative aspect-[16/10] w-32 shrink-0 overflow-hidden rounded-lg bg-slate-100 sm:w-40">
+                                                    {thumb ? (
+                                                        <img
+                                                            src={thumb}
+                                                            alt={course.title}
+                                                            loading="lazy"
+                                                            className="size-full object-cover transition duration-500 group-hover:scale-105"
+                                                        />
+                                                    ) : (
+                                                        <div
+                                                            className={cn(
+                                                                'relative grid size-full place-items-center bg-gradient-to-br text-white',
+                                                                gradient,
+                                                            )}
+                                                        >
+                                                            <div
+                                                                aria-hidden
+                                                                className="absolute inset-0 opacity-30"
+                                                                style={{
+                                                                    backgroundImage:
+                                                                        'radial-gradient(circle, rgba(255,255,255,0.25) 1px, transparent 1px)',
+                                                                    backgroundSize:
+                                                                        '14px 14px',
+                                                                }}
+                                                            />
+                                                            <BookOpen className="relative size-7 drop-shadow" />
+                                                        </div>
                                                     )}
-                                                    <span className="inline-flex items-center gap-1">
-                                                        <Clock className="size-3" />
-                                                        {formatDuration(course.duration_minutes)}
-                                                    </span>
-                                                    <span className="inline-flex items-center gap-1">
-                                                        <GraduationCap className="size-3" />
-                                                        {levelLabel(course.level)}
-                                                    </span>
+
+                                                    {completed && (
+                                                        <div className="absolute inset-0 grid place-items-center bg-emerald-500/85">
+                                                            <CheckCircle2 className="size-7 text-white drop-shadow" />
+                                                        </div>
+                                                    )}
+
                                                     {inProgress && (
-                                                        <span className="font-bold text-brand-600">
-                                                            {progress.progress_percent}% selesai
-                                                        </span>
+                                                        <div className="absolute inset-x-0 bottom-0 h-1 bg-white/30">
+                                                            <div
+                                                                className="h-full bg-brand-400"
+                                                                style={{
+                                                                    width: `${progress.progress_percent}%`,
+                                                                }}
+                                                            />
+                                                        </div>
                                                     )}
                                                 </div>
-                                            </div>
 
-                                            <div className="flex shrink-0 items-center">
-                                                <Link
-                                                    href={`/courses/${course.slug}`}
-                                                    className={cn(
-                                                        'inline-flex items-center gap-1 rounded-lg px-3 py-1.5 text-[11.5px] font-bold transition',
-                                                        completed
-                                                            ? 'bg-emerald-500 text-white hover:bg-emerald-600'
-                                                            : 'bg-brand-600 text-white hover:bg-brand-700',
+                                                {/* Body */}
+                                                <div className="flex min-w-0 flex-1 flex-col">
+                                                    <div className="flex flex-wrap items-center gap-1.5">
+                                                        {course.category && (
+                                                            <Badge className="border-transparent bg-slate-100 text-[10px] font-bold text-slate-700 hover:bg-slate-100">
+                                                                {course.category.name}
+                                                            </Badge>
+                                                        )}
+                                                        {!course.is_required && (
+                                                            <Badge className="border-transparent bg-amber-100 text-[10px] font-bold text-amber-800 hover:bg-amber-100">
+                                                                Opsional
+                                                            </Badge>
+                                                        )}
+                                                        {inProgress && (
+                                                            <Badge className="border-transparent bg-brand-100 text-[10px] font-bold text-brand-700 hover:bg-brand-100">
+                                                                {progress.progress_percent}%
+                                                                lanjut
+                                                            </Badge>
+                                                        )}
+                                                    </div>
+                                                    <h3 className="mt-1.5 line-clamp-2 text-[14.5px] font-bold leading-snug text-slate-900 transition group-hover:text-brand-700">
+                                                        {course.title}
+                                                    </h3>
+                                                    {course.subtitle && (
+                                                        <p className="mt-0.5 line-clamp-1 text-[12px] text-slate-500">
+                                                            {course.subtitle}
+                                                        </p>
                                                     )}
-                                                >
-                                                    <PlayCircle className="size-3.5" />
-                                                    {completed ? 'Tinjau' : 'Buka'}
-                                                </Link>
-                                            </div>
+
+                                                    <div className="mt-auto flex flex-wrap items-center gap-x-3 gap-y-1 pt-2 text-[11px] text-slate-500">
+                                                        {course.instructor && (
+                                                            <span className="truncate font-medium">
+                                                                {course.instructor.name}
+                                                            </span>
+                                                        )}
+                                                        <span className="inline-flex items-center gap-1">
+                                                            <Clock className="size-3" />
+                                                            {formatDuration(
+                                                                course.duration_minutes,
+                                                            )}
+                                                        </span>
+                                                        <span className="inline-flex items-center gap-1">
+                                                            <GraduationCap className="size-3" />
+                                                            {levelLabel(course.level)}
+                                                        </span>
+                                                    </div>
+                                                </div>
+
+                                                {/* CTA chevron */}
+                                                <div className="hidden shrink-0 items-center pr-2 sm:flex">
+                                                    <span
+                                                        className={cn(
+                                                            'inline-flex size-9 items-center justify-center rounded-full transition group-hover:translate-x-0.5',
+                                                            completed
+                                                                ? 'bg-emerald-100 text-emerald-700'
+                                                                : 'bg-brand-50 text-brand-700 group-hover:bg-brand-100',
+                                                        )}
+                                                    >
+                                                        {completed ? (
+                                                            <ArrowRight className="size-4" />
+                                                        ) : (
+                                                            <PlayCircle className="size-4" />
+                                                        )}
+                                                    </span>
+                                                </div>
+                                            </Link>
                                         </li>
                                     );
                                 })}

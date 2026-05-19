@@ -70,8 +70,8 @@ const KPIS: Kpi[] = [
         sub: 'MRR Mei 2026',
         spark: [22, 25, 24, 28, 26, 30, 29, 33, 32, 36, 34, 38, 37, 40, 42],
         color: '#7C3AED',
-        tint: 'bg-violet-50',
-        text: 'text-violet-600',
+        tint: 'bg-brand-50',
+        text: 'text-brand-600',
         icon: IconWallet,
     },
     {
@@ -143,7 +143,7 @@ const COURSES = [
         completion: 71,
         revenue: 'Rp 76 Jt',
         status: 'Aktif',
-        cover: 'from-violet-500 to-fuchsia-600',
+        cover: 'from-brand-500 to-brand-600',
     },
     {
         title: 'UI/UX Foundations',
@@ -181,13 +181,13 @@ const STUDENTS = [
     { name: 'Rifqi Andika', email: 'rifqi@email.com', plan: 'Pro', joined: '5 menit lalu', online: true, color: 'from-brand-300 to-brand-500' },
     { name: 'Maya Anggraini', email: 'maya.a@email.com', plan: 'Basic', joined: '12 menit lalu', online: true, color: 'from-emerald-300 to-emerald-500' },
     { name: 'Dimas Prabowo', email: 'dimas.p@email.com', plan: 'Pro', joined: '1 jam lalu', online: false, color: 'from-amber-300 to-amber-500' },
-    { name: 'Kirana Putri', email: 'kirana@email.com', plan: 'Team', joined: '2 jam lalu', online: true, color: 'from-violet-300 to-violet-500' },
+    { name: 'Kirana Putri', email: 'kirana@email.com', plan: 'Team', joined: '2 jam lalu', online: true, color: 'from-brand-300 to-brand-500' },
     { name: 'Yoga Adi', email: 'yoga.adi@email.com', plan: 'Basic', joined: '3 jam lalu', online: false, color: 'from-rose-300 to-rose-500' },
 ];
 
 const INSTRUCTORS = [
     { name: 'Ayu Pratiwi', role: 'Senior Web Dev', students: 4820, rating: 4.9, color: 'from-brand-400 to-brand-600' },
-    { name: 'Reza Mahendra', role: 'ML Engineer', students: 3140, rating: 4.8, color: 'from-violet-400 to-fuchsia-600' },
+    { name: 'Reza Mahendra', role: 'ML Engineer', students: 3140, rating: 4.8, color: 'from-brand-400 to-brand-600' },
     { name: 'Nadia Sari', role: 'Product Designer', students: 2210, rating: 4.9, color: 'from-teal-400 to-emerald-600' },
 ];
 
@@ -200,7 +200,7 @@ const INITIAL_TASKS = [
 
 const COHORTS = [
     { name: 'Cohort Bootcamp Frontend #14', date: '20 Mei 2026', time: '19:00 WIB', seats: '32 / 40', pct: 80, color: 'bg-brand-600', barColor: '#12237D' },
-    { name: 'Workshop Prompt Engineering', date: '22 Mei 2026', time: '20:00 WIB', seats: '78 / 120', pct: 65, color: 'bg-violet-600', barColor: '#7C3AED' },
+    { name: 'Workshop Prompt Engineering', date: '22 Mei 2026', time: '20:00 WIB', seats: '78 / 120', pct: 65, color: 'bg-brand-600', barColor: '#7C3AED' },
     { name: 'Live Q&A Data Career Path', date: '25 Mei 2026', time: '19:30 WIB', seats: '210 / 300', pct: 70, color: 'bg-emerald-600', barColor: '#10B981' },
 ];
 
@@ -398,7 +398,7 @@ function ActivityCard() {
             <div className="mt-4 grid grid-cols-3 gap-2 sm:gap-4">
                 <StatPill label="Total sesi" value={total.toLocaleString('id-ID')} accent="text-brand-700" />
                 <StatPill label="Puncak harian" value={peak.toLocaleString('id-ID')} accent="text-emerald-700" />
-                <StatPill label="Rata-rata" value={avg.toLocaleString('id-ID')} accent="text-violet-700" />
+                <StatPill label="Rata-rata" value={avg.toLocaleString('id-ID')} accent="text-brand-700" />
             </div>
 
             <div className="mt-4">
@@ -632,7 +632,7 @@ function StudentsCard() {
                                     (s.plan === 'Pro'
                                         ? 'bg-brand-50 text-brand-600'
                                         : s.plan === 'Team'
-                                          ? 'bg-violet-50 text-violet-600'
+                                          ? 'bg-brand-50 text-brand-600'
                                           : 'bg-slate-100 text-slate-600')
                                 }
                             >

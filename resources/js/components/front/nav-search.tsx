@@ -73,7 +73,7 @@ const SECTION_META: Record<
     paths: {
         label: 'Learning Path',
         icon: Route,
-        tint: 'bg-violet-50 text-violet-600',
+        tint: 'bg-brand-50 text-brand-600',
     },
     topics: {
         label: 'Topik',

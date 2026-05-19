@@ -80,7 +80,7 @@ const ROLE_LABELS: Record<string, string> = {
 };
 
 const ROLE_TONES: Record<string, string> = {
-    superadmin: 'border-transparent bg-violet-50 text-violet-700',
+    superadmin: 'border-transparent bg-brand-50 text-brand-700',
     admin_tenant: 'border-transparent bg-brand-50 text-brand-700',
     hr: 'border-transparent bg-sky-50 text-sky-700',
     instructor: 'border-transparent bg-emerald-50 text-emerald-700',

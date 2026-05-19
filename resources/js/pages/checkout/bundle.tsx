@@ -316,7 +316,7 @@ export default function BundleCheckout({ bundle, paymentMethods, customer, quote
                     <aside className="space-y-4">
                         <Card title="Ringkasan Paket" sticky>
                             <div className="flex items-start gap-3 border-b border-slate-100 pb-4">
-                                <div className="grid size-14 shrink-0 place-items-center overflow-hidden rounded-xl bg-gradient-to-br from-brand-500 to-violet-700 text-white">
+                                <div className="grid size-14 shrink-0 place-items-center overflow-hidden rounded-xl bg-gradient-to-br from-brand-500 to-brand-700 text-white">
                                     {bundle.thumbnail ? (
                                         <img
                                             src={bundle.thumbnail}

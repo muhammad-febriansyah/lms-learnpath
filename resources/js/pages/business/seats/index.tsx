@@ -104,7 +104,7 @@ export default function SeatsIndex({
                 </div>
 
                 {/* Hero quota card */}
-                <div className="overflow-hidden rounded-2xl bg-gradient-to-br from-brand-50 via-indigo-50 to-violet-50 p-6 ring-1 ring-brand-200">
+                <div className="overflow-hidden rounded-2xl bg-gradient-to-br from-brand-50 via-brand-50 to-brand-50 p-6 ring-1 ring-brand-200">
                     <div className="flex items-start justify-between gap-4">
                         <div className="min-w-0">
                             <div className="inline-flex items-center gap-1.5 rounded-full bg-white/70 px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider text-brand-700 backdrop-blur">

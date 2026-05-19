@@ -156,7 +156,7 @@ export default function LearningPathShow({ path, availableCourses }: Props) {
                     <div className="mt-1.5 flex flex-wrap items-start justify-between gap-3">
                         <div>
                             <h1 className="inline-flex items-center gap-2 text-2xl font-extrabold tracking-tight text-slate-900">
-                                <Compass className="size-6 text-indigo-600" />
+                                <Compass className="size-6 text-brand-600" />
                                 {path.title}
                             </h1>
                             <div className="mt-1 flex flex-wrap items-center gap-2 text-[12.5px]">
@@ -253,7 +253,7 @@ export default function LearningPathShow({ path, availableCourses }: Props) {
                                     key={c.id}
                                     className="flex items-center gap-3 rounded-xl border border-slate-200 bg-white p-3"
                                 >
-                                    <div className="grid size-8 shrink-0 place-items-center rounded-full bg-indigo-50 text-[12.5px] font-extrabold text-indigo-700">
+                                    <div className="grid size-8 shrink-0 place-items-center rounded-full bg-brand-50 text-[12.5px] font-extrabold text-brand-700">
                                         {idx + 1}
                                     </div>
                                     <div className="min-w-0 flex-1">

@@ -57,7 +57,7 @@ const STATUS_LABEL: Record<string, string> = {
 const STATUS_STYLE: Record<string, string> = {
     new: 'border-blue-200 bg-blue-50 text-blue-700',
     contacted: 'border-amber-200 bg-amber-50 text-amber-700',
-    qualified: 'border-violet-200 bg-violet-50 text-violet-700',
+    qualified: 'border-brand-200 bg-brand-50 text-brand-700',
     converted: 'border-emerald-200 bg-emerald-50 text-emerald-700',
     lost: 'border-slate-200 bg-slate-50 text-slate-500',
 };

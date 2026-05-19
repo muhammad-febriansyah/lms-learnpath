@@ -204,8 +204,8 @@ export default function AdminDashboard({
                         value={kpis.enrollments.this_month.toLocaleString('id-ID')}
                         delta={kpis.enrollments.delta_pct}
                         icon={GraduationCap}
-                        tint="bg-violet-50"
-                        text="text-violet-600"
+                        tint="bg-brand-50"
+                        text="text-brand-600"
                         sub={`${kpis.enrollments.completed_all_time.toLocaleString('id-ID')} selesai`}
                     />
                     <KpiCard
@@ -472,7 +472,7 @@ export default function AdminDashboard({
                                     <div
                                         className={cn(
                                             'h-12 w-16 shrink-0 overflow-hidden rounded-lg',
-                                            !c.thumbnail && 'bg-gradient-to-br from-brand-400 to-violet-500',
+                                            !c.thumbnail && 'bg-gradient-to-br from-brand-400 to-brand-500',
                                         )}
                                         style={
                                             c.thumbnail
@@ -614,7 +614,7 @@ function ActionPill({
         amber: 'bg-amber-50 text-amber-700 hover:bg-amber-100',
         brand: 'bg-brand-50 text-brand-700 hover:bg-brand-100',
         sky: 'bg-sky-50 text-sky-700 hover:bg-sky-100',
-        violet: 'bg-violet-50 text-violet-700 hover:bg-violet-100',
+        violet: 'bg-brand-50 text-brand-700 hover:bg-brand-100',
         rose: 'bg-rose-50 text-rose-700 hover:bg-rose-100',
     };
 
@@ -703,7 +703,7 @@ function EnrollTrendChart({ data }: { data: TrendDay[] }) {
                             title={`${d.day}: ${d.c ?? 0} enrollment`}
                         >
                             <div
-                                className="w-full rounded-t-md bg-violet-400 transition-all group-hover:opacity-80"
+                                className="w-full rounded-t-md bg-brand-400 transition-all group-hover:opacity-80"
                                 style={{ height: `${Math.max(pct, 2)}%` }}
                             />
                         </div>

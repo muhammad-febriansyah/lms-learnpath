@@ -124,7 +124,7 @@ export default function SkillMatrixDashboard({
                                                 {row.competency?.name ?? '-'}
                                             </div>
                                             {row.competency?.category && (
-                                                <Badge className="mt-0.5 border-transparent bg-violet-50 px-1.5 py-0 text-[10.5px] font-semibold text-violet-700">
+                                                <Badge className="mt-0.5 border-transparent bg-brand-50 px-1.5 py-0 text-[10.5px] font-semibold text-brand-700">
                                                     {row.competency.category}
                                                 </Badge>
                                             )}
@@ -216,7 +216,7 @@ function Card({
 }) {
     const tones: Record<string, string> = {
         brand: 'bg-brand-50 text-brand-600',
-        violet: 'bg-violet-50 text-violet-600',
+        violet: 'bg-brand-50 text-brand-600',
         amber: 'bg-amber-50 text-amber-600',
         emerald: 'bg-emerald-50 text-emerald-600',
     };

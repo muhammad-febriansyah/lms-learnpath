@@ -195,9 +195,9 @@ export default function AdminOrderShow({ order }: Props) {
                 </nav>
 
                 {/* Hero */}
-                <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 via-slate-900 to-indigo-950 p-6 text-white shadow-[0_10px_40px_-20px_rgba(15,23,42,0.5)] sm:p-8 dark:from-neutral-950 dark:via-neutral-950 dark:to-indigo-950">
-                    <div className="pointer-events-none absolute -top-24 -right-24 size-72 rounded-full bg-indigo-500/20 blur-3xl" />
-                    <div className="pointer-events-none absolute -bottom-24 -left-24 size-72 rounded-full bg-violet-500/10 blur-3xl" />
+                <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 via-slate-900 to-brand-950 p-6 text-white shadow-[0_10px_40px_-20px_rgba(15,23,42,0.5)] sm:p-8 dark:from-neutral-950 dark:via-neutral-950 dark:to-brand-950">
+                    <div className="pointer-events-none absolute -top-24 -right-24 size-72 rounded-full bg-brand-500/20 blur-3xl" />
+                    <div className="pointer-events-none absolute -bottom-24 -left-24 size-72 rounded-full bg-brand-500/10 blur-3xl" />
 
                     <div className="relative flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
                         <div className="min-w-0 flex-1">
@@ -312,7 +312,7 @@ export default function AdminOrderShow({ order }: Props) {
                                         className="flex items-start justify-between gap-4 py-3.5 first:pt-0 last:pb-0"
                                     >
                                         <div className="flex min-w-0 items-start gap-3">
-                                            <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-indigo-50 to-violet-50 text-indigo-600 ring-1 ring-indigo-100 dark:from-indigo-500/15 dark:to-violet-500/15 dark:text-indigo-300 dark:ring-indigo-500/20">
+                                            <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-brand-50 to-brand-50 text-brand-600 ring-1 ring-brand-100 dark:from-brand-500/15 dark:to-brand-500/15 dark:text-brand-300 dark:ring-brand-500/20">
                                                 <ShoppingBag className="size-4" />
                                             </span>
                                             <div className="min-w-0">
@@ -470,12 +470,12 @@ export default function AdminOrderShow({ order }: Props) {
                                     label="PPN"
                                     value={formatRupiah(order.tax)}
                                 />
-                                <div className="mt-3 rounded-xl bg-gradient-to-br from-indigo-50 to-violet-50 p-3 ring-1 ring-indigo-100 dark:from-indigo-500/10 dark:to-violet-500/10 dark:ring-indigo-500/20">
+                                <div className="mt-3 rounded-xl bg-gradient-to-br from-brand-50 to-brand-50 p-3 ring-1 ring-brand-100 dark:from-brand-500/10 dark:to-brand-500/10 dark:ring-brand-500/20">
                                     <div className="flex items-center justify-between">
-                                        <dt className="text-[12px] font-semibold tracking-wider text-indigo-700 uppercase dark:text-indigo-300">
+                                        <dt className="text-[12px] font-semibold tracking-wider text-brand-700 uppercase dark:text-brand-300">
                                             Total
                                         </dt>
-                                        <dd className="text-[18px] font-extrabold text-indigo-900 tabular-nums dark:text-indigo-100">
+                                        <dd className="text-[18px] font-extrabold text-brand-900 tabular-nums dark:text-brand-100">
                                             {formatRupiah(order.total)}
                                         </dd>
                                     </div>
@@ -488,7 +488,7 @@ export default function AdminOrderShow({ order }: Props) {
                             icon={<User className="size-4" />}
                         >
                             <div className="flex items-center gap-3 rounded-xl bg-slate-50/70 p-3 ring-1 ring-slate-100 dark:bg-neutral-900/40 dark:ring-neutral-800">
-                                <div className="grid size-11 shrink-0 place-items-center rounded-full bg-gradient-to-br from-indigo-500 to-violet-600 text-[13px] font-bold text-white shadow-sm">
+                                <div className="grid size-11 shrink-0 place-items-center rounded-full bg-gradient-to-br from-brand-500 to-brand-600 text-[13px] font-bold text-white shadow-sm">
                                     {getInitials(customerName)}
                                 </div>
                                 <div className="min-w-0">
@@ -598,7 +598,7 @@ function Card({
             <div className="mb-4 flex items-center justify-between gap-3">
                 <h2 className="inline-flex items-center gap-2 text-[14.5px] font-bold text-slate-900 dark:text-neutral-100">
                     {icon && (
-                        <span className="grid size-7 place-items-center rounded-lg bg-indigo-50 text-indigo-600 dark:bg-indigo-500/15 dark:text-indigo-300">
+                        <span className="grid size-7 place-items-center rounded-lg bg-brand-50 text-brand-600 dark:bg-brand-500/15 dark:text-brand-300">
                             {icon}
                         </span>
                     )}

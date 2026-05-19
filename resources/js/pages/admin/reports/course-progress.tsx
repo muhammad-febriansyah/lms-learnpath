@@ -83,7 +83,7 @@ export default function CourseProgressReport({ range, totals, perCourse, byStatu
                     <StatCard label="Enrollment Baru" value={totals.enrollments.toLocaleString('id-ID')} icon={GraduationCap} tint="bg-brand-50" text="text-brand-600" />
                     <StatCard label="Sedang Belajar" value={totals.in_progress.toLocaleString('id-ID')} icon={Hourglass} tint="bg-amber-50" text="text-amber-600" />
                     <StatCard label="Selesai" value={totals.completed.toLocaleString('id-ID')} icon={CheckCircle2} tint="bg-emerald-50" text="text-emerald-600" />
-                    <StatCard label="Rata Progress" value={`${totals.average_progress}%`} icon={TrendingUp} tint="bg-violet-50" text="text-violet-600" />
+                    <StatCard label="Rata Progress" value={`${totals.average_progress}%`} icon={TrendingUp} tint="bg-brand-50" text="text-brand-600" />
                 </div>
 
                 <div className="grid gap-5 lg:grid-cols-[300px_1fr]">
@@ -112,7 +112,7 @@ export default function CourseProgressReport({ range, totals, perCourse, byStatu
                                         <div
                                             className={cn(
                                                 'h-10 w-14 shrink-0 overflow-hidden rounded-lg',
-                                                !row.thumbnail && 'bg-gradient-to-br from-brand-400 to-violet-500',
+                                                !row.thumbnail && 'bg-gradient-to-br from-brand-400 to-brand-500',
                                             )}
                                             style={
                                                 row.thumbnail

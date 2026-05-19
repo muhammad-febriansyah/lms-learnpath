@@ -115,7 +115,7 @@ function BrandPanel() {
                         {[
                             'from-amber-300 to-amber-500',
                             'from-emerald-300 to-emerald-500',
-                            'from-violet-300 to-violet-500',
+                            'from-brand-300 to-brand-500',
                             'from-rose-300 to-rose-500',
                         ].map((c, i) => (
                             <div

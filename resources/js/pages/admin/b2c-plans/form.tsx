@@ -281,7 +281,7 @@ export default function B2cPlanForm({ plan, periods }: Props) {
                         <Button
                             type="submit"
                             disabled={form.processing}
-                            className="rounded-xl bg-violet-600 hover:bg-violet-700"
+                            className="rounded-xl bg-brand-600 hover:bg-brand-700"
                         >
                             <Save className="mr-1.5 size-4" />
                             {form.processing

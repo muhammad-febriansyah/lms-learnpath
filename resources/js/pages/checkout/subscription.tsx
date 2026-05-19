@@ -111,8 +111,8 @@ export default function SubscriptionCheckout({
                             className={cn(
                                 'overflow-hidden rounded-2xl p-5 ring-1',
                                 plan.is_popular
-                                    ? 'bg-gradient-to-br from-violet-50 via-fuchsia-50 to-pink-50 ring-violet-200'
-                                    : 'bg-gradient-to-br from-brand-50 via-sky-50 to-indigo-50 ring-brand-200',
+                                    ? 'bg-gradient-to-br from-brand-50 via-brand-50 to-pink-50 ring-brand-200'
+                                    : 'bg-gradient-to-br from-brand-50 via-sky-50 to-brand-50 ring-brand-200',
                             )}
                         >
                             <div className="flex items-start gap-4">
@@ -120,7 +120,7 @@ export default function SubscriptionCheckout({
                                     className={cn(
                                         'grid size-12 shrink-0 place-items-center rounded-2xl text-white shadow-md',
                                         plan.is_popular
-                                            ? 'bg-gradient-to-br from-violet-500 to-fuchsia-600'
+                                            ? 'bg-gradient-to-br from-brand-500 to-brand-600'
                                             : 'bg-gradient-to-br from-brand-500 to-sky-600',
                                     )}
                                 >
@@ -131,7 +131,7 @@ export default function SubscriptionCheckout({
                                         className={cn(
                                             'inline-flex items-center gap-1.5 rounded-full bg-white/70 px-2 py-0.5 text-[10.5px] font-bold uppercase tracking-wider backdrop-blur',
                                             plan.is_popular
-                                                ? 'text-violet-700'
+                                                ? 'text-brand-700'
                                                 : 'text-brand-700',
                                         )}
                                     >
@@ -205,7 +205,7 @@ export default function SubscriptionCheckout({
                                             className={cn(
                                                 'mt-0.5 size-4 shrink-0',
                                                 plan.is_popular
-                                                    ? 'text-violet-500'
+                                                    ? 'text-brand-500'
                                                     : 'text-emerald-500',
                                             )}
                                         />
@@ -309,7 +309,7 @@ export default function SubscriptionCheckout({
                                 className={cn(
                                     'mt-4 w-full rounded-xl py-5 text-[14px] font-bold',
                                     plan.is_popular
-                                        ? 'bg-violet-600 hover:bg-violet-700'
+                                        ? 'bg-brand-600 hover:bg-brand-700'
                                         : 'bg-brand-600 hover:bg-brand-700',
                                 )}
                             >

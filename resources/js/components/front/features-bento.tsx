@@ -14,7 +14,7 @@ import { cn } from '@/lib/utils';
 
 function HeaderRoadmap() {
     return (
-        <div className="relative flex h-full min-h-[6rem] w-full overflow-hidden rounded-xl bg-gradient-to-br from-brand-50 via-white to-violet-50 p-4 dark:from-brand-950/40 dark:via-neutral-900 dark:to-violet-950/30">
+        <div className="relative flex h-full min-h-[6rem] w-full overflow-hidden rounded-xl bg-gradient-to-br from-brand-50 via-white to-brand-50 p-4 dark:from-brand-950/40 dark:via-neutral-900 dark:to-brand-950/30">
             <div className="relative z-10 flex w-full flex-col justify-center gap-1.5">
                 {[
                     { label: 'Onboarding & Mindset', done: true },
@@ -60,13 +60,13 @@ function HeaderRoadmap() {
 
 function HeaderAITutor() {
     return (
-        <div className="relative flex h-full min-h-[6rem] w-full flex-col items-center justify-center overflow-hidden rounded-xl bg-gradient-to-br from-violet-600 via-brand-700 to-fuchsia-700 p-4">
+        <div className="relative flex h-full min-h-[6rem] w-full flex-col items-center justify-center overflow-hidden rounded-xl bg-gradient-to-br from-brand-600 via-brand-700 to-brand-700 p-4">
             <div
                 className="absolute -top-8 -left-8 size-32 rounded-full bg-white/10 blur-2xl"
                 aria-hidden="true"
             />
             <div
-                className="absolute -right-8 -bottom-8 size-32 rounded-full bg-fuchsia-400/20 blur-2xl"
+                className="absolute -right-8 -bottom-8 size-32 rounded-full bg-brand-400/20 blur-2xl"
                 aria-hidden="true"
             />
 
@@ -76,7 +76,7 @@ function HeaderAITutor() {
                 </div>
                 <div className="max-w-[85%] rounded-2xl rounded-bl-md bg-white px-3 py-1.5 text-[11px] text-slate-700">
                     Framework target kerja:{' '}
-                    <span className="rounded bg-violet-100 px-1 font-semibold text-[10px]">
+                    <span className="rounded bg-brand-100 px-1 font-semibold text-[10px]">
                         Objective
                     </span>{' '}
                     + 3–5 Key Results terukur.
@@ -96,7 +96,7 @@ function HeaderMentor() {
     const avatars = [
         { color: 'from-amber-400 to-orange-500', initial: 'AP' },
         { color: 'from-emerald-400 to-teal-500', initial: 'MR' },
-        { color: 'from-violet-400 to-fuchsia-500', initial: 'DI' },
+        { color: 'from-brand-400 to-brand-500', initial: 'DI' },
         { color: 'from-rose-400 to-pink-500', initial: 'SY' },
         { color: 'from-brand-400 to-brand-600', initial: 'FA' },
     ];
@@ -227,7 +227,7 @@ function HeaderKomunitas() {
                     viewport={{ once: true }}
                     className="flex items-center gap-2 rounded-lg bg-white/80 px-2.5 py-1.5 ring-1 ring-teal-100"
                 >
-                    <div className="grid size-5 place-items-center rounded-full bg-gradient-to-br from-violet-400 to-fuchsia-500 text-[9px] font-bold text-white">
+                    <div className="grid size-5 place-items-center rounded-full bg-gradient-to-br from-brand-400 to-brand-500 text-[9px] font-bold text-white">
                         DM
                     </div>
                     <div className="flex-1 text-[10.5px] text-slate-700">
@@ -257,7 +257,7 @@ function HeaderKomunitas() {
 
 function HeaderPenilaian() {
     return (
-        <div className="relative flex h-full min-h-[6rem] w-full overflow-hidden rounded-xl bg-gradient-to-br from-indigo-50 via-white to-sky-50 p-4 dark:from-indigo-950/30 dark:via-neutral-900 dark:to-sky-950/30">
+        <div className="relative flex h-full min-h-[6rem] w-full overflow-hidden rounded-xl bg-gradient-to-br from-brand-50 via-white to-sky-50 p-4 dark:from-brand-950/30 dark:via-neutral-900 dark:to-sky-950/30">
             <div className="relative z-10 flex w-full flex-col justify-center gap-1.5">
                 <div className="text-[10px] font-bold tracking-[0.14em] text-slate-500 uppercase">
                     Quiz · Performance Review
@@ -328,7 +328,7 @@ const ITEMS = [
         description:
             'Tanya kapan saja — dapat penjelasan kontekstual lengkap dengan contoh praktis untuk kebutuhan kerjamu.',
         header: <HeaderAITutor />,
-        icon: <Sparkles className="size-4 text-violet-600" />,
+        icon: <Sparkles className="size-4 text-brand-600" />,
         className: 'md:col-span-1',
     },
     {
@@ -368,7 +368,7 @@ const ITEMS = [
         description:
             'Pre-test, post-test, dan quiz dengan koreksi instan & feedback personal untuk setiap modul.',
         header: <HeaderPenilaian />,
-        icon: <ClipboardCheck className="size-4 text-indigo-600" />,
+        icon: <ClipboardCheck className="size-4 text-brand-600" />,
         className: 'md:col-span-1',
     },
 ];

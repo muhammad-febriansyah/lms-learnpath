@@ -164,8 +164,8 @@ export default function DashboardHR({
                         label="Kompetensi Terdaftar"
                         value={stats.total_competencies}
                         href="/admin/competencies"
-                        bg="bg-violet-100"
-                        text="text-violet-700"
+                        bg="bg-brand-100"
+                        text="text-brand-700"
                     />
                     <QuickTile
                         icon={<Target className="size-4" />}

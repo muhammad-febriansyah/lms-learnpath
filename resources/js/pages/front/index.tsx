@@ -162,7 +162,7 @@ type HomeCategory = {
 
 const CATEGORY_STYLES = [
     { color: 'from-brand-500 to-brand-700', icon: IconBook },
-    { color: 'from-violet-500 to-fuchsia-600', icon: IconChart },
+    { color: 'from-brand-500 to-brand-600', icon: IconChart },
     { color: 'from-teal-500 to-emerald-600', icon: IconBadge },
     { color: 'from-amber-500 to-orange-600', icon: IconWallet },
     { color: 'from-rose-500 to-pink-600', icon: IconMessage },
@@ -262,7 +262,7 @@ type HomeTestimonial = {
 const TESTIMONIAL_GRADIENTS = [
     'from-brand-300 to-brand-500',
     'from-emerald-300 to-emerald-500',
-    'from-violet-300 to-violet-500',
+    'from-brand-300 to-brand-500',
     'from-amber-300 to-amber-500',
     'from-rose-300 to-rose-500',
     'from-teal-300 to-teal-500',
@@ -426,7 +426,7 @@ function Hero({
                         transition={{ duration: 0.6, delay: 0.2 }}
                         className="mt-3 flex min-h-[1.2em] items-center justify-center text-[44px] leading-[1.05] font-extrabold tracking-tight sm:text-[56px] lg:text-[68px]"
                     >
-                        <span className="inline-block bg-gradient-to-r from-brand-600 via-violet-600 to-fuchsia-600 bg-clip-text text-transparent">
+                        <span className="inline-block bg-gradient-to-r from-brand-600 via-brand-600 to-brand-600 bg-clip-text text-transparent">
                             {typed || ' '}
                         </span>
                         <span
@@ -483,7 +483,7 @@ function Hero({
                             {[
                                 'from-amber-300 to-amber-500',
                                 'from-emerald-300 to-emerald-500',
-                                'from-violet-300 to-violet-500',
+                                'from-brand-300 to-brand-500',
                                 'from-rose-300 to-rose-500',
                             ].map((c, i) => (
                                 <div
@@ -534,7 +534,7 @@ function FloatingDecor({ showcase }: { showcase: HeroShowcase }) {
             >
                 <div className="rounded-2xl bg-white p-3.5 shadow-[0_18px_36px_-18px_rgba(18,35,125,0.35)] ring-1 ring-slate-200/70">
                     <div className="flex items-center gap-2">
-                        <div className="grid size-7 place-items-center rounded-lg bg-gradient-to-br from-violet-500 to-fuchsia-500 text-white">
+                        <div className="grid size-7 place-items-center rounded-lg bg-gradient-to-br from-brand-500 to-brand-500 text-white">
                             <Bot className="size-3.5" />
                         </div>
                         <div className="text-[11.5px] font-bold text-slate-900">
@@ -644,7 +644,7 @@ function FloatingDecor({ showcase }: { showcase: HeroShowcase }) {
                 transition={{ duration: 0.6, delay: 1.4 }}
                 className="absolute top-[44%] left-[5%] hidden lg:block"
             >
-                <div className="grid size-14 rotate-[-12deg] place-items-center rounded-2xl bg-gradient-to-br from-brand-500 via-brand-600 to-violet-700 text-white shadow-[0_12px_24px_-8px_rgba(18,35,125,0.5)] ring-4 ring-white">
+                <div className="grid size-14 rotate-[-12deg] place-items-center rounded-2xl bg-gradient-to-br from-brand-500 via-brand-600 to-brand-700 text-white shadow-[0_12px_24px_-8px_rgba(18,35,125,0.5)] ring-4 ring-white">
                     <SparklesLucide className="size-6" />
                 </div>
             </motion.div>
@@ -934,7 +934,7 @@ function AITutor({ ctaHref }: { ctaHref: string }) {
                         aria-hidden="true"
                     />
                     <div
-                        className="absolute -bottom-24 -left-32 size-80 rounded-full bg-violet-400/30 blur-3xl"
+                        className="absolute -bottom-24 -left-32 size-80 rounded-full bg-brand-400/30 blur-3xl"
                         aria-hidden="true"
                     />
 
@@ -1074,8 +1074,8 @@ function InsightCard() {
             letter: 'D',
             label: 'Desire',
             desc: 'Buat audiens benar-benar menginginkannya',
-            tint: 'bg-violet-50 text-violet-700',
-            bar: 'from-violet-400 to-violet-600',
+            tint: 'bg-brand-50 text-brand-700',
+            bar: 'from-brand-400 to-brand-600',
             width: 'w-[55%]',
         },
         {

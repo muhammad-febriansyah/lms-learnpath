@@ -34,4 +34,11 @@ export default defineConfig({
     optimizeDeps: {
         include: ['motion/react'],
     },
+    // Bind dev server to IPv4 so Laravel renders asset URLs as
+    // http://127.0.0.1:5173 instead of http://[::1]:5173. IPv6 host literals
+    // are not part of the CSP host-source spec, so they get blocked.
+    server: {
+        host: '127.0.0.1',
+        hmr: { host: '127.0.0.1' },
+    },
 });

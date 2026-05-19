@@ -146,9 +146,9 @@ export default function LearningPathCheckout({
                 <form onSubmit={submit} className="grid gap-5 lg:grid-cols-[1fr_360px]">
                     <div className="space-y-5">
                         {/* Path hero */}
-                        <div className="overflow-hidden rounded-2xl bg-gradient-to-br from-brand-50 via-violet-50 to-indigo-50 p-5 ring-1 ring-brand-200">
+                        <div className="overflow-hidden rounded-2xl bg-gradient-to-br from-brand-50 via-brand-50 to-brand-50 p-5 ring-1 ring-brand-200">
                             <div className="flex items-start gap-4">
-                                <div className="grid size-12 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-brand-500 to-violet-600 text-white shadow-md">
+                                <div className="grid size-12 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-brand-500 to-brand-600 text-white shadow-md">
                                     <Compass className="size-6" />
                                 </div>
                                 <div className="min-w-0">

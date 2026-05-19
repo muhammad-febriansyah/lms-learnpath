@@ -83,7 +83,7 @@ export default function B2cSubscriptionsIndex({ subscriptions, stats, filters }:
                         <span className="font-semibold text-slate-900">Pelanggan</span>
                     </nav>
                     <h1 className="mt-1.5 inline-flex items-center gap-2 text-2xl font-extrabold tracking-tight text-slate-900">
-                        <Crown className="size-6 text-violet-600" />
+                        <Crown className="size-6 text-brand-600" />
                         Pelanggan Langganan B2C
                     </h1>
                     <p className="mt-1 text-[13.5px] text-slate-500">
@@ -241,7 +241,7 @@ function StatCard({
             className={cn(
                 'rounded-2xl border p-3 text-left transition',
                 active
-                    ? 'border-violet-300 bg-violet-50 ring-2 ring-violet-200'
+                    ? 'border-brand-300 bg-brand-50 ring-2 ring-brand-200'
                     : 'border-slate-200 bg-card hover:border-slate-300',
             )}
         >

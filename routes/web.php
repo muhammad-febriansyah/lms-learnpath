@@ -43,8 +43,10 @@ use App\Http\Controllers\Admin\SubscriptionPlanController;
 use App\Http\Controllers\Admin\SupervisorReviewController;
 use App\Http\Controllers\Admin\TagController;
 use App\Http\Controllers\Admin\TenantBrandingController;
+use App\Http\Controllers\Admin\TenantController as AdminTenantController;
 use App\Http\Controllers\Admin\TrainingRecommendationController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\UserPointController as AdminUserPointController;
 use App\Http\Controllers\Admin\VoucherBatchController as AdminVoucherBatchController;
 use App\Http\Controllers\Admin\VoucherController as AdminVoucherController;
 use App\Http\Controllers\Api\PakasirWebhookController;
@@ -64,13 +66,16 @@ use App\Http\Controllers\MessageController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\Public\BundleCatalogController;
 use App\Http\Controllers\Public\CorporateHubController;
+use App\Http\Controllers\Public\CorporateSolutionController;
 use App\Http\Controllers\Public\CourseCatalogController;
+use App\Http\Controllers\Public\DemoRequestController;
 use App\Http\Controllers\Public\LearningPathCatalogController;
 use App\Http\Controllers\Public\LessonPreviewController;
 use App\Http\Controllers\Public\PageController;
 use App\Http\Controllers\Public\PricingController;
 use App\Http\Controllers\Public\SearchController;
 use App\Http\Controllers\Public\SubscribeController;
+use App\Http\Controllers\Public\WebinarController;
 use App\Http\Controllers\Student\AchievementController;
 use App\Http\Controllers\Student\AssessmentController as StudentAssessmentController;
 use App\Http\Controllers\Student\DiscussionController;
@@ -113,6 +118,14 @@ Route::get('/corporate/pricing', [PricingController::class, 'index'])->name('cor
 Route::post('/corporate/pricing/contact', [PricingController::class, 'contact'])
     ->middleware('throttle:5,1')
     ->name('corporate.pricing.contact');
+Route::get('/corporate/webinars', [WebinarController::class, 'index'])->name('corporate.webinars');
+Route::get('/corporate/demo', [DemoRequestController::class, 'create'])->name('corporate.demo.create');
+Route::post('/corporate/demo', [DemoRequestController::class, 'store'])
+    ->middleware('throttle:5,1')
+    ->name('corporate.demo.store');
+Route::get('/corporate/solutions/{industry}', [CorporateSolutionController::class, 'show'])
+    ->whereIn('industry', ['banking', 'manufacturing', 'technology', 'retail', 'government'])
+    ->name('corporate.solutions.show');
 
 // B2C Subscription public pricing
 Route::get('/subscribe', [SubscribeController::class, 'index'])->name('subscribe.index');
@@ -383,7 +396,8 @@ Route::middleware(['auth', 'verified', 'role:superadmin|admin_tenant|hr|instruct
         Route::get('about', [AboutController::class, 'edit'])->name('about.edit');
         Route::match(['put', 'patch', 'post'], 'about', [AboutController::class, 'update'])->name('about.update');
         Route::resource('coupons', CouponController::class)->except(['show']);
-        Route::resource('bundles', BundleController::class)->except(['show']);
+        Route::resource('bundles', BundleController::class)
+            ->scoped(['bundle' => 'id']);
 
         Route::resource('learning-paths', AdminLearningPathController::class)
             ->parameters(['learning-paths' => 'learning_path'])
@@ -549,6 +563,18 @@ Route::middleware(['auth', 'verified', 'role:superadmin|admin_tenant|hr|instruct
         Route::post('payouts/{payout}/approve', [PayoutController::class, 'approve'])->name('payouts.approve');
         Route::post('payouts/{payout}/reject', [PayoutController::class, 'reject'])->name('payouts.reject');
         Route::post('payouts/{payout}/mark-paid', [PayoutController::class, 'markPaid'])->name('payouts.mark-paid');
+
+        // ===== User Points (superadmin only) =====
+        Route::get('user-points', [AdminUserPointController::class, 'index'])->name('user-points.index');
+        Route::get('user-points/{user}', [AdminUserPointController::class, 'show'])
+            ->whereNumber('user')
+            ->name('user-points.show');
+
+        // ===== Tenant Management (superadmin only) =====
+        Route::get('tenants', [AdminTenantController::class, 'index'])->name('tenants.index');
+        Route::get('tenants/{tenant}', [AdminTenantController::class, 'show'])->whereNumber('tenant')->name('tenants.show');
+        Route::post('tenants/{tenant}/suspend', [AdminTenantController::class, 'suspend'])->whereNumber('tenant')->name('tenants.suspend');
+        Route::post('tenants/{tenant}/activate', [AdminTenantController::class, 'activate'])->whereNumber('tenant')->name('tenants.activate');
 
         Route::get('instructors', [InstructorController::class, 'index'])->name('instructors.index');
         Route::get('instructors/{instructor}/cv', [InstructorController::class, 'downloadCv'])->name('instructors.cv.download');

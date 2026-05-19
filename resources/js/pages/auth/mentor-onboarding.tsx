@@ -155,13 +155,13 @@ export default function MentorOnboarding({ user }: Props) {
                                         {form.data.expertise.map((tag) => (
                                             <span
                                                 key={tag}
-                                                className="inline-flex items-center gap-1 rounded-full bg-violet-50 px-2.5 py-1 text-[12px] font-semibold text-violet-700"
+                                                className="inline-flex items-center gap-1 rounded-full bg-brand-50 px-2.5 py-1 text-[12px] font-semibold text-brand-700"
                                             >
                                                 {tag}
                                                 <button
                                                     type="button"
                                                     onClick={() => removeExpertise(tag)}
-                                                    className="rounded-full p-0.5 transition hover:bg-violet-100"
+                                                    className="rounded-full p-0.5 transition hover:bg-brand-100"
                                                 >
                                                     <X className="size-3" />
                                                 </button>

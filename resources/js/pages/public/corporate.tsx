@@ -131,7 +131,7 @@ function formatBadgeClass(format: Course['delivery_format']): string {
             on_demand: 'bg-slate-100 text-slate-700',
             online_live: 'bg-sky-100 text-sky-700',
             offline: 'bg-amber-100 text-amber-800',
-            hybrid: 'bg-violet-100 text-violet-700',
+            hybrid: 'bg-brand-100 text-brand-700',
             bootcamp: 'bg-rose-100 text-rose-700',
         }[format] ?? 'bg-slate-100 text-slate-700'
     );

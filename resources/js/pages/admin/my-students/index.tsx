@@ -23,7 +23,7 @@ type Enrollment = {
         id: number;
         name: string;
         email: string;
-        avatar: string | null;
+        avatar_url: string | null;
     } | null;
     course: { id: number; title: string; slug: string } | null;
 };
@@ -188,9 +188,9 @@ export default function MyStudentsIndex({
                                             <td className="py-3 pr-3">
                                                 <div className="flex items-center gap-2.5">
                                                     <Avatar className="size-8">
-                                                        {e.user?.avatar && (
+                                                        {e.user?.avatar_url && (
                                                             <AvatarImage
-                                                                src={e.user.avatar}
+                                                                src={e.user.avatar_url}
                                                                 alt={e.user.name}
                                                             />
                                                         )}

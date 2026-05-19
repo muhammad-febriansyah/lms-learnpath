@@ -97,7 +97,7 @@ export default function SupervisorReviewsIndex({ reviews, filters, stats }: Prop
                         {row.original.competency?.name ?? '-'}
                     </div>
                     {row.original.competency?.category && (
-                        <Badge className="mt-0.5 border-transparent bg-violet-50 px-1.5 py-0 text-[10.5px] font-semibold text-violet-700">
+                        <Badge className="mt-0.5 border-transparent bg-brand-50 px-1.5 py-0 text-[10.5px] font-semibold text-brand-700">
                             {row.original.competency.category}
                         </Badge>
                     )}

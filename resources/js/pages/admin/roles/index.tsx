@@ -35,8 +35,8 @@ const ROLE_META: Record<
         label: 'Super Admin',
         description: 'Akses penuh ke seluruh modul lintas tenant.',
         icon: ShieldCheck,
-        tint: 'bg-violet-50',
-        text: 'text-violet-600',
+        tint: 'bg-brand-50',
+        text: 'text-brand-600',
     },
     admin_tenant: {
         label: 'Admin Tenant',

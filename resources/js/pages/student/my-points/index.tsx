@@ -90,8 +90,8 @@ const LEVEL_GRADIENT: Record<string, string> = {
     bronze: 'from-amber-700 via-amber-600 to-orange-600',
     silver: 'from-slate-400 via-slate-300 to-slate-500',
     gold: 'from-yellow-400 via-amber-500 to-orange-500',
-    platinum: 'from-cyan-300 via-sky-400 to-indigo-500',
-    diamond: 'from-fuchsia-400 via-violet-500 to-indigo-600',
+    platinum: 'from-cyan-300 via-sky-400 to-brand-500',
+    diamond: 'from-brand-400 via-brand-500 to-brand-600',
 };
 
 function formatNumber(n: number): string {

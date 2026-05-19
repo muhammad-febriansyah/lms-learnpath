@@ -9,10 +9,12 @@ use App\Models\DiscussionThread;
 use App\Models\Enrollment;
 use App\Models\User;
 use App\Services\Gamification\PointService;
+use App\Services\Media\ImageCompressor;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -63,9 +65,9 @@ class DiscussionController extends Controller
         $this->authorizeAccess($request->user(), $course);
         abort_unless($thread->course_id === $course->id, 404);
 
-        $thread->load('user:id,name');
+        $thread->load('user:id,name,avatar_path');
         $replies = $thread->replies()
-            ->with('user:id,name')
+            ->with('user:id,name,avatar_path')
             ->orderBy('created_at')
             ->get();
 
@@ -86,20 +88,30 @@ class DiscussionController extends Controller
                 'id' => $thread->id,
                 'title' => $thread->title,
                 'body' => $thread->body,
+                'image_url' => $thread->image_path ? Storage::disk('public')->url($thread->image_path) : null,
                 'upvotes_count' => $thread->upvotes_count,
                 'has_upvoted' => $threadUpvoted,
                 'created_at' => $thread->created_at?->toIso8601String(),
-                'user' => $thread->user ? ['id' => $thread->user->id, 'name' => $thread->user->name] : null,
+                'user' => $thread->user ? [
+                    'id' => $thread->user->id,
+                    'name' => $thread->user->name,
+                    'avatar_url' => $thread->user->avatar_url,
+                ] : null,
                 'can_delete' => $this->canModerate($request->user(), $thread, $course),
                 'is_locked' => $thread->locked_at !== null,
             ],
             'replies' => $replies->map(fn (DiscussionReply $r) => [
                 'id' => $r->id,
                 'body' => $r->body,
+                'image_url' => $r->image_path ? Storage::disk('public')->url($r->image_path) : null,
                 'upvotes_count' => $r->upvotes_count,
                 'has_upvoted' => in_array($r->id, $upvotedReplyIds, true),
                 'created_at' => $r->created_at?->toIso8601String(),
-                'user' => $r->user ? ['id' => $r->user->id, 'name' => $r->user->name] : null,
+                'user' => $r->user ? [
+                    'id' => $r->user->id,
+                    'name' => $r->user->name,
+                    'avatar_url' => $r->user->avatar_url,
+                ] : null,
                 'can_delete' => $this->canModerateReply($request->user(), $r, $course),
             ])->values(),
         ]);
@@ -112,19 +124,30 @@ class DiscussionController extends Controller
         $data = $request->validate([
             'title' => ['required', 'string', 'max:200'],
             'body' => ['required', 'string', 'max:5000'],
+            'image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
         ], [
             'required' => ':attribute wajib diisi.',
             'max' => ':attribute terlalu panjang.',
+            'image.mimes' => 'Format gambar harus JPG, PNG, atau WEBP.',
+            'image.max' => 'Ukuran gambar maksimal 5 MB.',
         ], [
             'title' => 'Judul',
             'body' => 'Pesan',
+            'image' => 'Gambar',
         ]);
+
+        $imagePath = null;
+        if ($request->hasFile('image')) {
+            $imagePath = App::make(ImageCompressor::class)
+                ->compressAndStore($request->file('image'), 'discussions');
+        }
 
         $thread = DiscussionThread::create([
             'course_id' => $course->id,
             'user_id' => $request->user()->id,
             'title' => $data['title'],
             'body' => $data['body'],
+            'image_path' => $imagePath,
             'last_reply_at' => now(),
         ]);
 
@@ -144,17 +167,28 @@ class DiscussionController extends Controller
 
         $data = $request->validate([
             'body' => ['required', 'string', 'max:5000'],
+            'image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
         ], [
             'required' => ':attribute wajib diisi.',
+            'image.mimes' => 'Format gambar harus JPG, PNG, atau WEBP.',
+            'image.max' => 'Ukuran gambar maksimal 5 MB.',
         ], [
             'body' => 'Balasan',
+            'image' => 'Gambar',
         ]);
 
-        $reply = DB::transaction(function () use ($data, $thread, $request) {
+        $imagePath = null;
+        if ($request->hasFile('image')) {
+            $imagePath = App::make(ImageCompressor::class)
+                ->compressAndStore($request->file('image'), 'discussions');
+        }
+
+        $reply = DB::transaction(function () use ($data, $thread, $request, $imagePath) {
             $reply = DiscussionReply::create([
                 'discussion_thread_id' => $thread->id,
                 'user_id' => $request->user()->id,
                 'body' => $data['body'],
+                'image_path' => $imagePath,
             ]);
             $thread->forceFill([
                 'replies_count' => $thread->replies_count + 1,
@@ -235,7 +269,16 @@ class DiscussionController extends Controller
         abort_unless($thread->course_id === $course->id, 404);
         abort_unless($this->canModerate($request->user(), $thread, $course), 403);
 
+        $imagesToDelete = collect([$thread->image_path])
+            ->merge($thread->replies()->whereNotNull('image_path')->pluck('image_path'))
+            ->filter()
+            ->all();
+
         $thread->delete();
+
+        foreach ($imagesToDelete as $path) {
+            Storage::disk('public')->delete($path);
+        }
 
         return redirect()
             ->route('learn.discussions.index', ['course' => $course->slug])
@@ -248,10 +291,16 @@ class DiscussionController extends Controller
         abort_unless($reply->discussion_thread_id === $thread->id, 404);
         abort_unless($this->canModerateReply($request->user(), $reply, $course), 403);
 
+        $imagePath = $reply->image_path;
+
         DB::transaction(function () use ($reply, $thread) {
             $reply->delete();
             $thread->forceFill(['replies_count' => max(0, $thread->replies_count - 1)])->save();
         });
+
+        if ($imagePath) {
+            Storage::disk('public')->delete($imagePath);
+        }
 
         return back()->with('success', 'Balasan dihapus.');
     }

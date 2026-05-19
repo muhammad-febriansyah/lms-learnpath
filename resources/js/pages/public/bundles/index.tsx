@@ -111,7 +111,7 @@ function BundleCard({ bundle }: { bundle: Bundle }) {
             href={`/bundles/${bundle.slug}`}
             className="group flex flex-col overflow-hidden rounded-2xl bg-card shadow-[0_1px_2px_rgba(15,23,42,0.04)] ring-1 ring-slate-200/70 transition-shadow hover:shadow-md"
         >
-            <div className="relative aspect-[16/9] overflow-hidden bg-gradient-to-br from-brand-500 to-violet-700">
+            <div className="relative aspect-[16/9] overflow-hidden bg-gradient-to-br from-brand-500 to-brand-700">
                 {bundle.thumbnail ? (
                     <img
                         src={bundle.thumbnail}

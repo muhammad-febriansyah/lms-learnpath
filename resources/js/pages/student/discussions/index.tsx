@@ -12,12 +12,13 @@ import {
     Sparkles,
     Users,
 } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 
 import {
-    DataTablePagination,
-    type Paginator,
+    DataTablePagination
+    
 } from '@/components/data-table/data-table-pagination';
+import type {Paginator} from '@/components/data-table/data-table-pagination';
 import { FieldError } from '@/components/form/field-error';
 import { RequiredLabel } from '@/components/form/required-label';
 import { Button } from '@/components/ui/button';
@@ -54,15 +55,33 @@ type Props = {
 type SortKey = 'recent' | 'popular' | 'active' | 'unanswered';
 
 function formatTimeAgo(iso: string | null): string {
-    if (!iso) return '-';
+    if (!iso) {
+return '-';
+}
+
     const date = new Date(iso);
     const diffMin = Math.floor((Date.now() - date.getTime()) / 60000);
-    if (diffMin < 1) return 'Baru saja';
-    if (diffMin < 60) return `${diffMin} menit lalu`;
+
+    if (diffMin < 1) {
+return 'Baru saja';
+}
+
+    if (diffMin < 60) {
+return `${diffMin} menit lalu`;
+}
+
     const diffHr = Math.floor(diffMin / 60);
-    if (diffHr < 24) return `${diffHr} jam lalu`;
+
+    if (diffHr < 24) {
+return `${diffHr} jam lalu`;
+}
+
     const diffDay = Math.floor(diffHr / 24);
-    if (diffDay < 7) return `${diffDay} hari lalu`;
+
+    if (diffDay < 7) {
+return `${diffDay} hari lalu`;
+}
+
     return date.toLocaleDateString('id-ID', {
         day: '2-digit',
         month: 'short',
@@ -71,7 +90,10 @@ function formatTimeAgo(iso: string | null): string {
 }
 
 function getInitials(name: string | null | undefined): string {
-    if (!name) return '?';
+    if (!name) {
+return '?';
+}
+
     return name
         .split(' ')
         .filter(Boolean)
@@ -92,6 +114,7 @@ export default function DiscussionsIndex({
     const visibleThreads = useMemo(() => {
         let items = threads.data;
         const q = query.trim().toLowerCase();
+
         if (q) {
             items = items.filter(
                 (t) =>
@@ -100,7 +123,9 @@ export default function DiscussionsIndex({
                     t.user?.name.toLowerCase().includes(q),
             );
         }
+
         const arr = [...items];
+
         switch (sort) {
             case 'popular':
                 arr.sort((a, b) => b.upvotes_count - a.upvotes_count);
@@ -113,6 +138,7 @@ export default function DiscussionsIndex({
                     const tb = b.last_reply_at
                         ? new Date(b.last_reply_at).getTime()
                         : 0;
+
                     return tb - ta;
                 });
                 break;
@@ -126,9 +152,11 @@ export default function DiscussionsIndex({
                     const tb = b.created_at
                         ? new Date(b.created_at).getTime()
                         : 0;
+
                     return tb - ta;
                 });
         }
+
         return arr;
     }, [threads.data, query, sort]);
 
@@ -154,9 +182,9 @@ export default function DiscussionsIndex({
                 </Link>
 
                 {/* Hero */}
-                <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 via-slate-900 to-indigo-950 p-6 text-white shadow-[0_10px_40px_-20px_rgba(15,23,42,0.5)] sm:p-8 dark:from-neutral-950 dark:via-neutral-950 dark:to-indigo-950">
-                    <div className="pointer-events-none absolute -top-24 -right-24 size-72 rounded-full bg-indigo-500/20 blur-3xl" />
-                    <div className="pointer-events-none absolute -bottom-24 -left-24 size-72 rounded-full bg-violet-500/10 blur-3xl" />
+                <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 via-slate-900 to-brand-950 p-6 text-white shadow-[0_10px_40px_-20px_rgba(15,23,42,0.5)] sm:p-8 dark:from-neutral-950 dark:via-neutral-950 dark:to-brand-950">
+                    <div className="pointer-events-none absolute -top-24 -right-24 size-72 rounded-full bg-brand-500/20 blur-3xl" />
+                    <div className="pointer-events-none absolute -bottom-24 -left-24 size-72 rounded-full bg-brand-500/10 blur-3xl" />
 
                     <div className="relative flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
                         <div className="min-w-0 flex-1">
@@ -405,7 +433,7 @@ function ThreadCard({
 
                     <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-[11.5px] text-slate-500 dark:text-neutral-400">
                         <span className="inline-flex items-center gap-1.5">
-                            <span className="grid size-5 place-items-center rounded-full bg-gradient-to-br from-indigo-500 to-violet-600 text-[9px] font-bold text-white">
+                            <span className="grid size-5 place-items-center rounded-full bg-gradient-to-br from-brand-500 to-brand-600 text-[9px] font-bold text-white">
                                 {getInitials(thread.user?.name)}
                             </span>
                             <span className="font-semibold text-slate-700 dark:text-neutral-300">
@@ -455,7 +483,7 @@ function EmptyState({
 }) {
     return (
         <div className="rounded-2xl bg-card px-6 py-16 text-center shadow-[0_1px_2px_rgba(15,23,42,0.04)] ring-1 ring-slate-200/70 dark:ring-neutral-800">
-            <div className="mx-auto grid size-14 place-items-center rounded-2xl bg-gradient-to-br from-brand-500 to-indigo-600 text-white shadow-lg">
+            <div className="mx-auto grid size-14 place-items-center rounded-2xl bg-gradient-to-br from-brand-500 to-brand-600 text-white shadow-lg">
                 <MessagesSquare className="size-6" />
             </div>
             <h3 className="mt-4 text-[15px] font-extrabold text-slate-900 dark:text-neutral-100">
@@ -490,17 +518,57 @@ function ComposerDialog({
     onOpenChange: (open: boolean) => void;
     courseSlug: string;
 }) {
-    const form = useForm<{ title: string; body: string }>({
+    const fileInputRef = useRef<HTMLInputElement | null>(null);
+    const [preview, setPreview] = useState<string | null>(null);
+
+    const form = useForm<{ title: string; body: string; image: File | null }>({
         title: '',
         body: '',
+        image: null,
     });
+
+    const handleImage = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0] ?? null;
+
+        if (!file) {
+return;
+}
+
+        if (file.size > 5 * 1024 * 1024) {
+            form.setError('image', 'Ukuran gambar maksimal 5 MB.');
+
+            return;
+        }
+
+        form.clearErrors('image');
+        form.setData('image', file);
+        const reader = new FileReader();
+        reader.onload = () => setPreview(reader.result as string);
+        reader.readAsDataURL(file);
+    };
+
+    const clearImage = () => {
+        form.setData('image', null);
+        setPreview(null);
+
+        if (fileInputRef.current) {
+fileInputRef.current.value = '';
+}
+    };
 
     const submit = (event: React.FormEvent) => {
         event.preventDefault();
         form.post(`/learn/${courseSlug}/discussions`, {
+            forceFormData: true,
             preserveScroll: true,
             onSuccess: () => {
                 form.reset();
+                setPreview(null);
+
+                if (fileInputRef.current) {
+fileInputRef.current.value = '';
+}
+
                 onOpenChange(false);
             },
         });
@@ -516,13 +584,16 @@ function ComposerDialog({
             open={open}
             onOpenChange={(o) => {
                 onOpenChange(o);
-                if (!o) form.reset();
+
+                if (!o) {
+form.reset();
+}
             }}
         >
             <DialogContent className="sm:max-w-[600px]">
                 <DialogHeader>
                     <DialogTitle className="inline-flex items-center gap-2">
-                        <span className="grid size-8 place-items-center rounded-lg bg-gradient-to-br from-brand-500 to-indigo-600 text-white">
+                        <span className="grid size-8 place-items-center rounded-lg bg-gradient-to-br from-brand-500 to-brand-600 text-white">
                             <Plus className="size-4" />
                         </span>
                         Tanya Baru
@@ -564,6 +635,49 @@ function ComposerDialog({
                             className="resize-none"
                         />
                         <FieldError message={form.errors.body} />
+                    </div>
+
+                    <div className="space-y-1.5">
+                        <label className="text-[12.5px] font-semibold text-slate-700">
+                            Lampiran gambar (opsional)
+                        </label>
+                        <input
+                            ref={fileInputRef}
+                            type="file"
+                            accept="image/jpeg,image/png,image/webp"
+                            className="hidden"
+                            onChange={handleImage}
+                        />
+                        {preview ? (
+                            <div className="relative inline-block">
+                                <img
+                                    src={preview}
+                                    alt="Preview"
+                                    className="max-h-32 rounded-lg ring-1 ring-slate-200"
+                                />
+                                <button
+                                    type="button"
+                                    onClick={clearImage}
+                                    className="absolute -top-2 -right-2 grid size-6 place-items-center rounded-full bg-rose-600 text-white shadow-md hover:bg-rose-700"
+                                    aria-label="Hapus gambar"
+                                >
+                                    ×
+                                </button>
+                            </div>
+                        ) : (
+                            <button
+                                type="button"
+                                onClick={() => fileInputRef.current?.click()}
+                                className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-slate-200 bg-slate-50/40 px-3 py-3 text-[12.5px] font-semibold text-slate-600 transition hover:border-brand-300 hover:bg-brand-50/30"
+                            >
+                                <Plus className="size-3.5" />
+                                Tambah gambar (JPG/PNG/WEBP · maks 5 MB)
+                            </button>
+                        )}
+                        <FieldError message={form.errors.image} />
+                        <p className="text-[10.5px] text-slate-400">
+                            Gambar otomatis dikompres ke ukuran optimal.
+                        </p>
                     </div>
 
                     <DialogFooter>

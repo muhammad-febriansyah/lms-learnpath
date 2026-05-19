@@ -164,7 +164,7 @@ export default function CheckoutShow({
                 </div>
 
                 {isCorporate && (
-                    <div className="rounded-2xl bg-gradient-to-br from-brand-600 to-violet-700 p-5 text-white shadow-md">
+                    <div className="rounded-2xl bg-gradient-to-br from-brand-600 to-brand-700 p-5 text-white shadow-md">
                         <div className="flex items-start gap-3">
                             <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-white/15">
                                 <svg
@@ -196,7 +196,7 @@ export default function CheckoutShow({
                 )}
 
                 {!isCorporate && subscriptionAccess && (
-                    <div className="rounded-2xl bg-gradient-to-br from-violet-600 to-fuchsia-600 p-5 text-white shadow-md">
+                    <div className="rounded-2xl bg-gradient-to-br from-brand-600 to-brand-600 p-5 text-white shadow-md">
                         <div className="flex items-start gap-3">
                             <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-white/15">
                                 <ShieldCheck className="size-5" />

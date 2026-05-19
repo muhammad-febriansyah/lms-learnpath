@@ -115,8 +115,8 @@ export default function SalesReport({ range, totals, byMonth, byGateway, topCour
                         label="Order Berhasil"
                         value={totals.orders.toLocaleString('id-ID')}
                         icon={Receipt}
-                        tint="bg-violet-50"
-                        text="text-violet-600"
+                        tint="bg-brand-50"
+                        text="text-brand-600"
                     />
                     <StatCard
                         label="Avg Order Value"
@@ -178,7 +178,7 @@ export default function SalesReport({ range, totals, byMonth, byGateway, topCour
                                     return (
                                         <li key={row.gateway}>
                                             <div className="mb-1 flex items-center justify-between">
-                                                <Badge className="border-transparent bg-violet-50 font-semibold text-violet-700">
+                                                <Badge className="border-transparent bg-brand-50 font-semibold text-brand-700">
                                                     {row.gateway.toUpperCase()}
                                                 </Badge>
                                                 <div className="text-[12px] font-bold tabular-nums text-slate-900">
@@ -187,7 +187,7 @@ export default function SalesReport({ range, totals, byMonth, byGateway, topCour
                                             </div>
                                             <div className="h-2 overflow-hidden rounded-full bg-slate-100">
                                                 <div
-                                                    className="h-full rounded-full bg-violet-500"
+                                                    className="h-full rounded-full bg-brand-500"
                                                     style={{ width: `${pct}%` }}
                                                 />
                                             </div>
@@ -219,7 +219,7 @@ export default function SalesReport({ range, totals, byMonth, byGateway, topCour
                                         <div
                                             className={cn(
                                                 'h-10 w-14 shrink-0 overflow-hidden rounded-lg',
-                                                !row.thumbnail && 'bg-gradient-to-br from-brand-400 to-violet-500',
+                                                !row.thumbnail && 'bg-gradient-to-br from-brand-400 to-brand-500',
                                             )}
                                             style={
                                                 row.thumbnail

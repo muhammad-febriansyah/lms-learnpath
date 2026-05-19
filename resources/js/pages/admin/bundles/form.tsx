@@ -1,6 +1,6 @@
 import { Head, Link, useForm } from '@inertiajs/react';
-import { ArrowLeft, ChevronDown, ChevronUp, Save, X } from 'lucide-react';
-import { useEffect, useMemo, useState } from 'react';
+import { ArrowLeft, ChevronDown, ChevronUp, Save, Upload, X } from 'lucide-react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 import { FieldError } from '@/components/form/field-error';
 import { RupiahInput } from '@/components/form/rupiah-input';
@@ -53,19 +53,25 @@ export default function BundleForm({ bundle, courses }: Props) {
     const isEdit = !!bundle;
 
     const form = useForm<{
+        _method?: 'put';
         title: string;
         slug: string;
         description: string;
-        thumbnail: string;
+        thumbnail: File | null;
+        thumbnail_existing: string;
+        thumbnail_remove: boolean;
         price: number | '';
         compare_at_price: number | '';
         course_ids: number[];
         is_published: boolean;
     }>({
+        ...(bundle ? { _method: 'put' as const } : {}),
         title: bundle?.title ?? '',
         slug: bundle?.slug ?? '',
         description: bundle?.description ?? '',
-        thumbnail: bundle?.thumbnail ?? '',
+        thumbnail: null,
+        thumbnail_existing: bundle?.thumbnail ?? '',
+        thumbnail_remove: false,
         price: bundle?.price ?? '',
         compare_at_price: bundle?.compare_at_price ?? '',
         course_ids: bundle?.course_ids ?? [],
@@ -110,11 +116,8 @@ export default function BundleForm({ bundle, courses }: Props) {
                 data.compare_at_price === '' ? null : Number(data.compare_at_price),
         }));
 
-        if (isEdit) {
-            form.put(`/admin/bundles/${bundle!.id}`);
-        } else {
-            form.post('/admin/bundles');
-        }
+        const url = isEdit ? `/admin/bundles/${bundle!.id}` : '/admin/bundles';
+        form.post(url, { forceFormData: true });
     }
 
     function addCourse(id: number) {
@@ -210,6 +213,27 @@ export default function BundleForm({ bundle, courses }: Props) {
                                 onChange={(e) => form.setData('description', e.target.value)}
                             />
                             <FieldError message={form.errors.description} />
+                        </div>
+
+                        <div className="space-y-2 sm:col-span-2">
+                            <RequiredLabel>Thumbnail Paket</RequiredLabel>
+                            <ThumbnailUpload
+                                file={form.data.thumbnail}
+                                existingUrl={form.data.thumbnail_existing}
+                                onFileChange={(f) => {
+                                    form.setData('thumbnail', f);
+                                    if (f) form.setData('thumbnail_remove', false);
+                                }}
+                                onRemove={() => {
+                                    form.setData('thumbnail', null);
+                                    form.setData('thumbnail_existing', '');
+                                    form.setData('thumbnail_remove', true);
+                                }}
+                            />
+                            <p className="text-[11.5px] text-slate-500">
+                                PNG / JPG / WEBP. Rasio 16:9, maks 2 MB.
+                            </p>
+                            <FieldError message={form.errors.thumbnail} />
                         </div>
 
                         <div className="space-y-2.5">
@@ -385,5 +409,99 @@ export default function BundleForm({ bundle, courses }: Props) {
                 </form>
             </div>
         </>
+    );
+}
+
+function ThumbnailUpload({
+    file,
+    existingUrl,
+    onFileChange,
+    onRemove,
+}: {
+    file: File | null;
+    existingUrl: string;
+    onFileChange: (f: File | null) => void;
+    onRemove: () => void;
+}) {
+    const inputRef = useRef<HTMLInputElement>(null);
+    const [preview, setPreview] = useState<string | null>(null);
+
+    useEffect(() => {
+        if (!file) {
+            setPreview(null);
+            return;
+        }
+        const url = URL.createObjectURL(file);
+        setPreview(url);
+        return () => URL.revokeObjectURL(url);
+    }, [file]);
+
+    const displayUrl =
+        preview ??
+        (existingUrl
+            ? existingUrl.startsWith('http')
+                ? existingUrl
+                : `/storage/${existingUrl}`
+            : null);
+
+    return (
+        <div>
+            <input
+                ref={inputRef}
+                type="file"
+                accept="image/png,image/jpeg,image/webp"
+                className="hidden"
+                onChange={(e) => onFileChange(e.target.files?.[0] ?? null)}
+            />
+            {displayUrl ? (
+                <div className="space-y-2">
+                    <div className="overflow-hidden rounded-xl ring-1 ring-slate-200">
+                        <img
+                            src={displayUrl}
+                            alt="Thumbnail"
+                            className="aspect-video w-full object-cover"
+                        />
+                    </div>
+                    <div className="flex gap-2">
+                        <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => inputRef.current?.click()}
+                        >
+                            <Upload className="mr-1.5 size-3.5" />
+                            Ganti file
+                        </Button>
+                        <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => {
+                                onRemove();
+                                if (inputRef.current) inputRef.current.value = '';
+                            }}
+                            className="text-rose-600 hover:bg-rose-50 hover:text-rose-700"
+                        >
+                            <X className="mr-1.5 size-3.5" />
+                            Hapus
+                        </Button>
+                    </div>
+                </div>
+            ) : (
+                <button
+                    type="button"
+                    onClick={() => inputRef.current?.click()}
+                    className="flex aspect-video w-full flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-300 bg-slate-50 text-center transition hover:border-brand-300 hover:bg-brand-50/40"
+                >
+                    <Upload className="mb-2 size-6 text-slate-400" />
+                    <span className="text-[13px] font-semibold text-slate-700">
+                        Klik untuk upload gambar
+                    </span>
+                    <span className="text-[11.5px] text-slate-500">
+                        PNG / JPG / WEBP, rasio 16:9, maks 2 MB
+                    </span>
+                </button>
+            )}
+        </div>
     );
 }

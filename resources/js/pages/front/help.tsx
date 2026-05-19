@@ -28,7 +28,7 @@ const TOPICS = [
         title: 'Kursus & Belajar',
         desc: 'Enrollment, akses materi, dan tracking progress.',
         icon: GraduationCap,
-        color: 'bg-violet-50 text-violet-700',
+        color: 'bg-brand-50 text-brand-700',
         articles: ['Enroll kursus', 'Akses video offline', 'Tracking progress'],
     },
     {

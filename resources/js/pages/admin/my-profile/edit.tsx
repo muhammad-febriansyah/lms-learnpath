@@ -53,7 +53,7 @@ export default function MyProfileEdit({ instructor }: Props) {
     const [photoPreview, setPhotoPreview] = useState<string | null>(
         instructor.profile.photo_path
             ? `/storage/${instructor.profile.photo_path}`
-            : null,
+            : (instructor.avatar ?? null),
     );
 
     const form = useForm({

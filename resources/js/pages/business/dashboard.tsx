@@ -145,7 +145,7 @@ export default function BusinessDashboard({
                 </div>
 
                 {/* Seat usage hero */}
-                <div className="rounded-2xl bg-gradient-to-br from-brand-600 to-violet-700 p-6 text-white shadow-xl">
+                <div className="rounded-2xl bg-gradient-to-br from-brand-600 to-brand-700 p-6 text-white shadow-xl">
                     <div className="flex flex-wrap items-center justify-between gap-4">
                         <div>
                             <div className="text-[11px] font-bold tracking-wider uppercase opacity-70">
@@ -195,8 +195,8 @@ export default function BusinessDashboard({
                         title="Undangan"
                         description={`${stats.pending_invites} pending`}
                         icon={Mail}
-                        tint="bg-violet-50"
-                        text="text-violet-600"
+                        tint="bg-brand-50"
+                        text="text-brand-600"
                     />
                     <ActionCard
                         href="/admin/reports/course-progress"

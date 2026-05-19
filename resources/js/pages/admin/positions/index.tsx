@@ -192,7 +192,7 @@ export default function PositionsIndex({ positions, filters, divisionOptions, st
                 <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
                     <StatCard label="Total Jabatan" value={stats.total} icon={Briefcase} tint="bg-brand-50" text="text-brand-600" />
                     <StatCard label="Aktif" value={stats.active} icon={Briefcase} tint="bg-emerald-50" text="text-emerald-600" />
-                    <StatCard label="Karyawan" value={stats.employees} icon={Users} tint="bg-violet-50" text="text-violet-600" />
+                    <StatCard label="Karyawan" value={stats.employees} icon={Users} tint="bg-brand-50" text="text-brand-600" />
                     <StatCard label="Total Target" value={stats.targets} icon={Target} tint="bg-amber-50" text="text-amber-600" />
                 </div>
 

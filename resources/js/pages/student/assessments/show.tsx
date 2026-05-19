@@ -99,7 +99,7 @@ export default function AssessmentShow({ course, assessment, attempts, state }: 
                         className={cn(
                             'p-6 text-white',
                             assessment.type === 'post_test'
-                                ? 'bg-gradient-to-br from-indigo-700 via-brand-700 to-purple-700'
+                                ? 'bg-gradient-to-br from-brand-700 via-brand-700 to-brand-700'
                                 : 'bg-gradient-to-br from-sky-600 via-cyan-600 to-blue-700',
                         )}
                     >

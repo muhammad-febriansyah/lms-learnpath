@@ -102,7 +102,7 @@ export default function CertificateReport({ range, totals, perCourse, byMonth }:
                                         </div>
                                         <div className="relative h-7 flex-1 overflow-hidden rounded-lg bg-slate-50">
                                             <div
-                                                className="h-full rounded-lg bg-gradient-to-r from-brand-500 to-violet-500"
+                                                className="h-full rounded-lg bg-gradient-to-r from-brand-500 to-brand-500"
                                                 style={{ width: `${(row.c / maxMonthCount) * 100}%` }}
                                             />
                                             <span className="absolute inset-y-0 right-2 inline-flex items-center text-[11.5px] font-bold tabular-nums text-slate-900">
@@ -129,7 +129,7 @@ export default function CertificateReport({ range, totals, perCourse, byMonth }:
                                         <div
                                             className={cn(
                                                 'h-10 w-14 shrink-0 overflow-hidden rounded-lg',
-                                                !row.thumbnail && 'bg-gradient-to-br from-brand-400 to-violet-500',
+                                                !row.thumbnail && 'bg-gradient-to-br from-brand-400 to-brand-500',
                                             )}
                                             style={
                                                 row.thumbnail

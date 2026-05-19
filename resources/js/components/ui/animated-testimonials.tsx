@@ -89,7 +89,7 @@ export const AnimatedTestimonials = ({
                                         <div
                                             className={
                                                 'flex h-full w-full items-center justify-center rounded-3xl bg-gradient-to-br text-[88px] font-extrabold tracking-tight text-white shadow-[0_24px_60px_-24px_rgba(15,23,42,0.35)] ' +
-                                                (t.gradient ?? 'from-brand-400 to-violet-600')
+                                                (t.gradient ?? 'from-brand-400 to-brand-600')
                                             }
                                         >
                                             {t.initials ??

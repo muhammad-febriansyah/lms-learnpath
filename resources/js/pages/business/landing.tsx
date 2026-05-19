@@ -101,7 +101,7 @@ export default function BusinessLanding({ pricePerSeat, minSeats, maxSeats }: Pr
                                 </div>
                                 <h1 className="mt-4 text-4xl font-extrabold tracking-tight text-slate-900 sm:text-5xl">
                                     Latih seluruh karyawan dengan{' '}
-                                    <span className="bg-gradient-to-r from-brand-600 to-violet-600 bg-clip-text text-transparent">
+                                    <span className="bg-gradient-to-r from-brand-600 to-brand-600 bg-clip-text text-transparent">
                                         satu paket seat
                                     </span>
                                 </h1>
@@ -141,7 +141,7 @@ export default function BusinessLanding({ pricePerSeat, minSeats, maxSeats }: Pr
                                 </div>
                             </div>
 
-                            <div className="rounded-3xl bg-gradient-to-br from-brand-600 to-violet-700 p-8 text-white shadow-2xl">
+                            <div className="rounded-3xl bg-gradient-to-br from-brand-600 to-brand-700 p-8 text-white shadow-2xl">
                                 <div className="text-[11.5px] font-bold tracking-wider uppercase opacity-80">
                                     Hitung Estimasi
                                 </div>
@@ -269,7 +269,7 @@ export default function BusinessLanding({ pricePerSeat, minSeats, maxSeats }: Pr
                 </section>
 
                 {/* CTA */}
-                <section className="bg-gradient-to-br from-brand-600 to-violet-700 py-16 text-white">
+                <section className="bg-gradient-to-br from-brand-600 to-brand-700 py-16 text-white">
                     <div className="mx-auto max-w-3xl px-6 text-center">
                         <h2 className="text-3xl font-extrabold tracking-tight">
                             Mulai upskill tim Anda hari ini

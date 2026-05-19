@@ -11,6 +11,7 @@ use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -34,8 +35,24 @@ class LearningPathController extends Controller
                 }
             })
             ->latest('id')
-            ->paginate(15)
-            ->withQueryString();
+            ->paginate(8)
+            ->withQueryString()
+            ->through(fn (LearningPath $p) => [
+                'id' => $p->id,
+                'title' => $p->title,
+                'slug' => $p->slug,
+                'thumbnail' => $p->thumbnail,
+                'level' => $p->level,
+                'duration_weeks' => $p->duration_weeks,
+                'is_published' => $p->is_published,
+                'total_students' => $p->total_students ?? 0,
+                'courses_count' => $p->courses_count,
+                'enrollments_count' => $p->enrollments_count,
+                'position' => $p->position ? [
+                    'id' => $p->position->id,
+                    'name' => $p->position->name,
+                ] : null,
+            ]);
 
         return Inertia::render('admin/learning-paths/index', [
             'paths' => $paths,
@@ -61,6 +78,14 @@ class LearningPathController extends Controller
             $data['published_at'] = now();
         }
         $data['total_courses'] = 0;
+
+        unset($data['thumbnail_remove']);
+        if ($request->hasFile('thumbnail')) {
+            $data['thumbnail'] = $request->file('thumbnail')
+                ->store('learning-paths/thumbnails', 'public');
+        } else {
+            unset($data['thumbnail']);
+        }
 
         $path = LearningPath::create($data);
 
@@ -153,6 +178,24 @@ class LearningPathController extends Controller
         $data['is_published'] = $data['is_published'] ?? $learningPath->is_published;
         if ($data['is_published'] && ! $learningPath->published_at) {
             $data['published_at'] = now();
+        }
+
+        $removeThumbnail = (bool) ($data['thumbnail_remove'] ?? false);
+        unset($data['thumbnail_remove']);
+
+        if ($request->hasFile('thumbnail')) {
+            if ($learningPath->thumbnail && Storage::disk('public')->exists($learningPath->thumbnail)) {
+                Storage::disk('public')->delete($learningPath->thumbnail);
+            }
+            $data['thumbnail'] = $request->file('thumbnail')
+                ->store('learning-paths/thumbnails', 'public');
+        } elseif ($removeThumbnail) {
+            if ($learningPath->thumbnail && Storage::disk('public')->exists($learningPath->thumbnail)) {
+                Storage::disk('public')->delete($learningPath->thumbnail);
+            }
+            $data['thumbnail'] = null;
+        } else {
+            unset($data['thumbnail']);
         }
 
         $learningPath->update($data);

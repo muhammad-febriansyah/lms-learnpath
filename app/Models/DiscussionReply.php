@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
     'discussion_thread_id',
     'user_id',
     'body',
+    'image_path',
     'upvotes_count',
 ])]
 class DiscussionReply extends Model

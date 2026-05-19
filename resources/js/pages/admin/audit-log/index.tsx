@@ -60,7 +60,7 @@ const ACTION_TONE: Record<string, string> = {
     'course.published': 'bg-emerald-50 text-emerald-700',
     'course.rejected': 'bg-amber-50 text-amber-700',
     'course.deleted': 'bg-rose-50 text-rose-700',
-    'branding.updated': 'bg-violet-50 text-violet-700',
+    'branding.updated': 'bg-brand-50 text-brand-700',
 };
 
 export default function AuditLogIndex({ logs, filters, topActions }: Props) {

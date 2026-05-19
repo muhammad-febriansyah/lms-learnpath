@@ -129,7 +129,7 @@ function CertificateCard({
     const subject = isPath ? certificate.learning_path : certificate.course;
     const KindIcon = isPath ? Compass : Award;
     const gradient = isPath
-        ? 'from-violet-500 via-indigo-600 to-brand-700'
+        ? 'from-brand-500 via-brand-600 to-brand-700'
         : 'from-amber-400 via-amber-500 to-amber-700';
 
     return (

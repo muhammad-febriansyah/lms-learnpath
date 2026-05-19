@@ -1,23 +1,19 @@
 import { Head, Link, router, useForm } from '@inertiajs/react';
 import {
     BookOpen,
+    ChevronDown,
     Clock,
-    FileText,
     NotebookPen,
     Pencil,
+    Play,
+    Search,
     Trash2,
 } from 'lucide-react';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 
 import { IconChevR } from '@/components/learnpath-icons';
 import { Button } from '@/components/ui/button';
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from '@/components/ui/select';
+import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
 
@@ -39,6 +35,11 @@ type Props = {
     filters: { course_id: number | null };
 };
 
+type CourseGroup = {
+    course: { id: number; title: string; slug: string };
+    notes: Note[];
+};
+
 function formatTimestamp(seconds: number | null): string | null {
     if (seconds === null || seconds < 0) return null;
     const h = Math.floor(seconds / 3600);
@@ -49,7 +50,24 @@ function formatTimestamp(seconds: number | null): string | null {
     return h > 0 ? `${h}:${mm}:${ss}` : `${m}:${ss}`;
 }
 
-function formatDate(iso: string | null): string {
+function timeAgo(iso: string | null): string {
+    if (!iso) return '';
+    const diff = Date.now() - new Date(iso).getTime();
+    const minutes = Math.floor(diff / 60_000);
+    if (minutes < 1) return 'Baru saja';
+    if (minutes < 60) return `${minutes} mnt lalu`;
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) return `${hours} jam lalu`;
+    const days = Math.floor(hours / 24);
+    if (days < 7) return `${days} hari lalu`;
+    return new Date(iso).toLocaleDateString('id-ID', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+    });
+}
+
+function formatFullDate(iso: string | null): string {
     if (!iso) return '';
     return new Date(iso).toLocaleString('id-ID', {
         day: 'numeric',
@@ -60,21 +78,55 @@ function formatDate(iso: string | null): string {
     });
 }
 
-export default function MyNotesIndex({ notes, courseOptions, filters }: Props) {
-    const [editingId, setEditingId] = useState<number | null>(null);
+function groupByCourse(notes: Note[]): CourseGroup[] {
+    const map = new Map<number, CourseGroup>();
+    for (const note of notes) {
+        if (!note.course) continue;
+        const key = note.course.id;
+        if (!map.has(key)) {
+            map.set(key, { course: note.course, notes: [] });
+        }
+        map.get(key)!.notes.push(note);
+    }
+    return [...map.values()].sort((a, b) => a.course.title.localeCompare(b.course.title));
+}
 
-    const handleFilterCourse = (value: string) => {
-        router.get(
-            '/my-notes',
-            value === 'all' ? {} : { course_id: value },
-            { preserveState: true, preserveScroll: true, replace: true },
+export default function MyNotesIndex({ notes }: Props) {
+    const [editingId, setEditingId] = useState<number | null>(null);
+    const [query, setQuery] = useState('');
+    const [collapsed, setCollapsed] = useState<Set<number>>(new Set());
+
+    const filteredNotes = useMemo(() => {
+        const q = query.trim().toLowerCase();
+        if (!q) return notes;
+        return notes.filter(
+            (n) =>
+                n.content.toLowerCase().includes(q) ||
+                n.lesson?.title.toLowerCase().includes(q) ||
+                n.course?.title.toLowerCase().includes(q),
         );
-    };
+    }, [notes, query]);
+
+    const groups = useMemo(() => groupByCourse(filteredNotes), [filteredNotes]);
 
     const handleDelete = (id: number) => {
         if (!confirm('Hapus catatan ini?')) return;
         router.delete(`/notes/${id}`, { preserveScroll: true });
     };
+
+    const toggleCollapse = (courseId: number) => {
+        setCollapsed((prev) => {
+            const next = new Set(prev);
+            if (next.has(courseId)) next.delete(courseId);
+            else next.add(courseId);
+            return next;
+        });
+    };
+
+    const totalCourses = useMemo(
+        () => new Set(notes.map((n) => n.course?.id).filter(Boolean)).size,
+        [notes],
+    );
 
     return (
         <>
@@ -88,33 +140,16 @@ export default function MyNotesIndex({ notes, courseOptions, filters }: Props) {
                         <IconChevR size={12} className="text-slate-300" />
                         <span className="font-semibold text-slate-900">Catatan Saya</span>
                     </nav>
-                    <div className="mt-1.5 flex items-end justify-between gap-3">
+                    <div className="mt-1.5 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
                         <div>
                             <h1 className="text-2xl font-extrabold tracking-tight text-slate-900">
                                 Catatan Saya
                             </h1>
                             <p className="mt-1 text-[13.5px] text-slate-500">
-                                Semua catatan dari materi yang telah Anda pelajari.
+                                {notes.length === 0
+                                    ? 'Belum ada catatan tersimpan.'
+                                    : `${notes.length} catatan dari ${totalCourses} course`}
                             </p>
-                        </div>
-                        <div className="hidden items-center gap-2 sm:flex">
-                            <span className="text-[12.5px] text-slate-500">Filter course:</span>
-                            <Select
-                                value={filters.course_id ? String(filters.course_id) : 'all'}
-                                onValueChange={handleFilterCourse}
-                            >
-                                <SelectTrigger className="h-9 w-[220px]">
-                                    <SelectValue placeholder="Semua course" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="all">Semua course</SelectItem>
-                                    {courseOptions.map((c) => (
-                                        <SelectItem key={c.id} value={String(c.id)}>
-                                            {c.title}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
                         </div>
                     </div>
                 </div>
@@ -122,21 +157,255 @@ export default function MyNotesIndex({ notes, courseOptions, filters }: Props) {
                 {notes.length === 0 ? (
                     <EmptyState />
                 ) : (
-                    <ul className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-                        {notes.map((n) => (
-                            <NoteCard
-                                key={n.id}
-                                note={n}
-                                editing={editingId === n.id}
-                                onEdit={() => setEditingId(n.id)}
-                                onCancelEdit={() => setEditingId(null)}
-                                onDelete={() => handleDelete(n.id)}
+                    <>
+                        <div className="relative">
+                            <Search className="pointer-events-none absolute top-1/2 left-3.5 size-4 -translate-y-1/2 text-slate-400" />
+                            <Input
+                                value={query}
+                                onChange={(e) => setQuery(e.target.value)}
+                                placeholder="Cari isi catatan, lesson, atau course..."
+                                className="h-11 rounded-xl pl-10 text-[13.5px]"
                             />
-                        ))}
-                    </ul>
+                        </div>
+
+                        {groups.length === 0 ? (
+                            <div className="rounded-2xl bg-white px-6 py-12 text-center ring-1 ring-slate-200/70">
+                                <div className="mx-auto grid size-12 place-items-center rounded-xl bg-slate-100 text-slate-400">
+                                    <Search className="size-5" />
+                                </div>
+                                <p className="mt-3 text-[14px] font-semibold text-slate-700">
+                                    Tidak ada catatan yang cocok
+                                </p>
+                                <p className="mt-1 text-[12.5px] text-slate-500">
+                                    Coba kata kunci lain atau bersihkan filter.
+                                </p>
+                            </div>
+                        ) : (
+                            <div className="space-y-3">
+                                {groups.map((g) => (
+                                    <CourseGroupCard
+                                        key={g.course.id}
+                                        group={g}
+                                        collapsed={collapsed.has(g.course.id)}
+                                        onToggleCollapse={() => toggleCollapse(g.course.id)}
+                                        editingId={editingId}
+                                        onEdit={setEditingId}
+                                        onCancelEdit={() => setEditingId(null)}
+                                        onDelete={handleDelete}
+                                    />
+                                ))}
+                            </div>
+                        )}
+                    </>
                 )}
             </div>
         </>
+    );
+}
+
+function CourseGroupCard({
+    group,
+    collapsed,
+    onToggleCollapse,
+    editingId,
+    onEdit,
+    onCancelEdit,
+    onDelete,
+}: {
+    group: CourseGroup;
+    collapsed: boolean;
+    onToggleCollapse: () => void;
+    editingId: number | null;
+    onEdit: (id: number) => void;
+    onCancelEdit: () => void;
+    onDelete: (id: number) => void;
+}) {
+    return (
+        <section className="overflow-hidden rounded-2xl bg-white ring-1 ring-slate-200/70">
+            <button
+                type="button"
+                onClick={onToggleCollapse}
+                className="flex w-full items-center gap-3 px-4 py-3.5 text-left transition hover:bg-slate-50"
+            >
+                <div className="grid size-9 shrink-0 place-items-center rounded-xl bg-brand-50 text-brand-700">
+                    <BookOpen className="size-4" />
+                </div>
+                <div className="min-w-0 flex-1">
+                    <div className="truncate text-[14px] font-bold text-slate-900">
+                        {group.course.title}
+                    </div>
+                    <div className="text-[11.5px] text-slate-500">
+                        {group.notes.length} catatan
+                    </div>
+                </div>
+                <ChevronDown
+                    className={cn(
+                        'size-4 shrink-0 text-slate-400 transition-transform',
+                        collapsed && '-rotate-90',
+                    )}
+                />
+            </button>
+
+            {!collapsed && (
+                <ul className="divide-y divide-slate-100 border-t border-slate-100">
+                    {group.notes.map((note) => (
+                        <NoteRow
+                            key={note.id}
+                            note={note}
+                            editing={editingId === note.id}
+                            onEdit={() => onEdit(note.id)}
+                            onCancelEdit={onCancelEdit}
+                            onDelete={() => onDelete(note.id)}
+                        />
+                    ))}
+                </ul>
+            )}
+        </section>
+    );
+}
+
+function NoteRow({
+    note,
+    editing,
+    onEdit,
+    onCancelEdit,
+    onDelete,
+}: {
+    note: Note;
+    editing: boolean;
+    onEdit: () => void;
+    onCancelEdit: () => void;
+    onDelete: () => void;
+}) {
+    const form = useForm<{ content: string }>({ content: note.content });
+    const ts = formatTimestamp(note.timestamp_seconds);
+    const playUrl = note.course && note.lesson
+        ? `/learn/${note.course.slug}/lessons/${note.lesson.id}${
+              note.timestamp_seconds ? `?t=${note.timestamp_seconds}` : ''
+          }`
+        : null;
+
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!form.data.content.trim() || form.processing) return;
+        form.patch(`/notes/${note.id}`, {
+            preserveScroll: true,
+            onSuccess: () => onCancelEdit(),
+        });
+    };
+
+    return (
+        <li className={cn('px-4 py-4 transition', editing ? 'bg-brand-50/40' : 'hover:bg-slate-50/40')}>
+            <div className="flex flex-col gap-3 sm:flex-row sm:gap-4">
+                {/* Timestamp anchor (clickable to jump to video) */}
+                <div className="shrink-0">
+                    {playUrl ? (
+                        <Link
+                            href={playUrl}
+                            className="inline-flex w-fit items-center gap-1.5 rounded-lg bg-brand-50 px-2.5 py-1 font-mono text-[11.5px] font-bold text-brand-700 transition hover:bg-brand-100"
+                            title="Buka di video pada timestamp ini"
+                        >
+                            <Clock className="size-3.5" />
+                            {ts ?? '—'}
+                        </Link>
+                    ) : (
+                        <span className="inline-flex items-center gap-1.5 rounded-lg bg-slate-100 px-2.5 py-1 font-mono text-[11.5px] font-bold text-slate-600">
+                            <Clock className="size-3.5" />
+                            {ts ?? '—'}
+                        </span>
+                    )}
+                </div>
+
+                <div className="min-w-0 flex-1">
+                    {note.lesson && note.course && (
+                        <Link
+                            href={`/learn/${note.course.slug}/lessons/${note.lesson.id}`}
+                            className="line-clamp-1 text-[12.5px] font-bold text-slate-900 hover:text-brand-700"
+                        >
+                            {note.lesson.title}
+                        </Link>
+                    )}
+
+                    {editing ? (
+                        <form onSubmit={handleSubmit} className="mt-2">
+                            <Textarea
+                                value={form.data.content}
+                                onChange={(e) => form.setData('content', e.target.value)}
+                                rows={4}
+                                className="resize-none text-[13px]"
+                                maxLength={5000}
+                                autoFocus
+                            />
+                            <div className="mt-2 flex items-center justify-end gap-1.5">
+                                <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={onCancelEdit}
+                                >
+                                    Batal
+                                </Button>
+                                <Button
+                                    type="submit"
+                                    size="sm"
+                                    disabled={!form.data.content.trim() || form.processing}
+                                    className="h-8 rounded-lg bg-brand-600 hover:bg-brand-700"
+                                >
+                                    Simpan
+                                </Button>
+                            </div>
+                        </form>
+                    ) : (
+                        <>
+                            <p className="mt-1.5 text-[13px] leading-relaxed whitespace-pre-wrap text-slate-700">
+                                {note.content}
+                            </p>
+                            <div className="mt-2.5 flex items-center justify-between gap-2">
+                                <span
+                                    className="text-[11px] text-slate-400"
+                                    title={formatFullDate(note.updated_at ?? note.created_at)}
+                                >
+                                    {timeAgo(note.updated_at ?? note.created_at)}
+                                </span>
+                                <div className="flex items-center gap-1">
+                                    {playUrl && (
+                                        <Button
+                                            asChild
+                                            size="sm"
+                                            variant="ghost"
+                                            className="h-7 rounded-lg px-2 text-[11.5px] text-brand-700 hover:bg-brand-50 hover:text-brand-800"
+                                        >
+                                            <Link href={playUrl}>
+                                                <Play className="mr-1 size-3" />
+                                                Lanjut nonton
+                                            </Link>
+                                        </Button>
+                                    )}
+                                    <button
+                                        type="button"
+                                        onClick={onEdit}
+                                        className="rounded-lg p-1.5 text-slate-400 transition hover:bg-slate-100 hover:text-slate-700"
+                                        title="Edit catatan"
+                                        aria-label="Edit catatan"
+                                    >
+                                        <Pencil className="size-3.5" />
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={onDelete}
+                                        className="rounded-lg p-1.5 text-slate-400 transition hover:bg-rose-50 hover:text-rose-600"
+                                        title="Hapus catatan"
+                                        aria-label="Hapus catatan"
+                                    >
+                                        <Trash2 className="size-3.5" />
+                                    </button>
+                                </div>
+                            </div>
+                        </>
+                    )}
+                </div>
+            </div>
+        </li>
     );
 }
 
@@ -159,135 +428,5 @@ function EmptyState() {
                 </Button>
             </div>
         </div>
-    );
-}
-
-function NoteCard({
-    note,
-    editing,
-    onEdit,
-    onCancelEdit,
-    onDelete,
-}: {
-    note: Note;
-    editing: boolean;
-    onEdit: () => void;
-    onCancelEdit: () => void;
-    onDelete: () => void;
-}) {
-    const form = useForm<{ content: string }>({ content: note.content });
-    const ts = formatTimestamp(note.timestamp_seconds);
-
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!form.data.content.trim() || form.processing) return;
-        form.patch(`/notes/${note.id}`, {
-            preserveScroll: true,
-            onSuccess: () => onCancelEdit(),
-        });
-    };
-
-    return (
-        <li
-            className={cn(
-                'flex flex-col rounded-2xl bg-white p-4 ring-1 transition',
-                editing
-                    ? 'ring-brand-300 shadow-[0_4px_16px_rgba(67,56,202,0.15)]'
-                    : 'ring-slate-200/70 hover:ring-slate-300',
-            )}
-        >
-            <div className="flex items-start justify-between gap-2">
-                <div className="min-w-0 flex-1">
-                    {note.course && (
-                        <Link
-                            href={`/courses/${note.course.slug}`}
-                            className="inline-flex items-center gap-1 text-[11px] font-semibold text-brand-700 hover:underline"
-                        >
-                            <BookOpen className="size-3" />
-                            <span className="line-clamp-1">{note.course.title}</span>
-                        </Link>
-                    )}
-                    {note.lesson && note.course && (
-                        <Link
-                            href={`/learn/${note.course.slug}/lessons/${note.lesson.id}`}
-                            className="mt-1 line-clamp-2 block text-[13.5px] font-bold text-slate-900 hover:text-brand-700"
-                        >
-                            <FileText className="-mt-0.5 mr-1 inline size-3.5 text-slate-400" />
-                            {note.lesson.title}
-                        </Link>
-                    )}
-                </div>
-                {ts && (
-                    <span className="inline-flex shrink-0 items-center gap-1 rounded-md bg-brand-50 px-1.5 py-0.5 font-mono text-[10.5px] font-bold text-brand-700">
-                        <Clock className="size-3" />
-                        {ts}
-                    </span>
-                )}
-            </div>
-
-            <div className="mt-3 flex-1">
-                {editing ? (
-                    <form onSubmit={handleSubmit}>
-                        <Textarea
-                            value={form.data.content}
-                            onChange={(e) => form.setData('content', e.target.value)}
-                            rows={5}
-                            className="resize-none text-[12.5px]"
-                            maxLength={5000}
-                        />
-                        <div className="mt-2 flex justify-end gap-1.5">
-                            <Button
-                                type="button"
-                                variant="ghost"
-                                size="sm"
-                                onClick={onCancelEdit}
-                            >
-                                Batal
-                            </Button>
-                            <Button
-                                type="submit"
-                                size="sm"
-                                disabled={!form.data.content.trim() || form.processing}
-                                className="h-8 rounded-lg bg-brand-600 hover:bg-brand-700"
-                            >
-                                Simpan
-                            </Button>
-                        </div>
-                    </form>
-                ) : (
-                    <p className="text-[12.5px] leading-relaxed whitespace-pre-wrap text-slate-700">
-                        {note.content}
-                    </p>
-                )}
-            </div>
-
-            {!editing && (
-                <div className="mt-3 flex items-center justify-between border-t border-slate-100 pt-2.5">
-                    <span className="text-[10.5px] text-slate-400">
-                        {formatDate(note.updated_at ?? note.created_at)}
-                    </span>
-                    <div className="flex items-center gap-1.5">
-                        <Button
-                            size="sm"
-                            className="h-7 rounded-xl bg-emerald-600 px-2 text-[11.5px] text-white shadow-sm hover:bg-emerald-700"
-                            onClick={onEdit}
-                            title="Edit"
-                        >
-                            <Pencil className="mr-1 size-3.5" />
-                            Edit
-                        </Button>
-                        <Button
-                            size="sm"
-                            className="h-7 rounded-xl bg-rose-600 px-2 text-[11.5px] text-white shadow-sm hover:bg-rose-700"
-                            onClick={onDelete}
-                            title="Hapus"
-                        >
-                            <Trash2 className="mr-1 size-3.5" />
-                            Hapus
-                        </Button>
-                    </div>
-                </div>
-            )}
-        </li>
     );
 }

@@ -169,9 +169,9 @@ export default function MyInsightsIndex({
                 </div>
 
                 {/* Hero stat card */}
-                <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-brand-600 via-violet-600 to-indigo-700 p-6 sm:p-8 text-white shadow-[0_20px_50px_-20px_rgba(99,102,241,0.5)]">
+                <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-brand-500 via-brand-600 to-brand-800 p-6 sm:p-8 text-white shadow-[0_20px_50px_-20px_rgba(18,35,125,0.45)]">
                     <div className="absolute -right-12 -top-12 size-48 rounded-full bg-white/10 blur-3xl" />
-                    <div className="absolute -bottom-16 -left-12 size-56 rounded-full bg-fuchsia-400/20 blur-3xl" />
+                    <div className="absolute -bottom-16 -left-12 size-56 rounded-full bg-brand-300/20 blur-3xl" />
                     <div className="relative flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
                         <div>
                             <div className="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-2.5 py-0.5 text-[10.5px] font-bold uppercase tracking-wider backdrop-blur">
@@ -530,7 +530,7 @@ function DayOfWeekChart({ data }: { data: DowRow[] }) {
                     </div>
                     <div className="relative h-6 flex-1 overflow-hidden rounded-lg bg-slate-100">
                         <div
-                            className="h-full rounded-lg bg-gradient-to-r from-brand-500 to-violet-500 transition-all"
+                            className="h-full rounded-lg bg-gradient-to-r from-brand-400 to-brand-600 transition-all"
                             style={{
                                 width: `${Math.max(2, (d.count / max) * 100)}%`,
                             }}
@@ -601,8 +601,8 @@ function WeeklyChart({ data }: { data: WeekRow[] }) {
                                         w.minutes === 0
                                             ? 'bg-slate-100'
                                             : isCurrent
-                                              ? 'bg-gradient-to-t from-brand-600 to-violet-500 shadow-[0_-4px_20px_-4px_rgba(99,102,241,0.5)]'
-                                              : 'bg-gradient-to-t from-brand-400 to-brand-300',
+                                              ? 'bg-gradient-to-t from-brand-700 to-brand-500 shadow-[0_-4px_20px_-4px_rgba(18,35,125,0.45)]'
+                                              : 'bg-gradient-to-t from-brand-300 to-brand-200',
                                     )}
                                     style={{
                                         height: w.minutes === 0
@@ -637,11 +637,11 @@ function WeeklyChart({ data }: { data: WeekRow[] }) {
             <div className="flex items-center justify-between border-t border-slate-100 pt-3 text-[11px] text-slate-500">
                 <div className="flex items-center gap-3">
                     <div className="flex items-center gap-1.5">
-                        <div className="size-2.5 rounded-sm bg-gradient-to-t from-brand-400 to-brand-300" />
+                        <div className="size-2.5 rounded-sm bg-gradient-to-t from-brand-300 to-brand-200" />
                         Minggu lalu
                     </div>
                     <div className="flex items-center gap-1.5">
-                        <div className="size-2.5 rounded-sm bg-gradient-to-t from-brand-600 to-violet-500" />
+                        <div className="size-2.5 rounded-sm bg-gradient-to-t from-brand-700 to-brand-500" />
                         Minggu ini
                     </div>
                 </div>
@@ -716,7 +716,7 @@ function CourseInsightCard({ row }: { row: CourseRow }) {
                         'h-full rounded-full transition-all',
                         isDone
                             ? 'bg-gradient-to-r from-emerald-400 to-emerald-600'
-                            : 'bg-gradient-to-r from-brand-500 via-violet-500 to-fuchsia-500',
+                            : 'bg-gradient-to-r from-brand-400 via-brand-500 to-brand-700',
                     )}
                     style={{ width: `${Math.max(2, row.percent)}%` }}
                 />

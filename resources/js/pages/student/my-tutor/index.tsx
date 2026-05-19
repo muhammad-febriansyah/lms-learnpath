@@ -598,7 +598,7 @@ function EmptyState({
 }) {
     return (
         <div className="mx-auto flex h-full max-w-2xl flex-col items-center justify-center text-center">
-            <div className="grid size-16 place-items-center rounded-2xl bg-gradient-to-br from-brand-500 to-indigo-600 text-white shadow-xl">
+            <div className="grid size-16 place-items-center rounded-2xl bg-gradient-to-br from-brand-500 to-brand-600 text-white shadow-xl">
                 <Sparkles className="size-7" />
             </div>
             <h2 className="mt-5 text-[20px] font-extrabold text-slate-900">
@@ -640,7 +640,7 @@ function MessageBubble({
                     'grid size-8 shrink-0 place-items-center rounded-full',
                     isUser
                         ? 'bg-brand-600 text-white'
-                        : 'bg-gradient-to-br from-indigo-500 to-brand-700 text-white',
+                        : 'bg-gradient-to-br from-brand-500 to-brand-700 text-white',
                 )}
             >
                 {isUser ? (

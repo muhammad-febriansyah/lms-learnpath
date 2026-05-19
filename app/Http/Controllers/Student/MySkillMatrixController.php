@@ -33,6 +33,13 @@ class MySkillMatrixController extends Controller
                 ->get()
             : collect();
 
+        $positionTargets = $position
+            ? $position->competencyTargets()
+                ->with('competency:id,name,category')
+                ->orderBy('competency_id')
+                ->get()
+            : collect();
+
         return Inertia::render('student/skill-matrix/show', [
             'profile' => $profile,
             'position' => $position,
@@ -55,7 +62,16 @@ class MySkillMatrixController extends Controller
                 'gap' => $g->gap,
                 'status' => $g->status,
             ]),
-            'totalCompetencies' => Competency::where('is_active', true)->count(),
+            'targetCompetencies' => $positionTargets->map(fn ($t) => [
+                'id' => $t->competency_id,
+                'name' => $t->competency?->name,
+                'category' => $t->competency?->category,
+                'target_level' => (int) $t->target_level,
+                'is_required' => (bool) $t->is_required,
+            ]),
+            'totalCompetencies' => $position
+                ? $positionTargets->count()
+                : Competency::where('is_active', true)->count(),
         ]);
     }
 

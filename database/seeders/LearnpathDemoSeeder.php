@@ -1370,10 +1370,33 @@ class LearnpathDemoSeeder extends Seeder
         ];
 
         $studentIdx = [7, 8, 9];
+        // Group lessons by course so we can pick lessons that belong to the
+        // user's enrolled courses (notes without enrollment break the player flow).
+        $lessonsByCourse = collect($this->lessons)->groupBy('course_id');
+
         foreach ($notes as $i => $content) {
-            $lesson = $this->lessons[$i % count($this->lessons)];
+            $user = $this->users[$studentIdx[$i % 3]];
+            $enrolledCourseIds = Enrollment::query()
+                ->where('user_id', $user->id)
+                ->pluck('course_id')
+                ->all();
+
+            if (empty($enrolledCourseIds)) {
+                continue;
+            }
+
+            $availableLessons = collect($enrolledCourseIds)
+                ->flatMap(fn ($cid) => $lessonsByCourse->get($cid, collect()))
+                ->values();
+
+            if ($availableLessons->isEmpty()) {
+                continue;
+            }
+
+            $lesson = $availableLessons->random();
+
             LessonNote::create([
-                'user_id' => $this->users[$studentIdx[$i % 3]]->id,
+                'user_id' => $user->id,
                 'course_id' => $lesson->course_id,
                 'lesson_id' => $lesson->id,
                 'timestamp_seconds' => random_int(30, 1200),

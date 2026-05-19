@@ -81,7 +81,7 @@ export default function SkillGapReport({ totals, perPosition, byDivision, topCom
 
                 <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
                     <StatCard label="Karyawan Dinilai" value={totals.evaluated_users} icon={Users} tint="bg-brand-50" text="text-brand-600" />
-                    <StatCard label="Jabatan Tercakup" value={totals.positions} icon={Briefcase} tint="bg-violet-50" text="text-violet-600" />
+                    <StatCard label="Jabatan Tercakup" value={totals.positions} icon={Briefcase} tint="bg-brand-50" text="text-brand-600" />
                     <StatCard label="Total Gap" value={totals.gap_entries} icon={AlertCircle} tint="bg-rose-50" text="text-rose-600" />
                     <StatCard label="On Target" value={totals.on_target_entries} icon={CheckCircle2} tint="bg-emerald-50" text="text-emerald-600" />
                 </div>
@@ -163,7 +163,7 @@ export default function SkillGapReport({ totals, perPosition, byDivision, topCom
                                                     {row.competency?.name ?? '-'}
                                                 </div>
                                                 {row.competency?.category && (
-                                                    <Badge className="mt-0.5 border-transparent bg-violet-50 px-1.5 py-0 text-[10px] font-semibold text-violet-700">
+                                                    <Badge className="mt-0.5 border-transparent bg-brand-50 px-1.5 py-0 text-[10px] font-semibold text-brand-700">
                                                         {row.competency.category}
                                                     </Badge>
                                                 )}

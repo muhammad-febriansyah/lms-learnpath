@@ -144,7 +144,7 @@ const ALL_STEPS: { id: number; title: string; description: string }[] = [
     {
         id: 1,
         title: 'Informasi Dasar',
-        description: 'Judul, kategori, level, dan bahasa pengantar.',
+        description: 'Judul, kategori, dan level.',
     },
     {
         id: 2,
@@ -657,23 +657,7 @@ export default function CourseForm({
                                     </Select>
                                 </Field>
 
-                                <Field label="Bahasa" error={form.errors.language}>
-                                    <Select
-                                        value={form.data.language ?? 'id'}
-                                        onValueChange={(v) => form.setData('language', v)}
-                                    >
-                                        <SelectTrigger>
-                                            <SelectValue placeholder="Pilih bahasa" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            {languageOptions.map((opt) => (
-                                                <SelectItem key={opt.value} value={opt.value}>
-                                                    {opt.label}
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-                                </Field>
+                                {/* Field Bahasa di-hide sementara — default 'id' tetap dikirim ke server. */}
                             </div>
 
                             <Field label="Tag" hint="Pilih beberapa tag yang relevan.">
@@ -1754,7 +1738,7 @@ function LessonSourceBadge({ lmsFormat }: { lmsFormat: string }) {
     }
     if (lmsFormat === 'embed_link') {
         return (
-            <span className="inline-flex items-center gap-1.5 rounded-lg bg-violet-50 px-2.5 py-1 text-[12px] font-semibold text-violet-700 ring-1 ring-violet-200">
+            <span className="inline-flex items-center gap-1.5 rounded-lg bg-brand-50 px-2.5 py-1 text-[12px] font-semibold text-brand-700 ring-1 ring-brand-200">
                 <Link2 className="size-3.5" />
                 Tipe lesson: Embed URL
             </span>

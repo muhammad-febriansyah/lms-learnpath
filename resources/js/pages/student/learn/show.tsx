@@ -507,7 +507,7 @@ export default function LearnShow({
                 <button
                     type="button"
                     onClick={() => setTutorOpen(true)}
-                    className="inline-flex items-center gap-2 rounded-full bg-gradient-to-br from-brand-600 to-indigo-700 px-4 py-3 text-[13px] font-bold text-white shadow-[0_8px_24px_rgba(67,56,202,0.35)] ring-2 ring-white/40 transition hover:scale-105 hover:shadow-[0_12px_32px_rgba(67,56,202,0.45)]"
+                    className="inline-flex items-center gap-2 rounded-full bg-gradient-to-br from-brand-600 to-brand-700 px-4 py-3 text-[13px] font-bold text-white shadow-[0_8px_24px_rgba(67,56,202,0.35)] ring-2 ring-white/40 transition hover:scale-105 hover:shadow-[0_12px_32px_rgba(67,56,202,0.45)]"
                     title="AI Tutor"
                 >
                     <Bot className="size-5" />
@@ -1034,7 +1034,7 @@ function LessonTutorDrawer({
             >
                 <SheetHeader className="border-b border-slate-200/70 px-5 py-4">
                     <SheetTitle className="inline-flex items-center gap-2 text-[15px] font-extrabold">
-                        <div className="grid size-8 place-items-center rounded-xl bg-gradient-to-br from-brand-500 to-indigo-700 text-white">
+                        <div className="grid size-8 place-items-center rounded-xl bg-gradient-to-br from-brand-500 to-brand-700 text-white">
                             <Bot className="size-4" />
                         </div>
                         AI Tutor
@@ -1067,7 +1067,7 @@ function LessonTutorDrawer({
                         >
                             {!thread || thread.messages.length === 0 ? (
                                 <div className="flex h-full flex-col items-center justify-center text-center">
-                                    <div className="grid size-12 place-items-center rounded-2xl bg-gradient-to-br from-brand-500 to-indigo-600 text-white shadow-lg">
+                                    <div className="grid size-12 place-items-center rounded-2xl bg-gradient-to-br from-brand-500 to-brand-600 text-white shadow-lg">
                                         <Sparkles className="size-5" />
                                     </div>
                                     <h3 className="mt-4 text-[14px] font-extrabold text-slate-900">
@@ -1179,7 +1179,7 @@ function DrawerMessage({
                     'grid size-7 shrink-0 place-items-center rounded-full',
                     isUser
                         ? 'bg-brand-600 text-white'
-                        : 'bg-gradient-to-br from-indigo-500 to-brand-700 text-white',
+                        : 'bg-gradient-to-br from-brand-500 to-brand-700 text-white',
                 )}
             >
                 {isUser ? <UserIcon className="size-3.5" /> : <Bot className="size-3.5" />}

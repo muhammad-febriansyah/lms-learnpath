@@ -79,8 +79,8 @@ const TYPE_LABEL: Record<string, string> = {
 
 const TYPE_COLOR: Record<string, string> = {
     pre_test: 'bg-sky-100 text-sky-700',
-    post_test: 'bg-indigo-100 text-indigo-700',
-    quiz: 'bg-violet-100 text-violet-700',
+    post_test: 'bg-brand-100 text-brand-700',
+    quiz: 'bg-brand-100 text-brand-700',
 };
 
 type EditorOption = { option_text: string; is_correct: boolean };

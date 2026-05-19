@@ -279,7 +279,7 @@ function StatCard({
         brand: 'bg-brand-100 text-brand-700',
         emerald: 'bg-emerald-100 text-emerald-700',
         amber: 'bg-amber-100 text-amber-700',
-        violet: 'bg-violet-100 text-violet-700',
+        violet: 'bg-brand-100 text-brand-700',
     }[tone];
 
     return (

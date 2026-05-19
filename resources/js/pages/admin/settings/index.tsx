@@ -62,8 +62,8 @@ const GROUP_META: Record<
         label: 'SEO',
         description: 'Meta tag, analytics, dan tracking pixel.',
         icon: FileText,
-        tint: 'bg-violet-50',
-        text: 'text-violet-600',
+        tint: 'bg-brand-50',
+        text: 'text-brand-600',
     },
     social: {
         label: 'Sosial Media',

@@ -123,7 +123,7 @@ export default function CouponsIndex({ coupons, filters }: Props) {
             header: 'Scope',
             cell: ({ row }) =>
                 row.original.applicable_to === 'all' ? (
-                    <Badge className="border-transparent bg-violet-50 text-violet-700 hover:bg-violet-50">
+                    <Badge className="border-transparent bg-brand-50 text-brand-700 hover:bg-brand-50">
                         Semua kursus
                     </Badge>
                 ) : (

@@ -183,7 +183,7 @@ export default function WalletIndex({
                 </div>
 
                 {/* Balance hero card */}
-                <div className="overflow-hidden rounded-2xl bg-gradient-to-br from-brand-600 via-violet-600 to-indigo-600 p-1 shadow-[0_20px_50px_-20px_rgba(67,56,202,0.5)]">
+                <div className="overflow-hidden rounded-2xl bg-gradient-to-br from-brand-600 via-brand-600 to-brand-600 p-1 shadow-[0_20px_50px_-20px_rgba(67,56,202,0.5)]">
                     <div className="rounded-[1rem] bg-white p-6">
                         <div className="flex flex-wrap items-start justify-between gap-4">
                             <div>

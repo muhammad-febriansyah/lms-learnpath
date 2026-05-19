@@ -92,7 +92,7 @@ export default function B2cPlansIndex({ plans }: Props) {
                                 Daftar Pelanggan
                             </Link>
                         </Button>
-                        <Button asChild className="rounded-xl bg-violet-600 hover:bg-violet-700">
+                        <Button asChild className="rounded-xl bg-brand-600 hover:bg-brand-700">
                             <Link href="/admin/b2c-plans/create">
                                 <Plus className="mr-1.5 size-4" />
                                 Tambah Paket
@@ -108,13 +108,13 @@ export default function B2cPlansIndex({ plans }: Props) {
                             className={cn(
                                 'relative rounded-2xl bg-card p-5 ring-1 transition',
                                 plan.is_popular
-                                    ? 'shadow-md ring-violet-300'
+                                    ? 'shadow-md ring-brand-300'
                                     : 'ring-slate-200',
                                 !plan.is_active && 'opacity-60',
                             )}
                         >
                             {plan.is_popular && (
-                                <div className="absolute -top-2 right-4 inline-flex items-center gap-1 rounded-full bg-violet-500 px-2 py-0.5 text-[10px] font-bold uppercase text-white">
+                                <div className="absolute -top-2 right-4 inline-flex items-center gap-1 rounded-full bg-brand-500 px-2 py-0.5 text-[10px] font-bold uppercase text-white">
                                     <Star className="size-2.5" />
                                     Popular
                                 </div>
@@ -144,7 +144,7 @@ export default function B2cPlansIndex({ plans }: Props) {
                                             {formatRupiah(plan.compare_at_price)}
                                         </div>
                                     )}
-                                <div className="text-2xl font-extrabold text-violet-700">
+                                <div className="text-2xl font-extrabold text-brand-700">
                                     {formatRupiah(plan.price)}
                                 </div>
                                 <div className="text-[10.5px] text-slate-500">

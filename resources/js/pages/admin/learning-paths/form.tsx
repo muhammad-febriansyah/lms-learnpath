@@ -5,6 +5,7 @@ import { useEffect } from 'react';
 import { FieldError } from '@/components/form/field-error';
 import { RequiredLabel } from '@/components/form/required-label';
 import { RupiahInput } from '@/components/form/rupiah-input';
+import { ThumbnailUpload } from '@/components/form/thumbnail-upload';
 import { IconChevR } from '@/components/learnpath-icons';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -58,7 +59,9 @@ export default function LearningPathForm({ path, positions }: Props) {
         slug: string;
         subtitle: string;
         description: string;
-        thumbnail: string;
+        thumbnail: File | null;
+        thumbnail_existing: string;
+        thumbnail_remove: boolean;
         level: string;
         duration_weeks: number | '';
         position_id: number | '';
@@ -72,7 +75,9 @@ export default function LearningPathForm({ path, positions }: Props) {
         slug: path?.slug ?? '',
         subtitle: path?.subtitle ?? '',
         description: path?.description ?? '',
-        thumbnail: path?.thumbnail ?? '',
+        thumbnail: null,
+        thumbnail_existing: path?.thumbnail ?? '',
+        thumbnail_remove: false,
         level: path?.level ?? '',
         duration_weeks: path?.duration_weeks ?? '',
         position_id: path?.position_id ?? '',
@@ -110,16 +115,19 @@ export default function LearningPathForm({ path, positions }: Props) {
 
     const submit = (e: React.FormEvent) => {
         e.preventDefault();
-        const payload = {
-            ...form.data,
-            target_audience: form.data.target_audience.filter(Boolean),
-            outcomes: form.data.outcomes.filter(Boolean),
-        };
+        form.transform((data) => ({
+            ...data,
+            target_audience: data.target_audience.filter(Boolean),
+            outcomes: data.outcomes.filter(Boolean),
+        }));
 
         if (isEdit) {
-            form.transform(() => payload).put(`/admin/learning-paths/${path!.id}`);
+            form.transform((data) => ({ ...data, _method: 'put' }));
+            form.post(`/admin/learning-paths/${path!.id}`, {
+                forceFormData: true,
+            });
         } else {
-            form.transform(() => payload).post('/admin/learning-paths');
+            form.post('/admin/learning-paths', { forceFormData: true });
         }
     };
 
@@ -193,6 +201,29 @@ export default function LearningPathForm({ path, positions }: Props) {
                                 className="mt-1"
                             />
                             <FieldError message={form.errors.subtitle} />
+                        </div>
+
+                        <div className="sm:col-span-2">
+                            <label className="text-[12.5px] font-semibold text-slate-700">
+                                Thumbnail
+                            </label>
+                            <p className="mt-0.5 mb-2 text-[11.5px] text-slate-500">
+                                Gambar cover yang tampil di katalog. Rasio 16:9, PNG/JPG/WEBP maks 2 MB.
+                            </p>
+                            <ThumbnailUpload
+                                file={form.data.thumbnail}
+                                existingUrl={form.data.thumbnail_existing}
+                                onFileChange={(f) => {
+                                    form.setData('thumbnail', f);
+                                    if (f) form.setData('thumbnail_remove', false);
+                                }}
+                                onRemove={() => {
+                                    form.setData('thumbnail', null);
+                                    form.setData('thumbnail_existing', '');
+                                    form.setData('thumbnail_remove', true);
+                                }}
+                            />
+                            <FieldError message={form.errors.thumbnail} />
                         </div>
 
                         <div>

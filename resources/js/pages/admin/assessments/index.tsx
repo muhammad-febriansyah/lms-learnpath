@@ -48,7 +48,7 @@ const TYPE_LABELS: Record<string, string> = {
 const TYPE_COLORS: Record<string, string> = {
     pre_test: 'border-transparent bg-amber-50 text-amber-700',
     post_test: 'border-transparent bg-emerald-50 text-emerald-700',
-    quiz: 'border-transparent bg-violet-50 text-violet-700',
+    quiz: 'border-transparent bg-brand-50 text-brand-700',
 };
 
 export default function AssessmentsIndex({ assessments, filters }: Props) {

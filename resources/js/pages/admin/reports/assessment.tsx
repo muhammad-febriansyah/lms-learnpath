@@ -49,7 +49,7 @@ const TYPE_TONES: Record<string, string> = {
     pre_test: 'bg-amber-50 text-amber-700',
     post_test: 'bg-emerald-50 text-emerald-700',
     quiz: 'bg-brand-50 text-brand-700',
-    final: 'bg-violet-50 text-violet-700',
+    final: 'bg-brand-50 text-brand-700',
 };
 
 export default function AssessmentReport({ range, totals, perAssessment, byType }: Props) {
@@ -94,7 +94,7 @@ export default function AssessmentReport({ range, totals, perAssessment, byType 
                     <StatCard label="Lulus" value={totals.passed.toLocaleString('id-ID')} icon={Check} tint="bg-emerald-50" text="text-emerald-600" />
                     <StatCard label="Tidak Lulus" value={totals.failed.toLocaleString('id-ID')} icon={X} tint="bg-rose-50" text="text-rose-600" />
                     <StatCard label="Berlangsung" value={totals.in_progress.toLocaleString('id-ID')} icon={Hourglass} tint="bg-amber-50" text="text-amber-600" />
-                    <StatCard label="Avg Score" value={totals.avg_score.toFixed(1)} icon={Target} tint="bg-violet-50" text="text-violet-600" />
+                    <StatCard label="Avg Score" value={totals.avg_score.toFixed(1)} icon={Target} tint="bg-brand-50" text="text-brand-600" />
                 </div>
 
                 <div className="grid gap-5 lg:grid-cols-[300px_1fr]">

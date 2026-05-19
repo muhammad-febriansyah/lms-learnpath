@@ -46,7 +46,7 @@ const BENEFITS = [
         icon: GraduationCap,
         title: 'Belajar Tanpa Batas',
         desc: 'Akses gratis semua kursus Learnpath + budget belajar tahunan.',
-        color: 'bg-violet-50 text-violet-700',
+        color: 'bg-brand-50 text-brand-700',
     },
     {
         icon: Coffee,

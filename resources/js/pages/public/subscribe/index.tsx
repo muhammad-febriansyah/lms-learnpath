@@ -76,7 +76,7 @@ export default function SubscribeIndex({ plans, currentSubscription }: Props) {
             <Head title="Langganan Personal — Belajar Tanpa Batas" />
             <div className="space-y-10 py-8">
                 <div className="mx-auto max-w-3xl text-center">
-                    <div className="inline-flex items-center gap-1.5 rounded-full bg-violet-50 px-3 py-1 text-[11.5px] font-bold uppercase tracking-wider text-violet-700">
+                    <div className="inline-flex items-center gap-1.5 rounded-full bg-brand-50 px-3 py-1 text-[11.5px] font-bold uppercase tracking-wider text-brand-700">
                         <Sparkles className="size-3" />
                         Langganan Personal
                     </div>
@@ -185,12 +185,12 @@ export default function SubscribeIndex({ plans, currentSubscription }: Props) {
                                 className={cn(
                                     'relative flex flex-col rounded-3xl bg-card p-6 ring-1 transition',
                                     plan.is_popular
-                                        ? 'shadow-[0_20px_50px_-20px_rgba(124,58,237,0.4)] ring-2 ring-violet-500'
+                                        ? 'shadow-[0_20px_50px_-20px_rgba(18,35,125,0.4)] ring-2 ring-brand-500'
                                         : 'shadow-sm ring-slate-200',
                                 )}
                             >
                                 {plan.is_popular && (
-                                    <div className="absolute -top-3 right-6 inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-violet-500 to-fuchsia-500 px-3 py-1 text-[10.5px] font-bold uppercase tracking-wider text-white shadow-md">
+                                    <div className="absolute -top-3 right-6 inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-brand-500 to-brand-500 px-3 py-1 text-[10.5px] font-bold uppercase tracking-wider text-white shadow-md">
                                         <Star className="size-3" />
                                         Paling Populer
                                     </div>
@@ -201,7 +201,7 @@ export default function SubscribeIndex({ plans, currentSubscription }: Props) {
                                         className={cn(
                                             'mx-auto grid size-12 place-items-center rounded-2xl',
                                             plan.is_popular
-                                                ? 'bg-gradient-to-br from-violet-500 to-fuchsia-600 text-white'
+                                                ? 'bg-gradient-to-br from-brand-500 to-brand-600 text-white'
                                                 : 'bg-brand-50 text-brand-700',
                                         )}
                                     >
@@ -232,7 +232,7 @@ export default function SubscribeIndex({ plans, currentSubscription }: Props) {
                                         className={cn(
                                             'text-4xl font-extrabold tracking-tight',
                                             plan.is_popular
-                                                ? 'text-violet-700'
+                                                ? 'text-brand-700'
                                                 : 'text-slate-900',
                                         )}
                                     >
@@ -258,7 +258,7 @@ export default function SubscribeIndex({ plans, currentSubscription }: Props) {
                                     className={cn(
                                         'mt-5 inline-flex w-full items-center justify-center gap-1.5 rounded-xl py-3 text-[13px] font-bold text-white shadow-sm transition',
                                         plan.is_popular
-                                            ? 'bg-violet-600 hover:bg-violet-700'
+                                            ? 'bg-brand-600 hover:bg-brand-700'
                                             : 'bg-brand-600 hover:bg-brand-700',
                                     )}
                                 >
@@ -278,7 +278,7 @@ export default function SubscribeIndex({ plans, currentSubscription }: Props) {
                                                 className={cn(
                                                     'mt-0.5 size-4 shrink-0',
                                                     plan.is_popular
-                                                        ? 'text-violet-500'
+                                                        ? 'text-brand-500'
                                                         : 'text-emerald-500',
                                                 )}
                                             />

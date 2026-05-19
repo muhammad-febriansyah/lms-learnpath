@@ -6,12 +6,16 @@ import {
     Bell,
     Briefcase,
     Building2,
+    CalendarDays,
+    CircuitBoard,
     Code2,
     CreditCard,
     Database,
+    Factory,
     GraduationCap,
     Home,
     Instagram,
+    Landmark,
     Languages,
     LayoutDashboard,
     Linkedin,
@@ -24,6 +28,7 @@ import {
     Play,
     Route as RouteIcon,
     Settings,
+    ShoppingBag,
     Sparkles,
     Twitter,
     Users,
@@ -73,7 +78,7 @@ const COURSES_MENU = [
                 label: 'Data & AI',
                 desc: '36 kursus · 280 jam',
                 href: '/courses?category=data',
-                tint: 'bg-violet-50 text-violet-600',
+                tint: 'bg-brand-50 text-brand-600',
             },
             {
                 icon: Palette,
@@ -114,28 +119,75 @@ const COURSES_MENU = [
 
 const BUSINESS_MENU = [
     {
-        title: 'Untuk Bisnis',
+        title: 'Produk',
         items: [
             {
                 icon: Building2,
                 label: 'Learnpath untuk Tim',
-                desc: 'Skalakan pembelajaran karyawan dari 5 sampai 5.000 orang',
+                desc: 'Skalakan pembelajaran karyawan',
                 href: corporateRoutes.index().url,
                 tint: 'bg-brand-50 text-brand-600',
             },
             {
                 icon: Megaphone,
                 label: 'Paket Harga',
-                desc: 'Lihat paket Starter, Growth, Pro, dan Enterprise',
+                desc: 'Starter, Growth, Pro, Enterprise',
                 href: '/corporate/pricing',
                 tint: 'bg-amber-50 text-amber-600',
             },
             {
                 icon: Sparkles,
                 label: 'Studi Kasus',
-                desc: 'Cerita transformasi tim dari berbagai industri',
+                desc: 'Cerita transformasi tim',
                 href: '/corporate/case-studies',
-                tint: 'bg-violet-50 text-violet-600',
+                tint: 'bg-brand-50 text-brand-600',
+            },
+            {
+                icon: CalendarDays,
+                label: 'Webinar & Event',
+                desc: 'Insight gratis untuk L&D leader',
+                href: '/corporate/webinars',
+                tint: 'bg-sky-50 text-sky-600',
+            },
+        ],
+    },
+    {
+        title: 'Solusi by Industri',
+        items: [
+            {
+                icon: Landmark,
+                label: 'Perbankan & Finance',
+                desc: 'Compliance, AML/KYC, AO',
+                href: '/corporate/solutions/banking',
+                tint: 'bg-blue-50 text-blue-600',
+            },
+            {
+                icon: Factory,
+                label: 'Manufaktur',
+                desc: 'Safety, lean ops, leadership',
+                href: '/corporate/solutions/manufacturing',
+                tint: 'bg-orange-50 text-orange-600',
+            },
+            {
+                icon: CircuitBoard,
+                label: 'Teknologi & Startup',
+                desc: 'Data, AI, engineering',
+                href: '/corporate/solutions/technology',
+                tint: 'bg-brand-50 text-brand-600',
+            },
+            {
+                icon: ShoppingBag,
+                label: 'Retail & FMCG',
+                desc: 'Sales, service excellence',
+                href: '/corporate/solutions/retail',
+                tint: 'bg-emerald-50 text-emerald-600',
+            },
+            {
+                icon: Briefcase,
+                label: 'BUMN & Pemerintahan',
+                desc: 'Talent pipeline & reskilling',
+                href: '/corporate/solutions/government',
+                tint: 'bg-rose-50 text-rose-600',
             },
         ],
     },
@@ -155,6 +207,8 @@ const FOOTER_LINKS: FooterColumn[] = [
             { label: 'Untuk Bisnis', href: '/corporate' },
             { label: 'Paket Harga', href: '/corporate/pricing' },
             { label: 'Studi Kasus', href: '/corporate/case-studies' },
+            { label: 'Webinar & Event', href: '/corporate/webinars' },
+            { label: 'Request Demo', href: '/corporate/demo' },
         ],
     },
     {
@@ -207,7 +261,7 @@ type SiteBrand = {
 
 const CATEGORY_TINTS = [
     'bg-brand-50 text-brand-600',
-    'bg-violet-50 text-violet-600',
+    'bg-brand-50 text-brand-600',
     'bg-teal-50 text-teal-600',
     'bg-amber-50 text-amber-600',
     'bg-rose-50 text-rose-600',
@@ -398,8 +452,27 @@ function FrontNav({
                     <NavMegaMenu
                         label="Untuk Bisnis"
                         columns={BUSINESS_MENU}
-                        width="md"
+                        width="xl"
                         active={isCorporateActive}
+                        footer={
+                            <div className="flex items-center justify-between gap-3">
+                                <div className="min-w-0">
+                                    <div className="text-[12.5px] font-bold text-slate-900 dark:text-neutral-100">
+                                        Mau lihat langsung?
+                                    </div>
+                                    <div className="text-[11px] text-slate-500 dark:text-neutral-400">
+                                        Jadwalkan demo 30 menit dengan tim kami.
+                                    </div>
+                                </div>
+                                <a
+                                    href="/corporate/demo"
+                                    className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-brand-600 px-3.5 py-1.5 text-[12px] font-semibold text-white shadow-sm transition hover:bg-brand-700"
+                                >
+                                    Request Demo
+                                    <IconArrowR size={12} />
+                                </a>
+                            </div>
+                        }
                     />
                 </div>
 
@@ -801,10 +874,10 @@ function NewsletterBanner() {
     };
 
     return (
-        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-brand-700 via-brand-600 to-violet-700 p-8 text-white sm:p-10 lg:p-12">
+        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-brand-700 via-brand-600 to-brand-700 p-8 text-white sm:p-10 lg:p-12">
             <div
                 aria-hidden="true"
-                className="absolute -top-16 -right-16 size-64 rounded-full bg-violet-400/30 blur-3xl"
+                className="absolute -top-16 -right-16 size-64 rounded-full bg-brand-400/30 blur-3xl"
             />
             <div
                 aria-hidden="true"

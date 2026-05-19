@@ -94,7 +94,7 @@ export default function MyRecommendations({ recommendations, position }: Props) 
                                             {rec.competency.name}
                                         </div>
                                         {rec.competency.category && (
-                                            <Badge className="mt-1 border-transparent bg-violet-50 px-1.5 py-0 text-[10.5px] font-semibold text-violet-700">
+                                            <Badge className="mt-1 border-transparent bg-brand-50 px-1.5 py-0 text-[10.5px] font-semibold text-brand-700">
                                                 {rec.competency.category}
                                             </Badge>
                                         )}
@@ -127,7 +127,7 @@ export default function MyRecommendations({ recommendations, position }: Props) 
                                                     <div
                                                         className={cn(
                                                             'aspect-video w-full',
-                                                            !c.thumbnail && 'bg-gradient-to-br from-brand-400 to-violet-500',
+                                                            !c.thumbnail && 'bg-gradient-to-br from-brand-400 to-brand-500',
                                                         )}
                                                         style={
                                                             c.thumbnail

@@ -51,14 +51,13 @@ import courses from '@/routes/courses';
 import messages from '@/routes/messages';
 import myAchievements from '@/routes/my-achievements';
 import myCertificates from '@/routes/my-certificates';
-import myNotes from '@/routes/my-notes';
 import myCourses from '@/routes/my-courses';
+import myNotes from '@/routes/my-notes';
 import myPaths from '@/routes/my-paths';
 import myRecommendations from '@/routes/my-recommendations';
 import mySkillMatrix from '@/routes/my-skill-matrix';
 import myTutor from '@/routes/my-tutor';
 import orders from '@/routes/orders';
-import profile from '@/routes/profile';
 
 export type AdminNavItem = {
     title: string;
@@ -247,6 +246,76 @@ export const ADMIN_NAV: AdminNavSection[] = [
         icon: Settings,
         permission: 'settings.view',
     },
+];
+
+/**
+ * Superadmin = platform owner (lihat semua tenant). Sidebar flat tanpa
+ * group/dropdown — pakai divider sebagai pemisah seksi. Item dipilih agar
+ * fokus pada governance platform (tenant, marketplace, audit, system).
+ */
+export const SUPERADMIN_NAV: AdminNavSection[] = [
+    { type: 'item', title: 'Dashboard', href: admin.dashboard().url, icon: LayoutDashboard },
+
+    { type: 'divider', label: 'Platform' },
+    { type: 'item', title: 'Tenant', href: '/admin/tenants', icon: Building2 },
+    { type: 'item', title: 'Paket B2B', href: '/admin/subscription-plans', icon: Package },
+    { type: 'item', title: 'Paket Langganan B2C', href: '/admin/b2c-plans', icon: Crown },
+    { type: 'item', title: 'Lead Sales B2B', href: '/admin/subscription-leads', icon: Mail },
+
+    { type: 'divider', label: 'Konten' },
+    { type: 'item', title: 'Course', href: admin.courses.index().url, icon: BookCopy, permission: 'course.view' },
+    { type: 'item', title: 'Kategori', href: admin.categories.index().url, icon: FolderOpen, permission: 'category.manage' },
+    { type: 'item', title: 'Tag', href: admin.tags.index().url, icon: Tag, permission: 'tag.manage' },
+    { type: 'item', title: 'Paket Kursus', href: admin.bundles.index().url, icon: Package, permission: 'bundle.manage' },
+    { type: 'item', title: 'Learning Path', href: admin.learningPaths.index().url, icon: Compass, permission: 'learning_path.manage' },
+
+    { type: 'divider', label: 'Operasional' },
+    { type: 'item', title: 'Enrollment', href: admin.enrollments.index().url, icon: ClipboardList, permission: 'enrollment.view' },
+    { type: 'item', title: 'Assessment', href: admin.assessments.index().url, icon: ClipboardCheck, permission: 'assessment.manage' },
+    { type: 'item', title: 'Sertifikat', href: admin.certificates.index().url, icon: Award, permission: 'certificate.view' },
+    { type: 'item', title: 'Review', href: admin.reviews.index().url, icon: Star, permission: 'review.moderate' },
+
+    { type: 'divider', label: 'Marketplace' },
+    { type: 'item', title: 'Order', href: admin.orders.index().url, icon: Receipt, permission: 'order.view' },
+    { type: 'item', title: 'Payment', href: admin.payments.index().url, icon: CreditCard, permission: 'payment.view' },
+    { type: 'item', title: 'Penarikan', href: '/admin/payouts', icon: Wallet, permission: 'payment.view' },
+    { type: 'item', title: 'Voucher Diskon', href: admin.coupons.index().url, icon: Ticket, permission: 'coupon.manage' },
+    { type: 'item', title: 'Voucher Akses', href: '/admin/vouchers', icon: Tag, permission: 'voucher.manage' },
+    { type: 'item', title: 'Poin Pengguna', href: '/admin/user-points', icon: Coins },
+    { type: 'item', title: 'Tukar Poin', href: '/admin/point-redemptions', icon: Coins, permission: 'point_redemption.manage' },
+    { type: 'item', title: 'Pelanggan B2C', href: '/admin/b2c-subscriptions', icon: Users, permission: 'subscription.manage' },
+    { type: 'item', title: 'E-Wallet Korporat', href: '/admin/organization-wallets', icon: Wallet, permission: 'payment.view' },
+
+    { type: 'divider', label: 'Pengguna' },
+    { type: 'item', title: 'Users', href: admin.users.index().url, icon: Users, permission: 'user.view' },
+    { type: 'item', title: 'Instructor', href: admin.instructors.index().url, icon: GraduationCap, permission: 'user.view' },
+    { type: 'item', title: 'Roles & Permissions', href: admin.roles.index().url, icon: ShieldCheck, permission: 'role.manage' },
+
+    { type: 'divider', label: 'Kompetensi' },
+    { type: 'item', title: 'Skill Matrix', href: admin.skillMatrix.index().url, icon: Target, permission: 'skill_matrix.view' },
+    { type: 'item', title: 'Divisi', href: admin.divisions.index().url, icon: Building2, permission: 'division.manage' },
+    { type: 'item', title: 'Posisi / Jabatan', href: admin.positions.index().url, icon: Briefcase, permission: 'position.manage' },
+    { type: 'item', title: 'Kompetensi', href: admin.competencies.index().url, icon: BadgeCheck, permission: 'competency.manage' },
+    { type: 'item', title: 'Target Kompetensi', href: admin.positionCompetencyTargets.index().url, icon: Target, permission: 'skill_matrix.manage' },
+    { type: 'item', title: 'Mapping Course', href: admin.courseCompetencyMappings.index().url, icon: GitBranch, permission: 'skill_matrix.manage' },
+    { type: 'item', title: 'Skill Gap', href: admin.skillGaps.index().url, icon: TrendingDown, permission: 'skill_matrix.view' },
+    { type: 'item', title: 'Rekomendasi Training', href: admin.trainingRecommendations.index().url, icon: Sparkles, permission: 'skill_matrix.view' },
+
+    { type: 'divider', label: 'Analitik' },
+    { type: 'item', title: 'Course Progress', href: admin.reports.courseProgress().url, icon: TrendingDown, permission: 'report.view' },
+    { type: 'item', title: 'Assessment', href: admin.reports.assessment().url, icon: ClipboardCheck, permission: 'report.view' },
+    { type: 'item', title: 'Sertifikat', href: admin.reports.certificate().url, icon: Award, permission: 'report.view' },
+    { type: 'item', title: 'Sales & Revenue', href: admin.reports.sales().url, icon: Banknote, permission: 'report.view' },
+
+    { type: 'divider', label: 'Trust & Safety' },
+    { type: 'item', title: 'Audit Log', href: '/admin/audit-log', icon: Shield, permission: 'audit.view' },
+    { type: 'item', title: 'Login Sessions', href: '/admin/sessions', icon: ShieldCheck, permission: 'audit.view' },
+    { type: 'item', title: 'Content Moderation', href: '/admin/moderation', icon: Shield, permission: 'review.moderate' },
+
+    { type: 'divider', label: 'Sistem' },
+    { type: 'item', title: 'FAQ', href: '/admin/faqs', icon: HelpCircle, permission: 'faq.manage' },
+    { type: 'item', title: 'Tentang Kami', href: '/admin/about', icon: Info, permission: 'about.manage' },
+    { type: 'item', title: 'Settings', href: admin.settings.index().url, icon: Settings, permission: 'settings.view' },
 ];
 
 export const HR_NAV: AdminNavSection[] = [

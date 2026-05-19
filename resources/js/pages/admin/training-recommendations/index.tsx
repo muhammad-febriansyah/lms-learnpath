@@ -155,7 +155,7 @@ export default function TrainingRecommendationsIndex({ recommendations, stats }:
                                                         <div
                                                             className={cn(
                                                                 'h-14 w-20 shrink-0 overflow-hidden rounded-lg',
-                                                                !c.thumbnail && 'bg-gradient-to-br from-brand-400 to-violet-500',
+                                                                !c.thumbnail && 'bg-gradient-to-br from-brand-400 to-brand-500',
                                                             )}
                                                             style={
                                                                 c.thumbnail

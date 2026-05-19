@@ -447,7 +447,7 @@ export default function CoursesIndex({
                                 {selectedSubmittable.length > 0 && (
                                     <Button
                                         size="sm"
-                                        className="h-8 rounded-xl bg-violet-600 text-white hover:bg-violet-700"
+                                        className="h-8 rounded-xl bg-brand-600 text-white hover:bg-brand-700"
                                         onClick={() => setBulkSubmitOpen(true)}
                                     >
                                         <Send className="mr-1 size-3.5" />
@@ -741,7 +741,7 @@ export default function CoursesIndex({
                         <Button
                             onClick={performBulkSubmit}
                             disabled={bulkProcessing}
-                            className="bg-violet-600 text-white hover:bg-violet-700"
+                            className="bg-brand-600 text-white hover:bg-brand-700"
                         >
                             <Send className="mr-1.5 size-4" />
                             {bulkProcessing ? 'Memproses...' : 'Ya, Ajukan Semua'}
@@ -771,7 +771,7 @@ export default function CoursesIndex({
                         <Button
                             onClick={performSubmitReview}
                             disabled={submitting}
-                            className="bg-violet-600 text-white hover:bg-violet-700"
+                            className="bg-brand-600 text-white hover:bg-brand-700"
                         >
                             <Send className="mr-1.5 size-4" />
                             {submitting ? 'Mengirim...' : 'Ya, Ajukan'}
@@ -965,7 +965,7 @@ function CourseCard({
                             <Button
                                 size="sm"
                                 onClick={onSubmitReview}
-                                className="h-7 rounded-lg bg-violet-600 px-2.5 text-[11.5px] text-white hover:bg-violet-700"
+                                className="h-7 rounded-lg bg-brand-600 px-2.5 text-[11.5px] text-white hover:bg-brand-700"
                             >
                                 <Send className="mr-1 size-3" />
                                 Ajukan

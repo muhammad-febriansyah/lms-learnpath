@@ -473,7 +473,7 @@ function StatCard({
         brand: 'from-brand-500/10 to-brand-600/15 text-brand-700 ring-brand-200',
         emerald:
             'from-emerald-500/10 to-emerald-600/15 text-emerald-700 ring-emerald-200',
-        violet: 'from-violet-500/10 to-violet-600/15 text-violet-700 ring-violet-200',
+        violet: 'from-brand-500/10 to-brand-600/15 text-brand-700 ring-brand-200',
         amber: 'from-amber-500/10 to-amber-600/15 text-amber-700 ring-amber-200',
     };
 

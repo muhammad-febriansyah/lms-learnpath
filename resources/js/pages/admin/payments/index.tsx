@@ -120,7 +120,7 @@ export default function PaymentsIndex({ payments, filters, stats }: Props) {
             header: 'Gateway',
             cell: ({ row }) => (
                 <div>
-                    <Badge className="border-transparent bg-violet-50 text-violet-700">
+                    <Badge className="border-transparent bg-brand-50 text-brand-700">
                         {row.original.gateway.toUpperCase()}
                     </Badge>
                     <div className="mt-1 text-[11.5px] text-slate-500">
@@ -236,8 +236,8 @@ export default function PaymentsIndex({ payments, filters, stats }: Props) {
                         label="Total Diterima"
                         value={formatRupiah(stats.total_received)}
                         icon={Banknote}
-                        tint="bg-violet-50"
-                        text="text-violet-600"
+                        tint="bg-brand-50"
+                        text="text-brand-600"
                     />
                 </div>
 

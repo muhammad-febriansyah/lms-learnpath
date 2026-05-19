@@ -192,7 +192,7 @@ export default function AssessmentTake({
 
             <div className="flex min-h-screen flex-col bg-slate-50 dark:bg-neutral-950">
                 {/* Top exam bar */}
-                <header className="sticky top-0 z-30 bg-gradient-to-r from-slate-900 via-slate-900 to-indigo-950 text-white shadow-[0_4px_24px_-12px_rgba(15,23,42,0.5)] dark:from-neutral-950 dark:via-neutral-950 dark:to-indigo-950">
+                <header className="sticky top-0 z-30 bg-gradient-to-r from-slate-900 via-slate-900 to-brand-950 text-white shadow-[0_4px_24px_-12px_rgba(15,23,42,0.5)] dark:from-neutral-950 dark:via-neutral-950 dark:to-brand-950">
                     <div className="mx-auto flex max-w-[1600px] flex-wrap items-center gap-3 px-4 py-3 lg:gap-5 lg:px-6">
                         <div className="flex min-w-0 flex-1 items-center gap-3">
                             <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-white/10 text-white ring-1 ring-white/15">
@@ -290,7 +290,7 @@ export default function AssessmentTake({
                                     )}
                                 >
                                     <div className="flex items-start gap-4">
-                                        <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-indigo-50 to-violet-50 text-[13px] font-extrabold text-indigo-700 ring-1 ring-indigo-100 dark:from-indigo-500/15 dark:to-violet-500/15 dark:text-indigo-200 dark:ring-indigo-500/20">
+                                        <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-brand-50 to-brand-50 text-[13px] font-extrabold text-brand-700 ring-1 ring-brand-100 dark:from-brand-500/15 dark:to-brand-500/15 dark:text-brand-200 dark:ring-brand-500/20">
                                             {idx + 1}
                                         </div>
                                         <div className="min-w-0 flex-1">

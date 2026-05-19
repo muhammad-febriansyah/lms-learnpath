@@ -204,7 +204,7 @@ export default function InstructorsIndex({
                         {tags.slice(0, 3).map((tag) => (
                             <Badge
                                 key={tag}
-                                className="border-transparent bg-violet-50 px-1.5 py-0 text-[10.5px] font-semibold text-violet-700"
+                                className="border-transparent bg-brand-50 px-1.5 py-0 text-[10.5px] font-semibold text-brand-700"
                             >
                                 {tag}
                             </Badge>
@@ -444,8 +444,8 @@ export default function InstructorsIndex({
                         label="Punya Course"
                         value={stats.with_courses.toLocaleString('id-ID')}
                         icon={Sparkles}
-                        tint="bg-violet-50"
-                        text="text-violet-600"
+                        tint="bg-brand-50"
+                        text="text-brand-600"
                     />
                 </div>
 

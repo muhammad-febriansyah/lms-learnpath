@@ -78,7 +78,7 @@ function photoUrl(path: string | null | undefined): string | undefined {
 export default function InstructorEdit({ instructor }: Props) {
     const profile = instructor.profile;
     const [photoPreview, setPhotoPreview] = useState<string | undefined>(
-        photoUrl(profile.photo_path),
+        photoUrl(profile.photo_path) ?? instructor.avatar ?? undefined,
     );
     const [expertiseInput, setExpertiseInput] = useState('');
     const photoInputRef = useRef<HTMLInputElement | null>(null);
@@ -348,7 +348,7 @@ export default function InstructorEdit({ instructor }: Props) {
                                     {form.data.expertise.map((tag) => (
                                         <Badge
                                             key={tag}
-                                            className="inline-flex items-center gap-1 border-transparent bg-violet-50 px-2 py-1 text-[11.5px] font-semibold text-violet-700"
+                                            className="inline-flex items-center gap-1 border-transparent bg-brand-50 px-2 py-1 text-[11.5px] font-semibold text-brand-700"
                                         >
                                             {tag}
                                             <button
@@ -356,7 +356,7 @@ export default function InstructorEdit({ instructor }: Props) {
                                                 onClick={() =>
                                                     removeExpertise(tag)
                                                 }
-                                                className="rounded-full p-0.5 hover:bg-violet-100"
+                                                className="rounded-full p-0.5 hover:bg-brand-100"
                                             >
                                                 <X className="size-3" />
                                             </button>

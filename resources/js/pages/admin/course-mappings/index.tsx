@@ -173,7 +173,7 @@ export default function CourseMappingsIndex({ courses, course, mappings }: Props
                                                             {m.competency_name}
                                                         </div>
                                                         {m.competency_category && (
-                                                            <Badge className="mt-1 border-transparent bg-violet-50 px-1.5 py-0 text-[10.5px] font-semibold text-violet-700">
+                                                            <Badge className="mt-1 border-transparent bg-brand-50 px-1.5 py-0 text-[10.5px] font-semibold text-brand-700">
                                                                 {m.competency_category}
                                                             </Badge>
                                                         )}

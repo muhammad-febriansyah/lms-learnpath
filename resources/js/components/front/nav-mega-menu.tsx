@@ -19,9 +19,15 @@ type NavMegaMenuProps = {
     label: string;
     columns: MegaMenuColumn[];
     footer?: React.ReactNode;
-    width?: 'md' | 'lg';
+    width?: 'md' | 'lg' | 'xl';
     /** Tandai sebagai menu aktif (highlight). */
     active?: boolean;
+};
+
+const WIDTH_CLASS: Record<NonNullable<NavMegaMenuProps['width']>, string> = {
+    md: 'w-[420px]',
+    lg: 'w-[640px]',
+    xl: 'w-[760px]',
 };
 
 export function NavMegaMenu({
@@ -83,7 +89,7 @@ export function NavMegaMenu({
                         transition={{ duration: 0.18, ease: 'easeOut' }}
                         className={cn(
                             'absolute top-full left-1/2 z-[70] -translate-x-1/2 pt-3',
-                            width === 'lg' ? 'w-[640px]' : 'w-[420px]',
+                            WIDTH_CLASS[width],
                         )}
                     >
                         <div className="overflow-hidden rounded-2xl bg-white shadow-[0_24px_60px_-24px_rgba(15,23,42,0.25),0_0_0_1px_rgba(15,23,42,0.06)] ring-1 ring-slate-200/70 dark:bg-neutral-950 dark:ring-neutral-800">

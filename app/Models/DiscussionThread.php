@@ -16,6 +16,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
     'user_id',
     'title',
     'body',
+    'image_path',
     'upvotes_count',
     'replies_count',
     'last_reply_at',

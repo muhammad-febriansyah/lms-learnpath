@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\PointTransaction;
 use App\Models\UserPoint;
 use App\Services\Gamification\PointService;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -14,9 +15,13 @@ class MyPointsController extends Controller
 {
     public function __construct(private readonly PointService $points) {}
 
-    public function index(Request $request): Response
+    public function index(Request $request): Response|RedirectResponse
     {
         $user = $request->user();
+
+        if ($user?->hasRole('superadmin')) {
+            return redirect()->route('admin.user-points.index');
+        }
 
         $point = UserPoint::query()->firstOrNew(['user_id' => $user->id]);
         $streak = $user->learningStreak;

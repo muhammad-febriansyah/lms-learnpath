@@ -75,7 +75,7 @@ export default function CompetenciesIndex({ competencies, filters, categoryOptio
                 <div>
                     <div className="font-semibold text-slate-900">{row.original.name}</div>
                     {row.original.category && (
-                        <Badge className="mt-1 border-transparent bg-violet-50 px-1.5 py-0 text-[10.5px] font-semibold text-violet-700">
+                        <Badge className="mt-1 border-transparent bg-brand-50 px-1.5 py-0 text-[10.5px] font-semibold text-brand-700">
                             {row.original.category}
                         </Badge>
                     )}
@@ -187,7 +187,7 @@ export default function CompetenciesIndex({ competencies, filters, categoryOptio
                 <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
                     <StatCard label="Total" value={stats.total} icon={Award} tint="bg-brand-50" text="text-brand-600" />
                     <StatCard label="Aktif" value={stats.active} icon={Award} tint="bg-emerald-50" text="text-emerald-600" />
-                    <StatCard label="Dipakai Jabatan" value={stats.mapped_to_position} icon={Target} tint="bg-violet-50" text="text-violet-600" />
+                    <StatCard label="Dipakai Jabatan" value={stats.mapped_to_position} icon={Target} tint="bg-brand-50" text="text-brand-600" />
                     <StatCard label="Dipakai Course" value={stats.mapped_to_course} icon={BookOpen} tint="bg-amber-50" text="text-amber-600" />
                 </div>
 
