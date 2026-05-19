@@ -7,6 +7,7 @@ use App\Models\Lesson;
 use App\Models\LessonProgress;
 use App\Models\User;
 use App\Services\Gamification\BadgeAwardingService;
+use App\Services\Gamification\PointService;
 use App\Services\Gamification\StreakService;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\DB;
@@ -88,6 +89,17 @@ final class MarkLessonComplete
 
             // Gamification side-effects (idempotent per day)
             App::make(StreakService::class)->recordActivity($user);
+
+            $points = App::make(PointService::class);
+            $points->award($user, 'lesson_complete', $lesson);
+
+            if (
+                $enrollment
+                && $enrollment->fresh()?->status === 'completed'
+            ) {
+                $points->award($user, 'course_complete', $enrollment);
+            }
+
             App::make(BadgeAwardingService::class)->evaluateForUser($user);
 
             return $result;

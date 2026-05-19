@@ -14,6 +14,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
     'bio',
     'expertise',
     'photo_path',
+    'cv_path',
+    'cv_original_name',
+    'cv_uploaded_at',
     'social_links',
     'website',
     'is_verified',
@@ -31,6 +34,7 @@ class InstructorProfile extends Model
             'social_links' => 'array',
             'is_verified' => 'boolean',
             'is_active' => 'boolean',
+            'cv_uploaded_at' => 'datetime',
         ];
     }
 

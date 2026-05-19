@@ -6,9 +6,10 @@ use App\Http\Controllers\Controller;
 use App\Services\Reporting\OrgReportAggregator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
-use Symfony\Component\HttpFoundation\StreamedResponse;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ReportController extends Controller
 {
@@ -36,6 +37,10 @@ class ReportController extends Controller
             'weeklyTrend' => $this->aggregator->weeklyTrend($org, $from, $to),
             'topCourses' => $this->aggregator->topCourses($org, $from, $to, 10),
             'positionBreakdown' => $this->aggregator->positionBreakdown($org, $from, $to),
+            'divisionBreakdown' => $this->aggregator->divisionBreakdown($org, $from, $to),
+            'onTimeStatus' => $this->aggregator->onTimeStatus($org),
+            'topSkillGaps' => $this->aggregator->topSkillGaps($org, 5),
+            'aiTutorUsage' => $this->aggregator->aiTutorUsage($org, $from, $to),
         ]);
     }
 
@@ -48,7 +53,7 @@ class ReportController extends Controller
 
         $filename = sprintf(
             'report-%s-%s-to-%s.csv',
-            \Illuminate\Support\Str::slug($org->name),
+            Str::slug($org->name),
             $from->toDateString(),
             $to->toDateString(),
         );

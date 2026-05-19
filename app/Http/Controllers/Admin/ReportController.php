@@ -3,20 +3,20 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Assessment;
 use App\Models\AssessmentAttempt;
 use App\Models\Certificate;
 use App\Models\Course;
 use App\Models\Enrollment;
 use App\Models\Order;
 use App\Models\Payment;
-use App\Models\Position;
 use App\Models\SkillGap;
+use App\Support\CsvDownload;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ReportController extends Controller
 {
@@ -342,6 +342,190 @@ class ReportController extends Controller
             'byGateway' => $byGateway,
             'topCourses' => $topCoursesWithMeta,
         ]);
+    }
+
+    public function exportCourseProgress(Request $request): StreamedResponse
+    {
+        abort_unless($request->user()?->can('report.view'), 403);
+
+        $range = $this->resolveRange($request);
+
+        $rows = Enrollment::query()
+            ->select('course_id')
+            ->selectRaw('COUNT(*) as enroll_count')
+            ->selectRaw('SUM(CASE WHEN status = "completed" THEN 1 ELSE 0 END) as completed_count')
+            ->selectRaw('AVG(progress_percent) as avg_progress')
+            ->whereBetween('enrolled_at', [$range['from'], $range['to']])
+            ->groupBy('course_id')
+            ->orderByDesc('enroll_count')
+            ->with('course:id,title')
+            ->get()
+            ->map(fn ($row) => [
+                $row->course_id,
+                (string) ($row->course?->title ?? '-'),
+                (int) $row->enroll_count,
+                (int) $row->completed_count,
+                $row->enroll_count > 0
+                    ? round(($row->completed_count / $row->enroll_count) * 100)
+                    : 0,
+                round((float) $row->avg_progress, 1),
+            ]);
+
+        return CsvDownload::stream(
+            $this->filename('course-progress', $range),
+            ['Course ID', 'Judul Course', 'Total Enroll', 'Selesai', 'Completion Rate %', 'Avg Progress %'],
+            $rows,
+        );
+    }
+
+    public function exportAssessment(Request $request): StreamedResponse
+    {
+        abort_unless($request->user()?->can('report.view'), 403);
+
+        $range = $this->resolveRange($request);
+
+        $rows = AssessmentAttempt::query()
+            ->select('assessment_id')
+            ->selectRaw('COUNT(*) as attempt_count')
+            ->selectRaw('SUM(CASE WHEN passed = 1 THEN 1 ELSE 0 END) as passed_count')
+            ->selectRaw('AVG(score) as avg_score')
+            ->whereBetween('created_at', [$range['from'], $range['to']])
+            ->whereNotNull('submitted_at')
+            ->groupBy('assessment_id')
+            ->orderByDesc('attempt_count')
+            ->with('assessment:id,title,type,course_id,passing_score', 'assessment.course:id,title')
+            ->get()
+            ->map(fn ($row) => [
+                $row->assessment_id,
+                (string) ($row->assessment?->title ?? '-'),
+                (string) ($row->assessment?->type ?? '-'),
+                (string) ($row->assessment?->course?->title ?? '-'),
+                (int) ($row->assessment?->passing_score ?? 0),
+                (int) $row->attempt_count,
+                (int) $row->passed_count,
+                $row->attempt_count > 0
+                    ? round(($row->passed_count / $row->attempt_count) * 100)
+                    : 0,
+                round((float) $row->avg_score, 1),
+            ]);
+
+        return CsvDownload::stream(
+            $this->filename('assessment', $range),
+            ['Assessment ID', 'Judul', 'Tipe', 'Course', 'Passing Score', 'Total Attempt', 'Lulus', 'Pass Rate %', 'Avg Score'],
+            $rows,
+        );
+    }
+
+    public function exportCertificate(Request $request): StreamedResponse
+    {
+        abort_unless($request->user()?->can('report.view'), 403);
+
+        $range = $this->resolveRange($request);
+
+        $rows = Certificate::query()
+            ->select('course_id')
+            ->selectRaw('COUNT(*) as cert_count')
+            ->selectRaw('SUM(CASE WHEN status = "active" THEN 1 ELSE 0 END) as active_count')
+            ->selectRaw('SUM(CASE WHEN status = "revoked" THEN 1 ELSE 0 END) as revoked_count')
+            ->whereBetween('issued_at', [$range['from'], $range['to']])
+            ->groupBy('course_id')
+            ->orderByDesc('cert_count')
+            ->with('course:id,title')
+            ->get()
+            ->map(fn ($row) => [
+                $row->course_id,
+                (string) ($row->course?->title ?? '-'),
+                (int) $row->cert_count,
+                (int) $row->active_count,
+                (int) $row->revoked_count,
+            ]);
+
+        return CsvDownload::stream(
+            $this->filename('certificate', $range),
+            ['Course ID', 'Course', 'Total Diterbitkan', 'Aktif', 'Dicabut'],
+            $rows,
+        );
+    }
+
+    public function exportSkillGap(Request $request): StreamedResponse
+    {
+        abort_unless($request->user()?->can('report.view'), 403);
+
+        $rows = SkillGap::query()
+            ->select('position_id')
+            ->selectRaw('COUNT(*) as total')
+            ->selectRaw('SUM(CASE WHEN status = "gap" THEN 1 ELSE 0 END) as gap_count')
+            ->selectRaw('SUM(CASE WHEN status IN ("on_target", "exceed") THEN 1 ELSE 0 END) as met_count')
+            ->selectRaw('AVG(CASE WHEN gap > 0 THEN gap ELSE 0 END) as avg_gap')
+            ->groupBy('position_id')
+            ->orderByDesc('gap_count')
+            ->with('position:id,name,division')
+            ->get()
+            ->map(fn ($row) => [
+                $row->position_id,
+                (string) ($row->position?->name ?? '-'),
+                (string) ($row->position?->division ?? '-'),
+                (int) $row->total,
+                (int) $row->gap_count,
+                (int) $row->met_count,
+                round((float) $row->avg_gap, 2),
+                $row->total > 0 ? round(($row->met_count / $row->total) * 100) : 0,
+            ]);
+
+        $now = Carbon::now('Asia/Jakarta')->toDateString();
+
+        return CsvDownload::stream(
+            "report-skill-gap-{$now}.csv",
+            ['Position ID', 'Jabatan', 'Divisi', 'Total Entry', 'Gap', 'On-Target/Exceed', 'Avg Gap', 'Met %'],
+            $rows,
+        );
+    }
+
+    public function exportSales(Request $request): StreamedResponse
+    {
+        abort_unless($request->user()?->can('report.view'), 403);
+
+        $range = $this->resolveRange($request);
+
+        $topCourses = DB::table('order_items')
+            ->join('orders', 'orders.id', '=', 'order_items.order_id')
+            ->where('orders.status', 'paid')
+            ->whereBetween('orders.paid_at', [$range['from'], $range['to']])
+            ->where('order_items.purchasable_type', Course::class)
+            ->selectRaw('order_items.purchasable_id as course_id')
+            ->selectRaw('SUM(order_items.subtotal) as revenue')
+            ->selectRaw('SUM(order_items.quantity) as qty')
+            ->groupBy('order_items.purchasable_id')
+            ->orderByDesc('revenue')
+            ->get();
+
+        $courses = $topCourses->isNotEmpty()
+            ? Course::query()
+                ->whereIn('id', $topCourses->pluck('course_id'))
+                ->get(['id', 'title'])
+                ->keyBy('id')
+            : collect();
+
+        $rows = $topCourses->map(fn ($row) => [
+            $row->course_id,
+            (string) ($courses[$row->course_id]->title ?? '-'),
+            (int) $row->qty,
+            (int) $row->revenue,
+        ]);
+
+        return CsvDownload::stream(
+            $this->filename('sales', $range),
+            ['Course ID', 'Course', 'Qty Terjual', 'Revenue'],
+            $rows,
+        );
+    }
+
+    /**
+     * @param  array{from: string, to: string, from_iso: string, to_iso: string}  $range
+     */
+    private function filename(string $slug, array $range): string
+    {
+        return "report-{$slug}-{$range['from']}-to-{$range['to']}.csv";
     }
 
     /**

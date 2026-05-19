@@ -1,6 +1,8 @@
 import { Head, Link, router } from '@inertiajs/react';
 import type { ColumnDef } from '@tanstack/react-table';
-import { CheckCircle2, ClipboardList, Clock, XCircle } from 'lucide-react';
+import { CheckCircle2, ClipboardList, Clock, UserPlus, XCircle } from 'lucide-react';
+
+import { Button } from '@/components/ui/button';
 
 import { DataTable } from '@/components/data-table/data-table';
 import { DataTableColumnHeader } from '@/components/data-table/data-table-column-header';
@@ -147,12 +149,22 @@ export default function EnrollmentsIndex({ enrollments, filters, stats }: Props)
                         <IconChevR size={12} className="text-slate-300" />
                         <span className="font-semibold text-slate-900">Enrollment</span>
                     </nav>
-                    <h1 className="mt-1.5 text-2xl font-extrabold tracking-tight text-slate-900">
-                        Enrollment
-                    </h1>
-                    <p className="mt-1 text-[13.5px] text-slate-500">
-                        Daftar pendaftaran peserta pada course.
-                    </p>
+                    <div className="mt-1.5 flex flex-wrap items-center justify-between gap-3">
+                        <div>
+                            <h1 className="text-2xl font-extrabold tracking-tight text-slate-900">
+                                Enrollment
+                            </h1>
+                            <p className="mt-1 text-[13.5px] text-slate-500">
+                                Daftar pendaftaran peserta pada course.
+                            </p>
+                        </div>
+                        <Button asChild className="rounded-xl bg-brand-600 hover:bg-brand-700">
+                            <Link href="/admin/enrollments/assign">
+                                <UserPlus className="mr-1.5 size-4" />
+                                Tugaskan Training
+                            </Link>
+                        </Button>
+                    </div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">

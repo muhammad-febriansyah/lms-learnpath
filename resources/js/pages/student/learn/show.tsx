@@ -14,6 +14,7 @@ import {
     FileText,
     Loader2,
     Lock,
+    MessagesSquare,
     PlayCircle,
     Send,
     NotebookPen,
@@ -170,6 +171,86 @@ function lessonIcon(type: string) {
     );
 }
 
+type StatusBannerTone = 'amber' | 'emerald';
+
+function StatusBanner({
+    tone,
+    icon,
+    eyebrow,
+    title,
+    description,
+    cta,
+}: {
+    tone: StatusBannerTone;
+    icon: React.ReactNode;
+    eyebrow: string;
+    title: string;
+    description: string;
+    cta: { label: string; icon: React.ReactNode; href: string };
+}) {
+    const toneClasses =
+        tone === 'amber'
+            ? {
+                  card: 'bg-gradient-to-br from-amber-50 to-orange-50 ring-amber-200/80',
+                  iconWrap: 'bg-amber-500 text-white',
+                  eyebrow: 'text-amber-700',
+                  cta: 'bg-amber-500 text-white hover:bg-amber-600',
+              }
+            : {
+                  card: 'bg-gradient-to-br from-emerald-50 to-teal-50 ring-emerald-200/80',
+                  iconWrap: 'bg-emerald-500 text-white',
+                  eyebrow: 'text-emerald-700',
+                  cta: 'bg-emerald-500 text-white hover:bg-emerald-600',
+              };
+
+    return (
+        <div
+            className={cn(
+                'flex items-start gap-3 rounded-2xl p-4 ring-1 sm:p-5',
+                toneClasses.card,
+            )}
+        >
+            <span
+                className={cn(
+                    'grid size-10 shrink-0 place-items-center rounded-xl shadow-sm',
+                    toneClasses.iconWrap,
+                )}
+            >
+                {icon}
+            </span>
+            <div className="min-w-0 flex-1">
+                <div
+                    className={cn(
+                        'text-[10.5px] font-bold tracking-wider uppercase',
+                        toneClasses.eyebrow,
+                    )}
+                >
+                    {eyebrow}
+                </div>
+                <div className="text-[14.5px] font-extrabold text-slate-900">
+                    {title}
+                </div>
+                <p className="mt-0.5 text-[12px] leading-relaxed text-slate-600">
+                    {description}
+                </p>
+                <Button
+                    asChild
+                    size="sm"
+                    className={cn(
+                        'mt-3 h-9 rounded-xl px-4 text-[12.5px] shadow-sm',
+                        toneClasses.cta,
+                    )}
+                >
+                    <Link href={cta.href}>
+                        {cta.icon}
+                        <span className="ml-1.5">{cta.label}</span>
+                    </Link>
+                </Button>
+            </div>
+        </div>
+    );
+}
+
 export default function LearnShow({
     course,
     enrollment,
@@ -261,35 +342,54 @@ export default function LearnShow({
                         </div>
 
                         <div className="px-5 py-6 lg:px-8 lg:py-8">
-                            <div className="mx-auto max-w-4xl space-y-6">
-                                {showPostTestBanner && (
-                                    <div className="overflow-hidden rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 p-5 text-white shadow-[0_4px_16px_rgba(234,88,12,0.25)]">
-                                        <div className="flex flex-wrap items-center justify-between gap-3">
-                                            <div className="flex items-start gap-3">
-                                                <Target className="mt-0.5 size-5 shrink-0" />
-                                                <div>
-                                                    <div className="text-[15px] font-extrabold">
-                                                        Tinggal selangkah lagi!
-                                                    </div>
-                                                    <div className="text-[12.5px] text-white/90">
-                                                        Semua materi sudah selesai. Lulus post-test
-                                                        (≥{assessments.post_test!.passing_score}%)
-                                                        untuk menyelesaikan course dan dapat sertifikat.
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <Button
-                                                asChild
-                                                className="h-10 rounded-xl bg-white px-5 text-orange-700 hover:bg-slate-50"
-                                            >
-                                                <Link
-                                                    href={`/learn/${course.slug}/assessments/${assessments.post_test!.id}`}
-                                                >
-                                                    <FileQuestion className="mr-1.5 size-4" />
-                                                    Mulai Post-Test
-                                                </Link>
-                                            </Button>
-                                        </div>
+                            <div className="mx-auto max-w-4xl space-y-5">
+                                {(showPostTestBanner || isCourseCompleted) && (
+                                    <div
+                                        className={cn(
+                                            'grid gap-3',
+                                            showPostTestBanner &&
+                                                isCourseCompleted
+                                                ? 'sm:grid-cols-2'
+                                                : 'grid-cols-1',
+                                        )}
+                                    >
+                                        {showPostTestBanner && (
+                                            <StatusBanner
+                                                tone="amber"
+                                                icon={
+                                                    <Target className="size-4" />
+                                                }
+                                                eyebrow="Hampir selesai"
+                                                title="Tinggal selangkah lagi"
+                                                description={`Lulus post-test (≥${assessments.post_test!.passing_score}%) untuk menyelesaikan course & dapat sertifikat.`}
+                                                cta={{
+                                                    label: 'Mulai Post-Test',
+                                                    icon: (
+                                                        <FileQuestion className="size-4" />
+                                                    ),
+                                                    href: `/learn/${course.slug}/assessments/${assessments.post_test!.id}`,
+                                                }}
+                                            />
+                                        )}
+
+                                        {isCourseCompleted && (
+                                            <StatusBanner
+                                                tone="emerald"
+                                                icon={
+                                                    <Award className="size-4" />
+                                                }
+                                                eyebrow="Selamat!"
+                                                title="Course selesai"
+                                                description="Sertifikat Anda sudah tersedia untuk diunduh."
+                                                cta={{
+                                                    label: 'Lihat Sertifikat',
+                                                    icon: (
+                                                        <Sparkles className="size-4" />
+                                                    ),
+                                                    href: '/my-certificates',
+                                                }}
+                                            />
+                                        )}
                                     </div>
                                 )}
 
@@ -300,38 +400,20 @@ export default function LearnShow({
                                     />
                                 )}
 
-                                {isCourseCompleted && (
-                                    <div className="overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 p-5 text-white shadow-[0_4px_16px_rgba(16,185,129,0.25)]">
-                                        <div className="flex flex-wrap items-center justify-between gap-3">
-                                            <div className="flex items-start gap-3">
-                                                <Award className="mt-0.5 size-5 shrink-0" />
-                                                <div>
-                                                    <div className="text-[15px] font-extrabold">
-                                                        Course selesai
-                                                    </div>
-                                                    <div className="text-[12.5px] text-white/90">
-                                                        Selamat! Sertifikat Anda sudah tersedia.
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <Button
-                                                asChild
-                                                className="h-10 rounded-xl bg-white px-5 text-emerald-700 hover:bg-slate-50"
-                                            >
-                                                <Link href="/my-certificates">
-                                                    <Sparkles className="mr-1.5 size-4" />
-                                                    Lihat Sertifikat
-                                                </Link>
-                                            </Button>
-                                        </div>
+                                <div className="border-b border-slate-200/70 pb-5">
+                                    <div className="flex flex-wrap items-center gap-2">
+                                        <Badge className="border-transparent bg-brand-50 text-brand-700">
+                                            <BookOpen className="mr-1 size-3" />
+                                            Lesson
+                                        </Badge>
+                                        <span className="inline-flex items-center gap-1 text-[11.5px] font-semibold text-slate-500">
+                                            <Clock className="size-3" />
+                                            {formatDuration(
+                                                currentLesson.duration_minutes,
+                                            )}
+                                        </span>
                                     </div>
-                                )}
-
-                                <div>
-                                    <Badge className="border-transparent bg-brand-50 text-brand-700">
-                                        Lesson · {formatDuration(currentLesson.duration_minutes)}
-                                    </Badge>
-                                    <h1 className="mt-2 text-2xl font-extrabold tracking-tight text-slate-900 sm:text-[28px]">
+                                    <h1 className="mt-2.5 text-[22px] leading-tight font-extrabold tracking-tight text-slate-900 sm:text-[26px]">
                                         {currentLesson.title}
                                     </h1>
                                 </div>
@@ -400,6 +482,14 @@ export default function LearnShow({
 
             {/* Floating action buttons */}
             <div className="fixed right-5 bottom-5 z-30 flex flex-col items-end gap-2.5">
+                <Link
+                    href={`/learn/${course.slug}/discussions`}
+                    className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2.5 text-[13px] font-bold text-slate-800 shadow-[0_6px_18px_rgba(15,23,42,0.18)] ring-1 ring-slate-200 transition hover:scale-105 hover:bg-slate-50"
+                    title="Diskusi course"
+                >
+                    <MessagesSquare className="size-4 text-brand-600" />
+                    <span className="hidden sm:inline">Diskusi</span>
+                </Link>
                 <button
                     type="button"
                     onClick={() => setNotesOpen(true)}
@@ -1151,40 +1241,40 @@ function CourseReviewCard({
 
     if (review && !editing) {
         return (
-            <div className="overflow-hidden rounded-2xl bg-white p-5 shadow-[0_4px_16px_rgba(15,23,42,0.05)] ring-1 ring-slate-200/70">
-                <div className="flex items-start justify-between gap-3">
-                    <div className="min-w-0">
-                        <div className="inline-flex items-center gap-2">
-                            <span className="text-[13px] font-extrabold text-slate-900">
-                                Ulasan Anda
-                            </span>
-                            <StarDisplay rating={review.rating} />
-                        </div>
-                        {review.content && (
-                            <p className="mt-2 text-[12.5px] whitespace-pre-wrap text-slate-700">
-                                {review.content}
-                            </p>
-                        )}
+            <div className="flex items-start gap-3 rounded-2xl bg-white p-4 shadow-[0_1px_2px_rgba(15,23,42,0.04)] ring-1 ring-slate-200/70 sm:p-5">
+                <div className="grid size-9 shrink-0 place-items-center rounded-xl bg-amber-50 text-amber-600 ring-1 ring-amber-100">
+                    <Star className="size-4 fill-current" />
+                </div>
+                <div className="min-w-0 flex-1">
+                    <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                        <span className="text-[10.5px] font-bold tracking-wider text-slate-500 uppercase">
+                            Ulasan Anda
+                        </span>
+                        <StarDisplay rating={review.rating} />
                     </div>
-                    <div className="flex shrink-0 items-center gap-1.5">
-                        <Button
-                            size="sm"
-                            className="h-8 rounded-xl bg-emerald-600 text-white shadow-sm hover:bg-emerald-700"
-                            onClick={() => setEditing(true)}
-                        >
-                            <Pencil className="mr-1 size-3.5" />
-                            Edit
-                        </Button>
-                        <Button
-                            size="sm"
-                            className="h-8 rounded-xl bg-rose-600 text-white shadow-sm hover:bg-rose-700"
-                            onClick={handleDelete}
-                            title="Hapus ulasan"
-                        >
-                            <Trash2 className="mr-1 size-3.5" />
-                            Hapus
-                        </Button>
-                    </div>
+                    {review.content && (
+                        <p className="mt-1 text-[12.5px] whitespace-pre-wrap text-slate-700">
+                            {review.content}
+                        </p>
+                    )}
+                </div>
+                <div className="flex shrink-0 items-center gap-1">
+                    <button
+                        type="button"
+                        onClick={() => setEditing(true)}
+                        title="Edit ulasan"
+                        className="inline-flex size-8 items-center justify-center rounded-lg text-slate-500 transition hover:bg-slate-100 hover:text-slate-900"
+                    >
+                        <Pencil className="size-3.5" />
+                    </button>
+                    <button
+                        type="button"
+                        onClick={handleDelete}
+                        title="Hapus ulasan"
+                        className="inline-flex size-8 items-center justify-center rounded-lg text-slate-500 transition hover:bg-rose-50 hover:text-rose-600"
+                    >
+                        <Trash2 className="size-3.5" />
+                    </button>
                 </div>
             </div>
         );

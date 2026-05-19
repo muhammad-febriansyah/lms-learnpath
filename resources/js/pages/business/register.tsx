@@ -6,6 +6,7 @@ import { FieldError } from '@/components/form/field-error';
 import { RequiredLabel } from '@/components/form/required-label';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { useRecaptchaV3 } from '@/hooks/use-recaptcha-v3';
 import {
     Select,
     SelectContent,
@@ -58,7 +59,9 @@ export default function BusinessRegister({ pricePerSeat, minSeats, maxSeats }: P
         password_confirmation: '',
         seats: minSeats,
         agreed_terms: false,
+        recaptcha_token: '',
     });
+    const { execute } = useRecaptchaV3();
 
     const total = form.data.seats * pricePerSeat;
 
@@ -67,9 +70,22 @@ export default function BusinessRegister({ pricePerSeat, minSeats, maxSeats }: P
         form.setData('seats', next);
     };
 
-    function submit(event: React.FormEvent) {
+    async function submit(event: React.FormEvent) {
         event.preventDefault();
-        form.post('/business/register');
+
+        let token = '';
+        try {
+            token = await execute('business_register');
+            form.clearErrors('recaptcha_token');
+        } catch {
+            form.setError('recaptcha_token', 'Verifikasi reCAPTCHA gagal. Silakan coba lagi.');
+            return;
+        }
+
+        form.transform((d) => ({ ...d, recaptcha_token: token }));
+        form.post('/business/register', {
+            onFinish: () => form.transform((d) => d),
+        });
     }
 
     return (
@@ -338,6 +354,12 @@ export default function BusinessRegister({ pricePerSeat, minSeats, maxSeats }: P
                                 </span>
                             </label>
                             <FieldError message={form.errors.agreed_terms} />
+
+                            {form.errors.recaptcha_token && (
+                                <p className="text-sm font-medium text-rose-600">
+                                    {form.errors.recaptcha_token}
+                                </p>
+                            )}
 
                             <Button
                                 type="submit"

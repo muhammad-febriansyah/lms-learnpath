@@ -29,3 +29,13 @@ yarn-error.log
 /.zed
 /.playwright-mcp
 /*.png
+
+# AI assistant configs (local only)
+/.agents
+/.claude
+/.codex
+/.cursor
+/.gemini
+/CLAUDE.md
+/GEMINI.md
+/AGENTS.md

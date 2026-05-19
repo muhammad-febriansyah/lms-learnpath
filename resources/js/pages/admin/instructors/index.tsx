@@ -3,11 +3,17 @@ import type { ColumnDef } from '@tanstack/react-table';
 import {
     BadgeCheck,
     BookOpen,
+    Check,
+    Clock,
+    Eye,
+    FileText,
     GraduationCap,
     Pencil,
     Sparkles,
     UserCheck,
+    X,
 } from 'lucide-react';
+import { useState } from 'react';
 
 import { DataTable } from '@/components/data-table/data-table';
 import { DataTablePagination } from '@/components/data-table/data-table-pagination';
@@ -31,6 +37,8 @@ type InstructorProfile = {
     expertise: string[] | null;
     is_verified: boolean;
     is_active: boolean;
+    cv_path: string | null;
+    cv_original_name: string | null;
 };
 
 type Instructor = {
@@ -38,15 +46,17 @@ type Instructor = {
     name: string;
     email: string;
     avatar: string | null;
+    status: 'active' | 'pending_approval' | 'rejected' | 'suspended';
     instructed_courses_count: number;
     instructor_profile: InstructorProfile | null;
 };
 
 type Props = {
     instructors: Paginator<Instructor>;
-    filters: { search?: string; verified?: string };
+    filters: { search?: string; verified?: string; status?: string };
     stats: {
         total: number;
+        pending: number;
         verified: number;
         active: number;
         with_courses: number;
@@ -93,6 +103,29 @@ export default function InstructorsIndex({
             `/admin/instructors/${id}/toggle-verified`,
             {},
             { preserveScroll: true },
+        );
+    };
+
+    const [rejectingId, setRejectingId] = useState<number | null>(null);
+    const [rejectReason, setRejectReason] = useState('');
+
+    const approve = (id: number, name: string) => {
+        if (!window.confirm(`Setujui pendaftaran mentor ${name}?`)) return;
+        router.post(`/admin/instructors/${id}/approve`, {}, { preserveScroll: true });
+    };
+
+    const submitReject = () => {
+        if (rejectingId === null) return;
+        router.post(
+            `/admin/instructors/${rejectingId}/reject`,
+            { reason: rejectReason },
+            {
+                preserveScroll: true,
+                onFinish: () => {
+                    setRejectingId(null);
+                    setRejectReason('');
+                },
+            },
         );
     };
 
@@ -205,6 +238,23 @@ export default function InstructorsIndex({
             cell: ({ row }) => {
                 const profile = row.original.instructor_profile;
 
+                if (row.original.status === 'pending_approval') {
+                    return (
+                        <Badge className="border-transparent bg-amber-100 text-amber-800">
+                            <Clock className="mr-1 size-3" />
+                            Menunggu approval
+                        </Badge>
+                    );
+                }
+
+                if (row.original.status === 'rejected') {
+                    return (
+                        <Badge className="border-transparent bg-rose-50 text-rose-700">
+                            Ditolak
+                        </Badge>
+                    );
+                }
+
                 if (!profile) {
                     return (
                         <Badge className="border-transparent bg-slate-100 text-slate-600">
@@ -241,42 +291,96 @@ export default function InstructorsIndex({
         {
             id: 'actions',
             header: '',
-            cell: ({ row }) => (
-                <div className="flex items-center justify-end gap-1.5">
-                    <Button
-                        size="sm"
-                        className={
-                            row.original.instructor_profile?.is_verified
-                                ? 'h-8 rounded-xl bg-amber-500 text-white shadow-sm hover:bg-amber-600'
-                                : 'h-8 rounded-xl bg-emerald-600 text-white shadow-sm hover:bg-emerald-700'
-                        }
-                        title={
-                            row.original.instructor_profile?.is_verified
-                                ? 'Cabut verifikasi'
-                                : 'Verifikasi'
-                        }
-                        onClick={() => toggleVerified(row.original.id)}
-                    >
-                        <BadgeCheck className="mr-1 size-3.5" />
-                        {row.original.instructor_profile?.is_verified
-                            ? 'Cabut'
-                            : 'Verifikasi'}
-                    </Button>
-                    <Button
-                        asChild
-                        size="sm"
-                        className="h-8 rounded-xl bg-emerald-600 text-white shadow-sm hover:bg-emerald-700"
-                    >
-                        <Link
-                            href={`/admin/instructors/${row.original.id}/edit`}
+            cell: ({ row }) => {
+                if (row.original.status === 'pending_approval') {
+                    const hasCv = !!row.original.instructor_profile?.cv_path;
+
+                    return (
+                        <div className="flex items-center justify-end gap-1.5">
+                            {hasCv && (
+                                <Button
+                                    asChild
+                                    size="sm"
+                                    variant="outline"
+                                    className="h-8 rounded-xl"
+                                    title="Lihat CV mentor"
+                                >
+                                    <a
+                                        href={`/admin/instructors/${row.original.id}/cv`}
+                                        target="_blank"
+                                        rel="noreferrer"
+                                    >
+                                        <FileText className="mr-1 size-3.5" />
+                                        CV
+                                    </a>
+                                </Button>
+                            )}
+                            <Button
+                                size="sm"
+                                className="h-8 rounded-xl bg-emerald-600 text-white shadow-sm hover:bg-emerald-700"
+                                onClick={() => approve(row.original.id, row.original.name)}
+                            >
+                                <Check className="mr-1 size-3.5" />
+                                Setujui
+                            </Button>
+                            <Button
+                                size="sm"
+                                className="h-8 rounded-xl bg-rose-600 text-white shadow-sm hover:bg-rose-700"
+                                onClick={() => setRejectingId(row.original.id)}
+                            >
+                                <X className="mr-1 size-3.5" />
+                                Tolak
+                            </Button>
+                        </div>
+                    );
+                }
+
+                return (
+                    <div className="flex items-center justify-end gap-1.5">
+                        <Button
+                            asChild
+                            size="sm"
+                            className="h-8 rounded-xl bg-sky-600 text-white shadow-sm hover:bg-sky-700"
+                            title="Lihat detail"
                         >
-                            <Pencil className="mr-1 size-3.5" />
-                            Edit
-                        </Link>
-                    </Button>
-                </div>
-            ),
-            meta: { label: 'Aksi', className: 'w-[200px] text-right' },
+                            <Link href={`/admin/instructors/${row.original.id}`}>
+                                <Eye className="mr-1 size-3.5" />
+                                Lihat
+                            </Link>
+                        </Button>
+                        <Button
+                            size="sm"
+                            className={
+                                row.original.instructor_profile?.is_verified
+                                    ? 'h-8 rounded-xl bg-amber-500 text-white shadow-sm hover:bg-amber-600'
+                                    : 'h-8 rounded-xl bg-emerald-600 text-white shadow-sm hover:bg-emerald-700'
+                            }
+                            title={
+                                row.original.instructor_profile?.is_verified
+                                    ? 'Cabut verifikasi'
+                                    : 'Verifikasi'
+                            }
+                            onClick={() => toggleVerified(row.original.id)}
+                        >
+                            <BadgeCheck className="mr-1 size-3.5" />
+                            {row.original.instructor_profile?.is_verified
+                                ? 'Cabut'
+                                : 'Verifikasi'}
+                        </Button>
+                        <Button
+                            asChild
+                            size="sm"
+                            className="h-8 rounded-xl bg-emerald-600 text-white shadow-sm hover:bg-emerald-700"
+                        >
+                            <Link href={`/admin/instructors/${row.original.id}/edit`}>
+                                <Pencil className="mr-1 size-3.5" />
+                                Edit
+                            </Link>
+                        </Button>
+                    </div>
+                );
+            },
+            meta: { label: 'Aksi', className: 'w-[280px] text-right' },
             enableSorting: false,
         },
     ];
@@ -307,13 +411,20 @@ export default function InstructorsIndex({
                     </p>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+                <div className="grid grid-cols-2 gap-4 sm:grid-cols-5">
                     <StatCard
-                        label="Total Instruktur"
+                        label="Total"
                         value={stats.total.toLocaleString('id-ID')}
                         icon={GraduationCap}
                         tint="bg-brand-50"
                         text="text-brand-600"
+                    />
+                    <StatCard
+                        label="Menunggu"
+                        value={stats.pending.toLocaleString('id-ID')}
+                        icon={Clock}
+                        tint="bg-amber-50"
+                        text="text-amber-600"
                     />
                     <StatCard
                         label="Verified"
@@ -338,6 +449,23 @@ export default function InstructorsIndex({
                     />
                 </div>
 
+                {stats.pending > 0 && (
+                    <div className="flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 p-4">
+                        <Clock className="mt-0.5 size-5 shrink-0 text-amber-600" />
+                        <div className="flex-1 text-[13px] text-amber-900">
+                            <strong>{stats.pending} pendaftaran mentor</strong> sedang menunggu approval Anda.
+                            Tinjau dan setujui mereka segera supaya bisa mulai membuat course.
+                        </div>
+                        <Button
+                            size="sm"
+                            className="h-8 rounded-xl bg-amber-600 text-white shadow-sm hover:bg-amber-700"
+                            onClick={() => handleFilter({ status: 'pending_approval' })}
+                        >
+                            Lihat
+                        </Button>
+                    </div>
+                )}
+
                 <div className="rounded-2xl bg-card p-5 shadow-[0_1px_2px_rgba(15,23,42,0.04)] ring-1 ring-slate-200/70">
                     <div className="mb-4">
                         <h2 className="text-[15px] font-bold text-slate-900">
@@ -357,27 +485,44 @@ export default function InstructorsIndex({
                             handleFilter({ search: v || undefined })
                         }
                         toolbarSlot={
-                            <Select
-                                value={filters.verified ?? 'all'}
-                                onValueChange={(v) =>
-                                    handleFilter({
-                                        verified: v === 'all' ? undefined : v,
-                                    })
-                                }
-                            >
-                                <SelectTrigger className="h-9 w-[150px]">
-                                    <SelectValue placeholder="Verifikasi" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="all">Semua</SelectItem>
-                                    <SelectItem value="yes">
-                                        Verified
-                                    </SelectItem>
-                                    <SelectItem value="no">
-                                        Belum verified
-                                    </SelectItem>
-                                </SelectContent>
-                            </Select>
+                            <>
+                                <Select
+                                    value={filters.status ?? 'all'}
+                                    onValueChange={(v) =>
+                                        handleFilter({
+                                            status: v === 'all' ? undefined : v,
+                                        })
+                                    }
+                                >
+                                    <SelectTrigger className="h-9 w-[160px]">
+                                        <SelectValue placeholder="Status akun" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="all">Semua status</SelectItem>
+                                        <SelectItem value="pending_approval">Menunggu approval</SelectItem>
+                                        <SelectItem value="active">Aktif</SelectItem>
+                                        <SelectItem value="rejected">Ditolak</SelectItem>
+                                        <SelectItem value="suspended">Suspended</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                                <Select
+                                    value={filters.verified ?? 'all'}
+                                    onValueChange={(v) =>
+                                        handleFilter({
+                                            verified: v === 'all' ? undefined : v,
+                                        })
+                                    }
+                                >
+                                    <SelectTrigger className="h-9 w-[150px]">
+                                        <SelectValue placeholder="Verifikasi" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="all">Semua</SelectItem>
+                                        <SelectItem value="yes">Verified</SelectItem>
+                                        <SelectItem value="no">Belum verified</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </>
                         }
                         emptyState={
                             <div className="py-12 text-center">
@@ -398,6 +543,49 @@ export default function InstructorsIndex({
                     </div>
                 </div>
             </div>
+
+            {rejectingId !== null && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+                    <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
+                        <h3 className="text-lg font-bold text-slate-900">Tolak pendaftaran mentor?</h3>
+                        <p className="mt-1 text-[13px] text-slate-500">
+                            Mentor akan diberitahu via email bahwa pendaftarannya tidak disetujui.
+                            Anda bisa menyertakan alasan (opsional).
+                        </p>
+                        <label className="mt-4 block text-[12.5px] font-semibold text-slate-700">
+                            Alasan penolakan (opsional)
+                        </label>
+                        <textarea
+                            value={rejectReason}
+                            onChange={(e) => setRejectReason(e.target.value)}
+                            placeholder="Contoh: Portofolio belum lengkap, harap lengkapi sebelum daftar ulang."
+                            rows={4}
+                            maxLength={500}
+                            className="mt-1.5 w-full rounded-lg border border-slate-200 px-3 py-2 text-[13px] focus:border-brand-600 focus:outline-none focus:ring-1 focus:ring-brand-600"
+                        />
+                        <div className="mt-5 flex justify-end gap-2">
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => {
+                                    setRejectingId(null);
+                                    setRejectReason('');
+                                }}
+                            >
+                                Batal
+                            </Button>
+                            <Button
+                                size="sm"
+                                className="bg-rose-600 text-white hover:bg-rose-700"
+                                onClick={submitReject}
+                            >
+                                <X className="mr-1 size-3.5" />
+                                Tolak Pendaftaran
+                            </Button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </>
     );
 }

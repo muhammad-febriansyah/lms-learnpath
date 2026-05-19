@@ -7,6 +7,7 @@ use App\Http\Requests\Admin\CategoryRequest;
 use App\Models\Category;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -45,6 +46,10 @@ class CategoryController extends Controller
         $data = $request->validated();
         $data['slug'] = $data['slug'] ?: Str::slug($data['name']);
 
+        if ($request->hasFile('thumbnail')) {
+            $data['thumbnail'] = $request->file('thumbnail')->store('categories', 'public');
+        }
+
         Category::create($data);
 
         return redirect()
@@ -55,13 +60,30 @@ class CategoryController extends Controller
     public function edit(Category $category): Response
     {
         return Inertia::render('admin/categories/form', [
-            'category' => $category,
+            'category' => [
+                ...$category->only(['id', 'name', 'slug', 'description', 'is_active']),
+                'thumbnail_url' => $category->thumbnail
+                    ? Storage::disk('public')->url($category->thumbnail)
+                    : null,
+            ],
         ]);
     }
 
     public function update(CategoryRequest $request, Category $category): RedirectResponse
     {
-        $category->update($request->validated());
+        $data = $request->validated();
+
+        if ($request->hasFile('thumbnail')) {
+            if ($category->thumbnail) {
+                Storage::disk('public')->delete($category->thumbnail);
+            }
+            $data['thumbnail'] = $request->file('thumbnail')->store('categories', 'public');
+        } elseif ($request->boolean('remove_thumbnail') && $category->thumbnail) {
+            Storage::disk('public')->delete($category->thumbnail);
+            $data['thumbnail'] = null;
+        }
+
+        $category->update($data);
 
         return redirect()
             ->route('admin.categories.index')
@@ -70,6 +92,9 @@ class CategoryController extends Controller
 
     public function destroy(Category $category): RedirectResponse
     {
+        if ($category->thumbnail) {
+            Storage::disk('public')->delete($category->thumbnail);
+        }
         $category->delete();
 
         return back()->with('success', 'Kategori berhasil dihapus.');

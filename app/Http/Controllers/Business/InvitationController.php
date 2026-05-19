@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Business;
 
 use App\Http\Controllers\Controller;
+use App\Models\Division;
 use App\Models\EmployeeProfile;
 use App\Models\Organization;
 use App\Models\OrganizationInvitation;
@@ -77,6 +78,15 @@ class InvitationController extends Controller
                     'id' => $p->id,
                     'name' => $p->name,
                     'division' => $p->division,
+                ])
+                ->all(),
+            'divisions' => Division::query()
+                ->where('is_active', true)
+                ->orderBy('name')
+                ->get(['id', 'name'])
+                ->map(fn (Division $d) => [
+                    'id' => $d->id,
+                    'name' => $d->name,
                 ])
                 ->all(),
         ]);

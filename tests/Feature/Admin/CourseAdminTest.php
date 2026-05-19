@@ -28,7 +28,10 @@ it('admin and super admin can view list', function () {
     $this->actingAs($this->admin)
         ->get('/admin/courses')
         ->assertOk()
-        ->assertInertia(fn ($p) => $p->component('admin/courses/index'));
+        ->assertInertia(fn ($p) => $p
+            ->component('admin/courses/index')
+            ->where('courses.per_page', 8)
+        );
 
     $this->actingAs($this->superAdmin)
         ->get('/admin/courses')

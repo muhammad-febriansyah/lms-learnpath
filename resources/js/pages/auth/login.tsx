@@ -1,5 +1,6 @@
-import { Head, Link, useForm } from '@inertiajs/react';
+import { Head, Link, useForm, usePage } from '@inertiajs/react';
 import { AuthField, AuthInput, AuthPasswordInput, LockIcon, MailIcon } from '@/components/auth-field';
+import { GoogleButton } from '@/components/auth/google-button';
 import { useRecaptchaV3 } from '@/hooks/use-recaptcha-v3';
 import { IconArrowR, IconCheck } from '@/components/learnpath-icons';
 import { register } from '@/routes';
@@ -13,6 +14,7 @@ type Props = {
 };
 
 export default function Login({ status, canResetPassword, canRegister }: Props) {
+    const googleError = (usePage().props.errors as Record<string, string>)?.google;
     const form = useForm<{
         email: string;
         password: string;
@@ -60,6 +62,12 @@ export default function Login({ status, canResetPassword, canRegister }: Props) 
                 <div className="mb-5 flex items-start gap-3 rounded-xl bg-emerald-50 px-4 py-3 text-sm text-emerald-800 ring-1 ring-emerald-200">
                     <IconCheck className="mt-0.5 size-5 shrink-0 text-emerald-600" />
                     <div>{status}</div>
+                </div>
+            )}
+
+            {googleError && (
+                <div className="mb-5 rounded-xl bg-rose-50 px-4 py-3 text-sm text-rose-700 ring-1 ring-rose-200">
+                    {googleError}
                 </div>
             )}
 
@@ -160,6 +168,17 @@ export default function Login({ status, canResetPassword, canRegister }: Props) 
                             </span>
                         )}
                     </button>
+                </div>
+
+                <div className="mt-6 space-y-3">
+                    <div className="relative flex items-center">
+                        <div className="h-px flex-1 bg-slate-200" />
+                        <span className="px-3 text-[11px] font-semibold tracking-wider text-slate-400 uppercase">
+                            atau
+                        </span>
+                        <div className="h-px flex-1 bg-slate-200" />
+                    </div>
+                    <GoogleButton intent="login" />
                 </div>
 
                 {canRegister && (

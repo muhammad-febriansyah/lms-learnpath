@@ -175,7 +175,7 @@ export default function PositionTargetsIndex({ positions, position, targets }: P
                                 <p className="mt-1 text-[12.5px] text-slate-500">
                                     Tambah kompetensi dulu di menu{' '}
                                     <Link href="/admin/competencies" className="text-brand-600 hover:underline">
-                                        Master Kompetensi
+                                        Kompetensi
                                     </Link>
                                     .
                                 </p>

@@ -263,7 +263,7 @@ return;
                         <DialogHeader>
                             <DialogTitle>Unggah SCORM Package</DialogTitle>
                             <DialogDescription>
-                                Pilih file ZIP berisi konten SCORM (max 200 MB).
+                                Pilih file ZIP berisi konten SCORM (maks 50 MB).
                             </DialogDescription>
                         </DialogHeader>
 

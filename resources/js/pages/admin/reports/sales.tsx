@@ -3,6 +3,7 @@ import { Banknote, CreditCard, Receipt, TrendingUp, Wallet } from 'lucide-react'
 
 import { IconChevR } from '@/components/learnpath-icons';
 import { DateRangeFilter } from '@/components/reports/date-range-filter';
+import { ExportCsvButton } from '@/components/reports/export-csv-button';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 
@@ -76,12 +77,20 @@ export default function SalesReport({ range, totals, byMonth, byGateway, topCour
                         <IconChevR size={12} className="text-slate-300" />
                         <span className="font-semibold text-slate-900">Sales & Revenue</span>
                     </nav>
-                    <h1 className="mt-1.5 text-2xl font-extrabold tracking-tight text-slate-900">
-                        Sales & Revenue Report
-                    </h1>
-                    <p className="mt-1 text-[13.5px] text-slate-500">
-                        Pendapatan dari transaksi marketplace.
-                    </p>
+                    <div className="mt-1.5 flex items-start justify-between gap-3">
+                        <div>
+                            <h1 className="text-2xl font-extrabold tracking-tight text-slate-900">
+                                Sales & Revenue Report
+                            </h1>
+                            <p className="mt-1 text-[13.5px] text-slate-500">
+                                Pendapatan dari transaksi marketplace.
+                            </p>
+                        </div>
+                        <ExportCsvButton
+                            href="/admin/reports/sales/export.csv"
+                            params={{ from: range.from, to: range.to }}
+                        />
+                    </div>
                 </div>
 
                 <DateRangeFilter from={range.from} to={range.to} basePath="/admin/reports/sales" />

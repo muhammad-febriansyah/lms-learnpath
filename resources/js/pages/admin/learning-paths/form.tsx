@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 
 import { FieldError } from '@/components/form/field-error';
 import { RequiredLabel } from '@/components/form/required-label';
+import { RupiahInput } from '@/components/form/rupiah-input';
 import { IconChevR } from '@/components/learnpath-icons';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -29,6 +30,8 @@ type PathInput = {
     position_id: number | null;
     target_audience: string[] | null;
     outcomes: string[] | null;
+    price: number | null;
+    compare_at_price: number | null;
     is_published: boolean;
 };
 
@@ -61,6 +64,8 @@ export default function LearningPathForm({ path, positions }: Props) {
         position_id: number | '';
         target_audience: string[];
         outcomes: string[];
+        price: number | '';
+        compare_at_price: number | '';
         is_published: boolean;
     }>({
         title: path?.title ?? '',
@@ -73,6 +78,8 @@ export default function LearningPathForm({ path, positions }: Props) {
         position_id: path?.position_id ?? '',
         target_audience: path?.target_audience ?? [''],
         outcomes: path?.outcomes ?? [''],
+        price: path?.price ?? '',
+        compare_at_price: path?.compare_at_price ?? '',
         is_published: path?.is_published ?? false,
     });
 
@@ -108,6 +115,7 @@ export default function LearningPathForm({ path, positions }: Props) {
             target_audience: form.data.target_audience.filter(Boolean),
             outcomes: form.data.outcomes.filter(Boolean),
         };
+
         if (isEdit) {
             form.transform(() => payload).put(`/admin/learning-paths/${path!.id}`);
         } else {
@@ -143,7 +151,7 @@ export default function LearningPathForm({ path, positions }: Props) {
 
                 <form
                     onSubmit={submit}
-                    className="space-y-5 rounded-2xl bg-card p-6 shadow-[0_1px_2px_rgba(15,23,42,0.04)] ring-1 ring-slate-200/70"
+                    className="space-y-7 rounded-2xl bg-card p-6 shadow-[0_1px_2px_rgba(15,23,42,0.04)] ring-1 ring-slate-200/70 sm:p-7"
                 >
                     <div className="grid gap-4 sm:grid-cols-2">
                         <div className="sm:col-span-2">
@@ -236,6 +244,48 @@ export default function LearningPathForm({ path, positions }: Props) {
                                 className="mt-1"
                             />
                             <FieldError message={form.errors.duration_weeks} />
+                        </div>
+
+                        <div>
+                            <label
+                                htmlFor="price"
+                                className="text-[12.5px] font-semibold text-slate-700"
+                            >
+                                Harga jual (Rp)
+                            </label>
+                            <RupiahInput
+                                id="price"
+                                value={form.data.price}
+                                onChange={(value) => form.setData('price', value)}
+                                onClear={() => form.setData('price', '')}
+                                placeholder="0 untuk gratis"
+                            />
+                            <p className="mt-1 text-[11px] text-slate-500">
+                                0 = gratis. Selain itu, peserta beli paket via checkout.
+                            </p>
+                            <FieldError message={form.errors.price} />
+                        </div>
+
+                        <div>
+                            <label
+                                htmlFor="compare_at_price"
+                                className="text-[12.5px] font-semibold text-slate-700"
+                            >
+                                Harga coret (opsional)
+                            </label>
+                            <RupiahInput
+                                id="compare_at_price"
+                                value={form.data.compare_at_price}
+                                onChange={(value) =>
+                                    form.setData('compare_at_price', value)
+                                }
+                                onClear={() => form.setData('compare_at_price', '')}
+                                placeholder="Total kursus satuan"
+                            />
+                            <p className="mt-1 text-[11px] text-slate-500">
+                                Tampilkan diskon: harga coret &gt; harga jual.
+                            </p>
+                            <FieldError message={form.errors.compare_at_price} />
                         </div>
 
                         <div className="sm:col-span-2">

@@ -34,7 +34,7 @@ class ScormPackageController extends Controller
     {
         $data = $request->validate([
             'title' => ['required', 'string', 'max:255'],
-            'zip' => ['required', 'file', 'mimes:zip', 'max:204800'],
+            'zip' => ['required', 'file', 'mimes:zip', 'max:51200'],
             'version' => ['nullable', 'string', Rule::in(['1.2', '2004'])],
         ], [
             'required' => ':attribute wajib diisi.',
@@ -49,14 +49,16 @@ class ScormPackageController extends Controller
 
         $path = $request->file('zip')->store('scorm', 'local');
 
-        ScormPackage::create([
+        $package = ScormPackage::create([
             'title' => $data['title'],
             'zip_path' => $path,
             'version' => $data['version'] ?? '1.2',
             'status' => 'uploaded',
         ]);
 
-        return back()->with('success', 'SCORM package berhasil diunggah.');
+        return back()
+            ->with('success', 'SCORM package berhasil diunggah.')
+            ->with('new_scorm_package_id', $package->id);
     }
 
     public function destroy(ScormPackage $scorm_package): RedirectResponse

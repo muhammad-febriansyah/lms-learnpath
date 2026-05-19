@@ -66,9 +66,9 @@ export default function SupervisorReviewForm({ userOptions, competencyOptions }:
 
                 <form
                     onSubmit={submit}
-                    className="space-y-5 rounded-2xl bg-card p-5 shadow-[0_1px_2px_rgba(15,23,42,0.04)] ring-1 ring-slate-200/70 sm:p-6"
+                    className="space-y-7 rounded-2xl bg-card p-6 shadow-[0_1px_2px_rgba(15,23,42,0.04)] ring-1 ring-slate-200/70 sm:p-7"
                 >
-                    <div className="space-y-2">
+                    <div className="space-y-2.5">
                         <RequiredLabel required>Karyawan</RequiredLabel>
                         <Select
                             value={form.data.user_id}
@@ -97,7 +97,7 @@ export default function SupervisorReviewForm({ userOptions, competencyOptions }:
                         <FieldError message={form.errors.user_id} />
                     </div>
 
-                    <div className="space-y-2">
+                    <div className="space-y-2.5">
                         <RequiredLabel required>Kompetensi</RequiredLabel>
                         <Select
                             value={form.data.competency_id}
@@ -123,7 +123,7 @@ export default function SupervisorReviewForm({ userOptions, competencyOptions }:
                     </div>
 
                     <div className="grid gap-4 sm:grid-cols-2">
-                        <div className="space-y-2">
+                        <div className="space-y-2.5">
                             <RequiredLabel required>Rating</RequiredLabel>
                             <div className="flex items-center gap-1">
                                 {[1, 2, 3, 4, 5].map((n) => (
@@ -148,7 +148,7 @@ export default function SupervisorReviewForm({ userOptions, competencyOptions }:
                                 Rating: {form.data.rating} bintang
                             </p>
                         </div>
-                        <div className="space-y-2">
+                        <div className="space-y-2.5">
                             <RequiredLabel required>Level Aktual</RequiredLabel>
                             <div className="flex items-center gap-1">
                                 {[0, 1, 2, 3, 4, 5].map((lv) => (
@@ -173,7 +173,7 @@ export default function SupervisorReviewForm({ userOptions, competencyOptions }:
                         </div>
                     </div>
 
-                    <div className="space-y-2">
+                    <div className="space-y-2.5">
                         <RequiredLabel htmlFor="notes">Catatan / Feedback</RequiredLabel>
                         <Textarea
                             id="notes"
@@ -185,7 +185,7 @@ export default function SupervisorReviewForm({ userOptions, competencyOptions }:
                         <FieldError message={form.errors.notes} />
                     </div>
 
-                    <div className="space-y-2">
+                    <div className="space-y-2.5">
                         <RequiredLabel required>Status</RequiredLabel>
                         <Select
                             value={form.data.approval_status}

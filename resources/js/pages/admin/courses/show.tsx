@@ -34,6 +34,7 @@ import {
 } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
+import { storageUrl } from '@/lib/storage-url';
 
 type Course = {
     id: number;
@@ -70,6 +71,18 @@ type Course = {
     sections_count: number;
     lessons_count: number;
     enrollments_count: number;
+    sections: {
+        id: number;
+        title: string;
+        sort_order: number;
+        lessons: {
+            id: number;
+            title: string;
+            sort_order: number;
+            is_preview: boolean;
+            duration_minutes: number | null;
+        }[];
+    }[];
     pre_test: { id: number; title: string; questions_count: number } | null;
     post_test: { id: number; title: string; questions_count: number } | null;
     category: { id: number; name: string } | null;
@@ -312,6 +325,16 @@ export default function CourseShow({ course, permissions }: Props) {
                     </div>
                 )}
 
+                {course.thumbnail && (
+                    <div className="overflow-hidden rounded-2xl bg-slate-100 shadow-[0_1px_2px_rgba(15,23,42,0.04)] ring-1 ring-slate-200/70">
+                        <img
+                            src={storageUrl(course.thumbnail) ?? ''}
+                            alt={course.title}
+                            className="aspect-video w-full object-cover"
+                        />
+                    </div>
+                )}
+
                 <div className="grid gap-5 lg:grid-cols-3">
                     <div className="space-y-5 lg:col-span-2">
                         <Tabs defaultValue="overview" className="w-full">
@@ -339,9 +362,14 @@ export default function CourseShow({ course, permissions }: Props) {
 
                             <TabsContent value="overview" className="mt-4 space-y-4">
                                 <Card title="Deskripsi">
-                                    <p className="whitespace-pre-line text-[13.5px] leading-relaxed text-slate-700">
-                                        {course.description || 'Belum ada deskripsi.'}
-                                    </p>
+                                    {course.description ? (
+                                        <div
+                                            className="prose prose-sm max-w-none text-[13.5px] leading-relaxed text-slate-700 [&_a]:text-brand-600 [&_a]:underline [&_ol]:list-decimal [&_ol]:pl-5 [&_p]:my-2 [&_strong]:font-semibold [&_ul]:list-disc [&_ul]:pl-5"
+                                            dangerouslySetInnerHTML={{ __html: course.description }}
+                                        />
+                                    ) : (
+                                        <p className="text-[13.5px] text-slate-400 italic">Belum ada deskripsi.</p>
+                                    )}
                                 </Card>
 
                                 <Card title="Apa yang akan dipelajari">
@@ -376,11 +404,80 @@ export default function CourseShow({ course, permissions }: Props) {
                                             value={course.enrollments_count}
                                         />
                                     </div>
-                                    <p className="mt-3 text-[12px] text-slate-500">
-                                        Kelola section &amp; lesson lewat menu Kurikulum
-                                        (akan terhubung dari halaman ini).
-                                    </p>
                                 </Card>
+
+                                {(course.sections ?? []).length > 0 && (
+                                    <Card title="Daftar Lesson · toggle preview gratis di sini">
+                                        <div className="space-y-4">
+                                            {course.sections.map((section, idx) => (
+                                                <div
+                                                    key={section.id}
+                                                    className="rounded-xl ring-1 ring-slate-200/70"
+                                                >
+                                                    <div className="border-b border-slate-100 bg-slate-50/60 px-3.5 py-2">
+                                                        <div className="text-[10.5px] font-bold tracking-wider text-slate-500 uppercase">
+                                                            Section {idx + 1}
+                                                        </div>
+                                                        <div className="text-[14px] font-bold text-slate-900">
+                                                            {section.title}
+                                                        </div>
+                                                    </div>
+                                                    {section.lessons.length === 0 ? (
+                                                        <div className="px-3.5 py-3 text-[12.5px] text-slate-500">
+                                                            Belum ada lesson di section ini.
+                                                        </div>
+                                                    ) : (
+                                                        <ul className="divide-y divide-slate-100">
+                                                            {section.lessons.map((lesson) => (
+                                                                <li
+                                                                    key={lesson.id}
+                                                                    className="flex items-center gap-3 px-3.5 py-2.5"
+                                                                >
+                                                                    <BookOpen className="size-4 shrink-0 text-slate-400" />
+                                                                    <div className="min-w-0 flex-1">
+                                                                        <div className="truncate text-[13px] font-semibold text-slate-800">
+                                                                            {lesson.title}
+                                                                        </div>
+                                                                        {lesson.duration_minutes && (
+                                                                            <div className="text-[11px] text-slate-500">
+                                                                                {lesson.duration_minutes} menit
+                                                                            </div>
+                                                                        )}
+                                                                    </div>
+                                                                    {lesson.is_preview && (
+                                                                        <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[10.5px] font-bold text-emerald-700">
+                                                                            ▶ Preview
+                                                                        </span>
+                                                                    )}
+                                                                    {permissions.canEdit && (
+                                                                        <button
+                                                                            type="button"
+                                                                            onClick={() =>
+                                                                                router.post(
+                                                                                    `/admin/lessons/${lesson.id}/toggle-preview`,
+                                                                                    {},
+                                                                                    { preserveScroll: true },
+                                                                                )
+                                                                            }
+                                                                            className={
+                                                                                'inline-flex items-center gap-1 rounded-lg px-2.5 py-1 text-[11px] font-semibold transition ' +
+                                                                                (lesson.is_preview
+                                                                                    ? 'border border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
+                                                                                    : 'border border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100')
+                                                                            }
+                                                                        >
+                                                                            {lesson.is_preview ? 'Lepas preview' : 'Set preview'}
+                                                                        </button>
+                                                                    )}
+                                                                </li>
+                                                            ))}
+                                                        </ul>
+                                                    )}
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </Card>
+                                )}
                             </TabsContent>
 
                             <TabsContent value="assessment" className="mt-4 space-y-4">

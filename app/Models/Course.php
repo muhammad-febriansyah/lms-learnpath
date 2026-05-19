@@ -162,6 +162,11 @@ class Course extends Model
         return max(0, (int) $this->compare_at_price - (int) $this->price);
     }
 
+    public function isFree(): bool
+    {
+        return (int) $this->price === 0;
+    }
+
     public function category(): BelongsTo
     {
         return $this->belongsTo(Category::class);

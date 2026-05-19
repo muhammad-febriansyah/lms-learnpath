@@ -16,7 +16,8 @@ final class AutoEnrollAfterPayment implements ShouldQueue
     public function handle(OrderPaid $event): void
     {
         // B2B seat purchases don't enroll the buyer; they just top up seat quota.
-        if ($event->order->type === 'b2b_seat') {
+        // Wallet top-ups also don't enroll the buyer; they credit the org wallet.
+        if (in_array($event->order->type, ['b2b_seat', 'wallet_topup'], true)) {
             return;
         }
 

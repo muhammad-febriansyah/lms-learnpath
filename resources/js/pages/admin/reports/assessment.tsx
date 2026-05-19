@@ -3,6 +3,7 @@ import { Check, ClipboardList, FileQuestion, Hourglass, Target, X } from 'lucide
 
 import { IconChevR } from '@/components/learnpath-icons';
 import { DateRangeFilter } from '@/components/reports/date-range-filter';
+import { ExportCsvButton } from '@/components/reports/export-csv-button';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 
@@ -70,12 +71,20 @@ export default function AssessmentReport({ range, totals, perAssessment, byType 
                         <IconChevR size={12} className="text-slate-300" />
                         <span className="font-semibold text-slate-900">Assessment</span>
                     </nav>
-                    <h1 className="mt-1.5 text-2xl font-extrabold tracking-tight text-slate-900">
-                        Assessment Report
-                    </h1>
-                    <p className="mt-1 text-[13.5px] text-slate-500">
-                        Statistik kelulusan dan skor rata-rata per assessment.
-                    </p>
+                    <div className="mt-1.5 flex items-start justify-between gap-3">
+                        <div>
+                            <h1 className="text-2xl font-extrabold tracking-tight text-slate-900">
+                                Assessment Report
+                            </h1>
+                            <p className="mt-1 text-[13.5px] text-slate-500">
+                                Statistik kelulusan dan skor rata-rata per assessment.
+                            </p>
+                        </div>
+                        <ExportCsvButton
+                            href="/admin/reports/assessment/export.csv"
+                            params={{ from: range.from, to: range.to }}
+                        />
+                    </div>
                 </div>
 
                 <DateRangeFilter from={range.from} to={range.to} basePath="/admin/reports/assessment" />

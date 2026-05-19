@@ -9,10 +9,12 @@ use App\Models\Course;
 use App\Models\Lesson;
 use App\Services\AI\AiQuotaService;
 use App\Services\AI\TutorService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
+use Symfony\Component\HttpFoundation\Response as HttpResponse;
 use Throwable;
 
 class TutorController extends Controller
@@ -38,6 +40,7 @@ class TutorController extends Controller
             'activeThread' => null,
             'available' => $this->isAvailable(),
             'quota' => $this->quota->withinQuota($request->user()),
+            'persona' => $this->resolvePersona($request),
         ]);
     }
 
@@ -61,6 +64,7 @@ class TutorController extends Controller
             'activeThread' => $this->transformThread($thread, withMessages: true),
             'available' => $this->isAvailable(),
             'quota' => $this->quota->withinQuota($request->user()),
+            'persona' => $this->resolvePersona($request),
         ]);
     }
 
@@ -110,6 +114,65 @@ class TutorController extends Controller
             ->with('tutor_thread_id', $thread->id);
     }
 
+    /**
+     * Stream the tutor's response token-by-token via SSE.
+     *
+     * Returns an SSE stream of JSON events (text_delta, etc.). The final
+     * assistant message is persisted via the service's `then()` hook after
+     * the stream drains.
+     */
+    public function stream(Request $request): HttpResponse|JsonResponse
+    {
+        $data = $request->validate([
+            'content' => ['required', 'string', 'max:4000'],
+            'thread_id' => ['nullable', 'integer', 'exists:chat_threads,id'],
+            'course_id' => ['nullable', 'integer', 'exists:courses,id'],
+            'lesson_id' => ['nullable', 'integer', 'exists:lessons,id'],
+        ]);
+
+        $thread = null;
+        if (! empty($data['thread_id'])) {
+            $thread = ChatThread::find($data['thread_id']);
+            abort_unless($thread && $thread->user_id === $request->user()->id, 403);
+        }
+
+        $course = ! empty($data['course_id']) ? Course::find($data['course_id']) : null;
+        $lesson = ! empty($data['lesson_id']) ? Lesson::find($data['lesson_id']) : null;
+
+        if (! $this->isAvailable()) {
+            return response()->json([
+                'error' => 'AI Tutor sedang tidak tersedia. Hubungi admin.',
+            ], 503);
+        }
+
+        $quota = $this->quota->withinQuota($request->user());
+        if (! $quota['ok']) {
+            return response()->json(['error' => $quota['reason']], 429);
+        }
+
+        try {
+            ['thread' => $thread, 'stream' => $stream] = $this->service->streamMessage(
+                user: $request->user(),
+                userMessage: $data['content'],
+                thread: $thread,
+                course: $course,
+                lesson: $lesson,
+            );
+        } catch (Throwable $e) {
+            return response()->json([
+                'error' => 'Gagal memulai stream: '.$e->getMessage(),
+            ], 500);
+        }
+
+        $response = $stream->toResponse($request);
+        $response->headers->set('X-Thread-Id', (string) $thread->id);
+        // Disable proxy/server buffering so tokens arrive immediately.
+        $response->headers->set('X-Accel-Buffering', 'no');
+        $response->headers->set('Cache-Control', 'no-cache, no-transform');
+
+        return $response;
+    }
+
     public function destroy(Request $request, ChatThread $thread): RedirectResponse
     {
         abort_unless($thread->user_id === $request->user()->id, 403);
@@ -144,6 +207,7 @@ class TutorController extends Controller
                     'id' => $m->id,
                     'role' => $m->role,
                     'content' => $m->content,
+                    'citations' => is_array($m->citations) ? $m->citations : null,
                     'created_at' => $m->created_at?->toIso8601String(),
                 ])
                 ->values();
@@ -155,5 +219,17 @@ class TutorController extends Controller
     private function isAvailable(): bool
     {
         return ((string) config('services.openai.api_key')) !== '';
+    }
+
+    /**
+     * @return array{kind: 'instructor'|'student'}
+     */
+    private function resolvePersona(Request $request): array
+    {
+        $user = $request->user();
+        $isInstructor = $user
+            && $user->hasAnyRole(['instructor', 'mentor', 'admin', 'tenant-admin']);
+
+        return ['kind' => $isInstructor ? 'instructor' : 'student'];
     }
 }

@@ -6,10 +6,10 @@ import type { AuthLayoutProps } from '@/types';
 
 export default function AuthSplitLayout({ children, title, description }: AuthLayoutProps) {
     return (
-        <div className="relative flex min-h-svh">
+        <div className="relative flex h-svh overflow-hidden">
             <BrandPanel />
-            <main className="relative flex flex-1 items-center justify-center px-5 py-10 sm:px-8">
-                <div className="absolute top-6 right-6 left-6 flex items-center gap-2.5 lg:hidden">
+            <main className="relative flex-1 overflow-y-auto">
+                <div className="sticky top-0 z-10 flex items-center gap-2.5 bg-white/85 px-5 py-4 backdrop-blur-md lg:hidden">
                     <Link href={home()} className="grid size-10 place-items-center rounded-xl bg-brand-600 text-white">
                         <AppLogoIcon className="size-5" />
                     </Link>
@@ -21,23 +21,25 @@ export default function AuthSplitLayout({ children, title, description }: AuthLa
                     </div>
                 </div>
 
-                <div className="w-full max-w-[440px]">
-                    <div className="rise rise-1 mb-6">
-                        <div className="inline-flex items-center gap-1.5 rounded-full bg-brand-50 px-2.5 py-1 text-[11px] font-bold tracking-[0.16em] text-brand-700 ring-1 ring-brand-100 uppercase">
-                            <span className="size-1.5 rounded-full bg-brand-600" />
-                            {description ?? 'Selamat datang'}
+                <div className="flex min-h-full items-center justify-center px-5 py-10 sm:px-8">
+                    <div className="w-full max-w-[440px]">
+                        <div className="rise rise-1 mb-6">
+                            <div className="inline-flex items-center gap-1.5 rounded-full bg-brand-50 px-2.5 py-1 text-[11px] font-bold tracking-[0.16em] text-brand-700 ring-1 ring-brand-100 uppercase">
+                                <span className="size-1.5 rounded-full bg-brand-600" />
+                                {description ?? 'Selamat datang'}
+                            </div>
+                            <h2 className="mt-3 text-3xl leading-[1.1] font-extrabold tracking-tight text-balance text-slate-900 sm:text-[34px]">
+                                {title ?? 'Masuk ke akun Anda'}
+                            </h2>
                         </div>
-                        <h2 className="mt-3 text-3xl leading-[1.1] font-extrabold tracking-tight text-balance text-slate-900 sm:text-[34px]">
-                            {title ?? 'Masuk ke akun Anda'}
-                        </h2>
-                    </div>
 
-                    <div className="rise rise-2 relative rounded-3xl bg-card p-6 shadow-[0_1px_2px_rgba(15,23,42,0.04),0_24px_48px_-24px_rgba(18,35,125,0.18)] ring-1 ring-slate-200/70 sm:p-8">
-                        <div
-                            className="absolute inset-x-8 -top-px h-px bg-gradient-to-r from-transparent via-brand-400/60 to-transparent"
-                            aria-hidden="true"
-                        />
-                        {children}
+                        <div className="rise rise-2 relative rounded-3xl bg-card p-6 shadow-[0_1px_2px_rgba(15,23,42,0.04),0_24px_48px_-24px_rgba(18,35,125,0.18)] ring-1 ring-slate-200/70 sm:p-8">
+                            <div
+                                className="absolute inset-x-8 -top-px h-px bg-gradient-to-r from-transparent via-brand-400/60 to-transparent"
+                                aria-hidden="true"
+                            />
+                            {children}
+                        </div>
                     </div>
                 </div>
             </main>

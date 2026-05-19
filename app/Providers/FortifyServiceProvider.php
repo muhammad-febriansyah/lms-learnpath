@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Actions\Fortify\CreateNewUser;
 use App\Actions\Fortify\ResetUserPassword;
+use App\Http\Responses\RegisterResponse as AppRegisterResponse;
 use App\Models\User;
 use App\Services\Security\RecaptchaVerifier;
 use Illuminate\Cache\RateLimiting\Limit;
@@ -14,7 +15,9 @@ use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Password;
+use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
+use Laravel\Fortify\Contracts\RegisterResponse;
 use Laravel\Fortify\Features;
 use Laravel\Fortify\Fortify;
 
@@ -25,7 +28,10 @@ class FortifyServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->singleton(
+            RegisterResponse::class,
+            AppRegisterResponse::class,
+        );
     }
 
     /**
@@ -72,6 +78,25 @@ class FortifyServiceProvider extends ServiceProvider
 
             if (! $user || ! Hash::check($request->string('password')->toString(), $user->password)) {
                 return null;
+            }
+
+            // Instructor (mentor) must be approved by admin first.
+            if ($user->isPendingApproval()) {
+                throw ValidationException::withMessages([
+                    Fortify::username() => 'Akun mentor Anda masih menunggu persetujuan admin. Kami akan kirim email begitu disetujui.',
+                ]);
+            }
+
+            if ($user->status === User::STATUS_REJECTED) {
+                throw ValidationException::withMessages([
+                    Fortify::username() => 'Pendaftaran akun Anda ditolak. Hubungi admin untuk informasi lebih lanjut.',
+                ]);
+            }
+
+            if ($user->status === User::STATUS_SUSPENDED) {
+                throw ValidationException::withMessages([
+                    Fortify::username() => 'Akun Anda dinonaktifkan. Hubungi admin untuk reaktivasi.',
+                ]);
             }
 
             return $user;

@@ -2,13 +2,12 @@ import { Head, Link, router } from '@inertiajs/react';
 import { BookOpen, Clock, Search, Sparkles, Users } from 'lucide-react';
 
 import {
-    DataTablePagination
-    
+    DataTablePagination,
 } from '@/components/data-table/data-table-pagination';
-import type {Paginator} from '@/components/data-table/data-table-pagination';
+import type { Paginator } from '@/components/data-table/data-table-pagination';
+import { PageHeader } from '@/components/front/page-header';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import {
     Select,
     SelectContent,
@@ -16,6 +15,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
+import { storageUrl } from '@/lib/storage-url';
 
 type Category = { id: number; name: string; slug: string };
 
@@ -181,47 +181,32 @@ export default function CatalogIndex({
 
     return (
         <>
-            <Head title="Katalog Kursus" />
-            <div className="space-y-6">
-                <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-brand-700 via-brand-600 to-brand-800 p-6 text-white sm:p-10">
-                    <div
-                        className="absolute -top-20 -right-16 size-72 rounded-full bg-white/10 blur-3xl"
-                        aria-hidden="true"
-                    />
-                    <div
-                        className="absolute -right-32 -bottom-24 size-80 rounded-full bg-brand-300/30 blur-3xl"
-                        aria-hidden="true"
-                    />
-                    <div className="relative">
-                        <div className="inline-flex items-center gap-2 rounded-full bg-white/15 px-2.5 py-1 text-[11px] font-bold tracking-[0.16em] ring-1 ring-white/20 uppercase backdrop-blur">
-                            <Sparkles className="size-3" />
-                            Katalog Kursus
-                        </div>
-                        <h1 className="mt-3 text-[28px] leading-tight font-extrabold tracking-tight sm:text-[36px]">
-                            Pilih kursus, tingkatkan skill
-                        </h1>
-                        <p className="mt-2 max-w-2xl text-[14.5px] text-white/80 sm:text-[15px]">
-                            Belajar dari instruktur profesional. Sertifikat resmi, bisa diakses
-                            seumur hidup setelah membeli.
-                        </p>
+            <Head title="Katalog Kursus · Learnpath" />
 
-                        <div className="mt-6 max-w-2xl">
-                            <div className="flex items-center gap-2 rounded-2xl bg-white p-2 ring-1 ring-white/30">
-                                <Search className="ml-2 size-5 text-slate-400" />
-                                <Input
-                                    type="search"
-                                    placeholder="Cari kursus, topik, atau instruktur..."
-                                    defaultValue={filters.search ?? ''}
-                                    onChange={(e) =>
-                                        handleFilter({ search: e.target.value || undefined })
-                                    }
-                                    className="flex-1 border-0 bg-transparent text-slate-900 shadow-none focus-visible:ring-0"
-                                />
-                            </div>
-                        </div>
-                    </div>
-                </section>
+            <PageHeader
+                eyebrow="Katalog Kursus"
+                title="Pilih kursus, tingkatkan skill"
+                description="Belajar dari instruktur profesional. Sertifikat resmi, akses seumur hidup setelah membeli."
+                breadcrumbs={[
+                    { label: 'Beranda', href: '/' },
+                    { label: 'Kursus' },
+                ]}
+            >
+                <div className="relative max-w-2xl">
+                    <Search className="absolute top-1/2 left-4 size-4 -translate-y-1/2 text-white/60" />
+                    <input
+                        type="search"
+                        placeholder="Cari kursus, topik, atau instruktur..."
+                        defaultValue={filters.search ?? ''}
+                        onChange={(e) =>
+                            handleFilter({ search: e.target.value || undefined })
+                        }
+                        className="block w-full rounded-full border border-white/15 bg-white/10 px-12 py-3.5 text-[14px] text-white placeholder:text-white/60 backdrop-blur focus:border-white/40 focus:outline-none focus:ring-2 focus:ring-white/30"
+                    />
+                </div>
+            </PageHeader>
 
+            <div className="mx-auto max-w-7xl px-5 py-12 lg:px-8 lg:py-16">
                 <div className="flex flex-wrap items-center gap-3">
                     <Select
                         value={filters.category ?? 'all'}
@@ -229,7 +214,7 @@ export default function CatalogIndex({
                             handleFilter({ category: v === 'all' ? undefined : v })
                         }
                     >
-                        <SelectTrigger className="h-9 w-[180px]">
+                        <SelectTrigger className="h-10 rounded-full bg-white w-[180px]">
                             <SelectValue placeholder="Kategori" />
                         </SelectTrigger>
                         <SelectContent>
@@ -248,7 +233,7 @@ export default function CatalogIndex({
                             handleFilter({ level: v === 'all' ? undefined : v })
                         }
                     >
-                        <SelectTrigger className="h-9 w-[160px]">
+                        <SelectTrigger className="h-10 rounded-full bg-white w-[160px]">
                             <SelectValue placeholder="Level" />
                         </SelectTrigger>
                         <SelectContent>
@@ -265,7 +250,7 @@ export default function CatalogIndex({
                             handleFilter({ price: v === 'all' ? undefined : v })
                         }
                     >
-                        <SelectTrigger className="h-9 w-[140px]">
+                        <SelectTrigger className="h-10 rounded-full bg-white w-[140px]">
                             <SelectValue placeholder="Harga" />
                         </SelectTrigger>
                         <SelectContent>
@@ -281,7 +266,7 @@ export default function CatalogIndex({
                             handleFilter({ format: v === 'all' ? undefined : v })
                         }
                     >
-                        <SelectTrigger className="h-9 w-[150px]">
+                        <SelectTrigger className="h-10 rounded-full bg-white w-[150px]">
                             <SelectValue placeholder="Format" />
                         </SelectTrigger>
                         <SelectContent>
@@ -323,7 +308,7 @@ export default function CatalogIndex({
                 </div>
 
                 {courses.data.length === 0 ? (
-                    <div className="rounded-2xl bg-card p-12 text-center ring-1 ring-slate-200/70">
+                    <div className="mt-8 rounded-2xl border border-dashed border-slate-200 bg-white p-12 text-center">
                         <BookOpen className="mx-auto mb-3 size-8 text-slate-400" />
                         <p className="text-sm font-semibold text-slate-900">
                             Tidak ada kursus
@@ -333,14 +318,16 @@ export default function CatalogIndex({
                         </p>
                     </div>
                 ) : (
-                    <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                    <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                         {courses.data.map((course) => (
                             <CourseCard key={course.id} course={course} />
                         ))}
                     </div>
                 )}
 
-                <DataTablePagination paginator={courses} />
+                <div className="mt-8">
+                    <DataTablePagination paginator={courses} />
+                </div>
             </div>
         </>
     );
@@ -364,7 +351,7 @@ function CourseCard({ course }: { course: Course }) {
             <div className="relative aspect-[16/10] overflow-hidden bg-gradient-to-br from-brand-400 via-brand-600 to-brand-800">
                 {course.thumbnail ? (
                     <img
-                        src={course.thumbnail}
+                        src={storageUrl(course.thumbnail) ?? ''}
                         alt={course.title}
                         className="size-full object-cover"
                     />

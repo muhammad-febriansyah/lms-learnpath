@@ -66,9 +66,9 @@ export default function PositionForm({ position }: Props) {
 
                 <form
                     onSubmit={submit}
-                    className="space-y-5 rounded-2xl bg-card p-5 shadow-[0_1px_2px_rgba(15,23,42,0.04)] ring-1 ring-slate-200/70 sm:p-6"
+                    className="space-y-7 rounded-2xl bg-card p-6 shadow-[0_1px_2px_rgba(15,23,42,0.04)] ring-1 ring-slate-200/70 sm:p-7"
                 >
-                    <div className="space-y-2">
+                    <div className="space-y-2.5">
                         <RequiredLabel htmlFor="name" required>
                             Nama Jabatan
                         </RequiredLabel>
@@ -83,7 +83,7 @@ export default function PositionForm({ position }: Props) {
                     </div>
 
                     <div className="grid gap-4 sm:grid-cols-2">
-                        <div className="space-y-2">
+                        <div className="space-y-2.5">
                             <RequiredLabel htmlFor="division">Divisi</RequiredLabel>
                             <Input
                                 id="division"
@@ -93,7 +93,7 @@ export default function PositionForm({ position }: Props) {
                             />
                             <FieldError message={form.errors.division} />
                         </div>
-                        <div className="space-y-2">
+                        <div className="space-y-2.5">
                             <RequiredLabel htmlFor="branch">Cabang</RequiredLabel>
                             <Input
                                 id="branch"
@@ -105,7 +105,7 @@ export default function PositionForm({ position }: Props) {
                         </div>
                     </div>
 
-                    <div className="space-y-2">
+                    <div className="space-y-2.5">
                         <RequiredLabel htmlFor="description">Deskripsi</RequiredLabel>
                         <Textarea
                             id="description"

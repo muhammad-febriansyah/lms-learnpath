@@ -1,11 +1,17 @@
 import { Head, Link, router } from '@inertiajs/react';
 import {
+    AlertTriangle,
     Award,
     BookOpen,
+    Building2,
+    CalendarClock,
     CheckCircle2,
     Clock,
     Download,
     Filter,
+    MessageSquare,
+    Sparkles,
+    Target,
     TrendingUp,
     UserCheck,
     Users,
@@ -54,6 +60,33 @@ type PositionRow = {
     completion_rate: number;
 };
 
+type DivisionRow = {
+    division: string;
+    members: number;
+    enrollments: number;
+    completed: number;
+    completion_rate: number;
+};
+
+type OnTimeStatus = {
+    on_time_completed: number;
+    overdue_active: number;
+    due_soon_active: number;
+    no_due_active: number;
+};
+
+type SkillGapRow = {
+    competency: string;
+    affected_employees: number;
+    avg_gap: number;
+};
+
+type AiTutorUsage = {
+    threads: number;
+    messages: number;
+    active_users: number;
+};
+
 type Props = {
     organization: { id: number; name: string };
     filters: { from: string; to: string; preset: string };
@@ -61,6 +94,10 @@ type Props = {
     weeklyTrend: WeekPoint[];
     topCourses: CourseRow[];
     positionBreakdown: PositionRow[];
+    divisionBreakdown: DivisionRow[];
+    onTimeStatus: OnTimeStatus;
+    topSkillGaps: SkillGapRow[];
+    aiTutorUsage: AiTutorUsage;
 };
 
 const PRESET_OPTIONS = [
@@ -78,6 +115,10 @@ export default function ReportsIndex({
     weeklyTrend,
     topCourses,
     positionBreakdown,
+    divisionBreakdown,
+    onTimeStatus,
+    topSkillGaps,
+    aiTutorUsage,
 }: Props) {
     const [from, setFrom] = useState(filters.from);
     const [to, setTo] = useState(filters.to);
@@ -185,6 +226,38 @@ export default function ReportsIndex({
                             </Button>
                         </>
                     )}
+                </div>
+
+                {/* On-time / due / overdue status (uses due_at) */}
+                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                    <KpiCard
+                        label="Selesai On-Time"
+                        value={onTimeStatus.on_time_completed}
+                        sub="course selesai sebelum deadline"
+                        icon={<CheckCircle2 className="size-4" />}
+                        tone="emerald"
+                    />
+                    <KpiCard
+                        label="Overdue Aktif"
+                        value={onTimeStatus.overdue_active}
+                        sub="lewat deadline & belum selesai"
+                        icon={<AlertTriangle className="size-4" />}
+                        tone="rose"
+                    />
+                    <KpiCard
+                        label="Jatuh Tempo 7 Hari"
+                        value={onTimeStatus.due_soon_active}
+                        sub="deadline minggu ini"
+                        icon={<CalendarClock className="size-4" />}
+                        tone="amber"
+                    />
+                    <KpiCard
+                        label="Tanpa Deadline"
+                        value={onTimeStatus.no_due_active}
+                        sub="enrollment tanpa due_at"
+                        icon={<Clock className="size-4" />}
+                        tone="slate"
+                    />
                 </div>
 
                 {/* KPI cards */}
@@ -329,8 +402,142 @@ export default function ReportsIndex({
                         </div>
                     )}
                 </Card>
+
+                {/* Division breakdown */}
+                <Card
+                    title="Performa per Divisi"
+                    icon={<Building2 className="size-4" />}
+                >
+                    {divisionBreakdown.length === 0 ? (
+                        <p className="py-6 text-center text-[13px] text-slate-500">
+                            Belum ada data per divisi.
+                        </p>
+                    ) : (
+                        <div className="overflow-x-auto">
+                            <table className="min-w-full text-[13px]">
+                                <thead>
+                                    <tr className="border-b border-slate-200 text-left text-[11.5px] font-bold tracking-wider text-slate-500 uppercase">
+                                        <th className="py-2.5">Divisi</th>
+                                        <th className="py-2.5 text-right">Anggota</th>
+                                        <th className="py-2.5 text-right">Enrollment</th>
+                                        <th className="py-2.5 text-right">Selesai</th>
+                                        <th className="py-2.5 text-right">Completion %</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {divisionBreakdown.map((d) => (
+                                        <tr
+                                            key={d.division}
+                                            className="border-b border-slate-100"
+                                        >
+                                            <td className="py-2.5 font-semibold text-slate-900">
+                                                {d.division}
+                                            </td>
+                                            <td className="py-2.5 text-right tabular-nums text-slate-600">
+                                                {d.members}
+                                            </td>
+                                            <td className="py-2.5 text-right font-semibold tabular-nums">
+                                                {d.enrollments}
+                                            </td>
+                                            <td className="py-2.5 text-right tabular-nums text-slate-600">
+                                                {d.completed}
+                                            </td>
+                                            <td className="py-2.5 text-right">
+                                                <CompletionPill
+                                                    rate={d.completion_rate}
+                                                />
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    )}
+                </Card>
+
+                <div className="grid gap-3 lg:grid-cols-2">
+                    <Card
+                        title="Top Skill Gap (kritis)"
+                        icon={<Target className="size-4" />}
+                    >
+                        {topSkillGaps.length === 0 ? (
+                            <p className="py-6 text-center text-[13px] text-slate-500">
+                                Belum ada skill gap kritis.
+                            </p>
+                        ) : (
+                            <ul className="divide-y divide-slate-100">
+                                {topSkillGaps.map((g) => (
+                                    <li
+                                        key={g.competency}
+                                        className="flex items-center justify-between gap-3 py-2.5"
+                                    >
+                                        <div className="min-w-0">
+                                            <div className="truncate text-[13px] font-semibold text-slate-900">
+                                                {g.competency}
+                                            </div>
+                                            <div className="text-[11px] text-slate-500">
+                                                Rata-rata gap: {g.avg_gap}
+                                            </div>
+                                        </div>
+                                        <Badge className="border-transparent bg-rose-50 text-rose-700 hover:bg-rose-50">
+                                            {g.affected_employees} karyawan
+                                        </Badge>
+                                    </li>
+                                ))}
+                            </ul>
+                        )}
+                    </Card>
+
+                    <Card
+                        title="Pemakaian AI Tutor"
+                        icon={<Sparkles className="size-4 text-brand-600" />}
+                    >
+                        <div className="grid grid-cols-3 gap-3">
+                            <MiniStat
+                                label="Thread"
+                                value={aiTutorUsage.threads}
+                                icon={<MessageSquare className="size-4" />}
+                            />
+                            <MiniStat
+                                label="Pesan"
+                                value={aiTutorUsage.messages}
+                                icon={<MessageSquare className="size-4" />}
+                            />
+                            <MiniStat
+                                label="Pengguna Aktif"
+                                value={aiTutorUsage.active_users}
+                                icon={<UserCheck className="size-4" />}
+                            />
+                        </div>
+                        <p className="mt-3 text-[11.5px] text-slate-500">
+                            Total interaksi Tutor di periode terpilih oleh anggota organisasi.
+                        </p>
+                    </Card>
+                </div>
             </div>
         </>
+    );
+}
+
+function MiniStat({
+    label,
+    value,
+    icon,
+}: {
+    label: string;
+    value: number;
+    icon: React.ReactNode;
+}) {
+    return (
+        <div className="rounded-xl bg-slate-50 p-3">
+            <div className="inline-flex items-center gap-1.5 text-[10.5px] font-bold uppercase tracking-wide text-slate-500">
+                {icon}
+                {label}
+            </div>
+            <div className="mt-1 text-xl font-extrabold text-slate-900 tabular-nums">
+                {value.toLocaleString('id-ID')}
+            </div>
+        </div>
     );
 }
 

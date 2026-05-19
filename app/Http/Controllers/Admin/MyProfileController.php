@@ -25,7 +25,7 @@ class MyProfileController extends Controller
                 'name' => $user->name,
                 'email' => $user->email,
                 'phone' => $user->phone,
-                'avatar' => $user->avatar,
+                'avatar' => $user->avatar_url,
                 'profile' => $user->instructorProfile ?? [
                     'headline' => null,
                     'bio' => null,

@@ -18,6 +18,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
     'actual_level',
     'gap',
     'recommendation',
+    'ai_recommendation',
+    'ai_recommended_at',
     'status',
     'calculated_at',
 ])]
@@ -33,6 +35,8 @@ class SkillGap extends Model
             'actual_level' => 'integer',
             'gap' => 'integer',
             'calculated_at' => 'datetime',
+            'ai_recommendation' => 'array',
+            'ai_recommended_at' => 'datetime',
         ];
     }
 

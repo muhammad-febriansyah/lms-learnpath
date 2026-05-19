@@ -3,9 +3,12 @@
 namespace App\Services\Reporting;
 
 use App\Models\Certificate;
+use App\Models\ChatMessage;
+use App\Models\ChatThread;
 use App\Models\Enrollment;
 use App\Models\LessonProgress;
 use App\Models\Organization;
+use App\Models\SkillGap;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 
@@ -264,6 +267,157 @@ class OrgReportAggregator
             'certificates' => (int) $row->certificates,
             'last_active_at' => $row->last_active_at,
         ])->all();
+    }
+
+    /**
+     * On-time vs overdue counts. Independent of the date window:
+     * `due_at` is forward-looking, not historical.
+     *
+     * @return array{on_time_completed:int, overdue_active:int, due_soon_active:int, no_due_active:int}
+     */
+    public function onTimeStatus(Organization $org): array
+    {
+        $memberIds = $this->memberIds($org);
+        $now = Carbon::now();
+        $soonCutoff = $now->copy()->addDays(7);
+
+        $onTimeCompleted = Enrollment::query()
+            ->whereIn('user_id', $memberIds)
+            ->where('status', 'completed')
+            ->whereNotNull('due_at')
+            ->whereNotNull('completed_at')
+            ->whereColumn('completed_at', '<=', 'due_at')
+            ->count();
+
+        $overdueActive = Enrollment::query()
+            ->whereIn('user_id', $memberIds)
+            ->whereIn('status', ['active', 'in_progress'])
+            ->whereNotNull('due_at')
+            ->where('due_at', '<', $now)
+            ->count();
+
+        $dueSoonActive = Enrollment::query()
+            ->whereIn('user_id', $memberIds)
+            ->whereIn('status', ['active', 'in_progress'])
+            ->whereNotNull('due_at')
+            ->whereBetween('due_at', [$now, $soonCutoff])
+            ->count();
+
+        $noDueActive = Enrollment::query()
+            ->whereIn('user_id', $memberIds)
+            ->whereIn('status', ['active', 'in_progress'])
+            ->whereNull('due_at')
+            ->count();
+
+        return [
+            'on_time_completed' => $onTimeCompleted,
+            'overdue_active' => $overdueActive,
+            'due_soon_active' => $dueSoonActive,
+            'no_due_active' => $noDueActive,
+        ];
+    }
+
+    /**
+     * Per-division breakdown — mirror of positionBreakdown.
+     *
+     * @return array<int, array{
+     *   division: string,
+     *   members: int,
+     *   enrollments: int,
+     *   completed: int,
+     *   completion_rate: int
+     * }>
+     */
+    public function divisionBreakdown(Organization $org, Carbon $from, Carbon $to): array
+    {
+        $memberIds = $this->memberIds($org);
+
+        $rows = Enrollment::query()
+            ->select('employee_profiles.division as division')
+            ->selectRaw('COUNT(DISTINCT enrollments.user_id) as members')
+            ->selectRaw('COUNT(*) as enrollments')
+            ->selectRaw('SUM(CASE WHEN enrollments.status = "completed" THEN 1 ELSE 0 END) as completed')
+            ->leftJoin('employee_profiles', 'employee_profiles.user_id', '=', 'enrollments.user_id')
+            ->whereIn('enrollments.user_id', $memberIds)
+            ->whereBetween('enrollments.enrolled_at', [$from, $to])
+            ->groupBy('employee_profiles.division')
+            ->orderByDesc('enrollments')
+            ->get();
+
+        return $rows->map(fn ($row) => [
+            'division' => $row->division ?? '(Tanpa divisi)',
+            'members' => (int) $row->members,
+            'enrollments' => (int) $row->enrollments,
+            'completed' => (int) $row->completed,
+            'completion_rate' => $row->enrollments > 0
+                ? (int) round(((int) $row->completed / (int) $row->enrollments) * 100)
+                : 0,
+        ])->all();
+    }
+
+    /**
+     * Top skill gaps within the org by number of affected employees (gap >= 2).
+     *
+     * @return array<int, array{
+     *   competency: string,
+     *   affected_employees: int,
+     *   avg_gap: float
+     * }>
+     */
+    public function topSkillGaps(Organization $org, int $limit = 5): array
+    {
+        $memberIds = $this->memberIds($org);
+
+        $rows = SkillGap::query()
+            ->select('competencies.name as competency_name')
+            ->selectRaw('COUNT(DISTINCT skill_gaps.user_id) as affected_employees')
+            ->selectRaw('AVG(skill_gaps.gap) as avg_gap')
+            ->join('competencies', 'competencies.id', '=', 'skill_gaps.competency_id')
+            ->whereIn('skill_gaps.user_id', $memberIds)
+            ->where('skill_gaps.gap', '>=', 2)
+            ->groupBy('competencies.id', 'competencies.name')
+            ->orderByDesc('affected_employees')
+            ->orderByDesc('avg_gap')
+            ->limit($limit)
+            ->get();
+
+        return $rows->map(fn ($row) => [
+            'competency' => (string) $row->competency_name,
+            'affected_employees' => (int) $row->affected_employees,
+            'avg_gap' => round((float) $row->avg_gap, 1),
+        ])->all();
+    }
+
+    /**
+     * AI Tutor usage for the window: threads opened, messages sent.
+     *
+     * @return array{threads:int, messages:int, active_users:int}
+     */
+    public function aiTutorUsage(Organization $org, Carbon $from, Carbon $to): array
+    {
+        $memberIds = $this->memberIds($org);
+
+        $threads = ChatThread::query()
+            ->whereIn('user_id', $memberIds)
+            ->whereBetween('created_at', [$from, $to])
+            ->count();
+
+        $messages = ChatMessage::query()
+            ->whereHas('thread', fn ($q) => $q->whereIn('user_id', $memberIds))
+            ->whereBetween('created_at', [$from, $to])
+            ->count();
+
+        $activeUsers = ChatThread::query()
+            ->whereIn('user_id', $memberIds)
+            ->whereBetween('last_message_at', [$from, $to])
+            ->distinct('user_id')
+            ->count('user_id');
+
+        return [
+            'threads' => $threads,
+            'messages' => $messages,
+            'active_users' => $activeUsers,
+        ];
     }
 
     private function memberIds(Organization $org): Collection

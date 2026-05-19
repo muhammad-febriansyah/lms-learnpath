@@ -4,16 +4,28 @@ import { TooltipProvider } from '@/components/ui/tooltip';
 import { initializeTheme } from '@/hooks/use-appearance';
 import AppLayout from '@/layouts/app-layout';
 import AuthLayout from '@/layouts/auth-layout';
+import FrontLayout from '@/layouts/front/front-layout';
 import SettingsLayout from '@/layouts/settings/layout';
 
-const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
+const appName =
+    (typeof document !== 'undefined'
+        ? document
+              .querySelector('meta[name="application-name"]')
+              ?.getAttribute('content')
+              ?.trim()
+        : null) ||
+    import.meta.env.VITE_APP_NAME ||
+    'LearnPath';
 
 createInertiaApp({
     title: (title) => (title ? `${title} - ${appName}` : appName),
     layout: (name) => {
         switch (true) {
-            case name === 'welcome':
+            case name.startsWith('errors/'):
                 return null;
+            case name.startsWith('front/'):
+            case name.startsWith('public/'):
+                return FrontLayout;
             case name.startsWith('auth/'):
                 return AuthLayout;
             case name.startsWith('settings/'):

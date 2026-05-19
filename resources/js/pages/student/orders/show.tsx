@@ -1,8 +1,10 @@
 import { Head, Link, router, useForm, usePage } from '@inertiajs/react';
 import {
     ArrowRight,
+    Check,
     CheckCircle2,
     Clock,
+    Copy,
     CreditCard,
     ExternalLink,
     Receipt,
@@ -310,6 +312,7 @@ function PaymentInstruction({
     const flashUrl = usePage<{ flash?: { payment_url?: string } }>().props.flash
         ?.payment_url;
     const url = flashUrl ?? payment.payment_url;
+    const [copied, setCopied] = useState(false);
 
     useEffect(() => {
         const timer = setInterval(() => {
@@ -319,15 +322,28 @@ function PaymentInstruction({
         return () => clearInterval(timer);
     }, []);
 
+    const copy = async () => {
+        if (!payment.payment_number) return;
+        try {
+            await navigator.clipboard.writeText(payment.payment_number);
+            setCopied(true);
+            setTimeout(() => setCopied(false), 1500);
+        } catch {
+            // clipboard may be blocked in some browsers
+        }
+    };
+
+    const isQris = payment.payment_method?.toLowerCase() === 'qris';
+
     return (
-        <div className="rounded-2xl bg-card p-5 ring-1 ring-slate-200/70">
+        <div className="overflow-hidden rounded-2xl bg-card p-5 ring-1 ring-slate-200/70">
             <h2 className="mb-3 text-[15px] font-bold text-slate-900">
                 Instruksi Pembayaran
             </h2>
             <div className="space-y-3">
                 <div className="flex items-center gap-3 rounded-xl bg-brand-50/60 p-3">
                     <CreditCard className="size-5 text-brand-600" />
-                    <div className="flex-1">
+                    <div className="min-w-0 flex-1">
                         <div className="text-[12px] tracking-wider text-slate-500 uppercase">
                             Metode
                         </div>
@@ -338,12 +354,50 @@ function PaymentInstruction({
                 </div>
                 {payment.payment_number && (
                     <div className="rounded-xl bg-slate-50 p-4">
-                        <div className="text-[11px] tracking-wider text-slate-500 uppercase">
-                            Nomor / Kode
+                        <div className="flex items-center justify-between gap-2">
+                            <div className="text-[11px] tracking-wider text-slate-500 uppercase">
+                                {isQris ? 'Kode QRIS' : 'Nomor / Kode'}
+                            </div>
+                            <button
+                                type="button"
+                                onClick={copy}
+                                className={
+                                    'inline-flex items-center gap-1 rounded-md px-2 py-1 text-[11px] font-semibold transition ' +
+                                    (copied
+                                        ? 'bg-emerald-50 text-emerald-700'
+                                        : 'bg-white text-slate-600 ring-1 ring-slate-200 hover:bg-slate-100')
+                                }
+                                title="Salin kode"
+                            >
+                                {copied ? (
+                                    <>
+                                        <Check className="size-3" />
+                                        Tersalin
+                                    </>
+                                ) : (
+                                    <>
+                                        <Copy className="size-3" />
+                                        Salin
+                                    </>
+                                )}
+                            </button>
                         </div>
-                        <div className="mt-1 font-mono text-[16px] font-bold text-slate-900">
+                        <div
+                            className={
+                                'mt-1.5 font-mono font-bold text-slate-900 break-all ' +
+                                ((payment.payment_number?.length ?? 0) > 24
+                                    ? 'text-[12px] leading-relaxed'
+                                    : 'text-[16px]')
+                            }
+                        >
                             {payment.payment_number}
                         </div>
+                        {isQris && (
+                            <p className="mt-2 text-[11.5px] text-slate-500">
+                                Scan QRIS via aplikasi e-wallet / mobile banking.
+                                Kode ini dapat juga di-copy untuk pembayaran manual.
+                            </p>
+                        )}
                     </div>
                 )}
                 <div className="rounded-xl bg-slate-50 p-4">

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Public;
 use App\Http\Controllers\Controller;
 use App\Models\LearningPath;
 use App\Models\LearningPathEnrollment;
+use App\Support\PointOfferPresenter;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -28,7 +29,7 @@ class LearningPathCatalogController extends Controller
             })
             ->orderByDesc('total_students')
             ->orderByDesc('id')
-            ->paginate(12)
+            ->paginate(9)
             ->withQueryString();
 
         return Inertia::render('public/paths/index', [
@@ -84,6 +85,9 @@ class LearningPathCatalogController extends Controller
                 'total_courses' => $path->total_courses ?: $path->courses->count(),
                 'total_students' => $path->total_students,
                 'enrollments_count' => $path->enrollments_count,
+                'price' => (int) $path->price,
+                'compare_at_price' => $path->compare_at_price,
+                'savings' => $path->savings(),
                 'position' => $path->position ? [
                     'id' => $path->position->id,
                     'name' => $path->position->name,
@@ -111,6 +115,7 @@ class LearningPathCatalogController extends Controller
                 'completed_at' => $userEnrollment->completed_at?->toIso8601String(),
             ] : null,
             'courseProgress' => $courseProgress,
+            'pointOffer' => PointOfferPresenter::for($path, $request->user()),
         ]);
     }
 }

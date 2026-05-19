@@ -166,11 +166,11 @@ export default function CompetenciesIndex({ competencies, filters, categoryOptio
                             Dashboard
                         </Link>
                         <IconChevR size={12} className="text-slate-300" />
-                        <span className="font-semibold text-slate-900">Master Kompetensi</span>
+                        <span className="font-semibold text-slate-900">Kompetensi</span>
                     </nav>
                     <div className="mt-1.5 flex flex-wrap items-center justify-between gap-3">
                         <h1 className="text-2xl font-extrabold tracking-tight text-slate-900">
-                            Master Kompetensi
+                            Kompetensi
                         </h1>
                         <Button asChild className="rounded-xl bg-brand-600 hover:bg-brand-700">
                             <Link href="/admin/competencies/create">

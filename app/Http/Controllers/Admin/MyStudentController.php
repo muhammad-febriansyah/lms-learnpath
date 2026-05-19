@@ -22,7 +22,7 @@ class MyStudentController extends Controller
 
         $enrollments = Enrollment::query()
             ->with([
-                'user:id,name,email,avatar',
+                'user:id,name,email,avatar_path',
                 'course:id,title,slug',
             ])
             ->whereIn('course_id', $myCourseIds)

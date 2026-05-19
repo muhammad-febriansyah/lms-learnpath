@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Public;
 use App\Http\Controllers\Controller;
 use App\Models\Bundle;
 use App\Models\Course;
+use App\Support\PointOfferPresenter;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -43,7 +44,7 @@ class BundleCatalogController extends Controller
         ]);
     }
 
-    public function show(Bundle $bundle): Response
+    public function show(Request $request, Bundle $bundle): Response
     {
         abort_unless($bundle->is_published, 404);
 
@@ -73,6 +74,7 @@ class BundleCatalogController extends Controller
                     'average_rating' => (float) $c->average_rating,
                 ])->all(),
             ],
+            'pointOffer' => PointOfferPresenter::for($bundle, $request->user()),
         ]);
     }
 }

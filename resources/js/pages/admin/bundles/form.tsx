@@ -3,6 +3,7 @@ import { ArrowLeft, ChevronDown, ChevronUp, Save, X } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 
 import { FieldError } from '@/components/form/field-error';
+import { RupiahInput } from '@/components/form/rupiah-input';
 import { RequiredLabel } from '@/components/form/required-label';
 import { IconChevR } from '@/components/learnpath-icons';
 import { Badge } from '@/components/ui/badge';
@@ -167,7 +168,7 @@ export default function BundleForm({ bundle, courses }: Props) {
 
                 <form
                     onSubmit={submit}
-                    className="space-y-5 rounded-2xl bg-card p-5 shadow-[0_1px_2px_rgba(15,23,42,0.04)] ring-1 ring-slate-200/70 sm:p-6"
+                    className="space-y-7 rounded-2xl bg-card p-6 shadow-[0_1px_2px_rgba(15,23,42,0.04)] ring-1 ring-slate-200/70 sm:p-7"
                 >
                     <div className="grid gap-4 sm:grid-cols-2">
                         <div className="space-y-2 sm:col-span-2">
@@ -211,41 +212,29 @@ export default function BundleForm({ bundle, courses }: Props) {
                             <FieldError message={form.errors.description} />
                         </div>
 
-                        <div className="space-y-2">
+                        <div className="space-y-2.5">
                             <RequiredLabel htmlFor="price" required>
                                 Harga Paket (Rp)
                             </RequiredLabel>
-                            <Input
+                            <RupiahInput
                                 id="price"
-                                type="number"
-                                min={0}
                                 value={form.data.price}
-                                onChange={(e) =>
-                                    form.setData(
-                                        'price',
-                                        e.target.value === '' ? '' : Number(e.target.value),
-                                    )
-                                }
+                                onChange={(value) => form.setData('price', value)}
+                                onClear={() => form.setData('price', '')}
                             />
                             <FieldError message={form.errors.price} />
                         </div>
 
-                        <div className="space-y-2">
+                        <div className="space-y-2.5">
                             <RequiredLabel htmlFor="compare_at_price">
                                 Harga Normal (Rp)
                             </RequiredLabel>
-                            <Input
+                            <RupiahInput
                                 id="compare_at_price"
-                                type="number"
-                                min={0}
                                 placeholder="Opsional, untuk tampilan 'coret'"
                                 value={form.data.compare_at_price}
-                                onChange={(e) =>
-                                    form.setData(
-                                        'compare_at_price',
-                                        e.target.value === '' ? '' : Number(e.target.value),
-                                    )
-                                }
+                                onChange={(value) => form.setData('compare_at_price', value)}
+                                onClear={() => form.setData('compare_at_price', '')}
                             />
                             <p className="text-[11.5px] text-slate-500">
                                 Total kursus jika dibeli terpisah: {formatRupiah(totalCourseValue)}

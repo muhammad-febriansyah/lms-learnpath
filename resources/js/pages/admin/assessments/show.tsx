@@ -2,10 +2,12 @@ import { Head, Link, router, useForm } from '@inertiajs/react';
 import {
     CheckCircle2,
     ClipboardCheck,
+    Loader2,
     Pencil,
     Plus,
     Save,
     Settings,
+    Sparkles,
     Trash2,
     X,
 } from 'lucide-react';
@@ -25,6 +27,13 @@ import {
     DialogTitle,
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
 
@@ -58,7 +67,9 @@ type Assessment = {
     questions: Question[];
 };
 
-type Props = { assessment: Assessment };
+type LessonOption = { id: number; title: string };
+
+type Props = { assessment: Assessment; lessons: LessonOption[] };
 
 const TYPE_LABEL: Record<string, string> = {
     pre_test: 'Pre-Test',
@@ -93,7 +104,8 @@ function emptyEditor(): EditorState {
     };
 }
 
-export default function AssessmentShow({ assessment }: Props) {
+export default function AssessmentShow({ assessment, lessons }: Props) {
+    const [aiOpen, setAiOpen] = useState(false);
     const [editingId, setEditingId] = useState<number | 'new' | null>(null);
     const [removeId, setRemoveId] = useState<number | null>(null);
     const [removeAssessment, setRemoveAssessment] = useState(false);
@@ -194,14 +206,25 @@ export default function AssessmentShow({ assessment }: Props) {
                                 Soal pilihan ganda. Setidaknya satu opsi harus benar.
                             </p>
                         </div>
-                        <Button
-                            size="sm"
-                            className="rounded-xl bg-brand-600 hover:bg-brand-700"
-                            onClick={handleNewQuestion}
-                        >
-                            <Plus className="mr-1.5 size-4" />
-                            Tambah Soal
-                        </Button>
+                        <div className="flex items-center gap-2">
+                            <Button
+                                size="sm"
+                                variant="outline"
+                                className="rounded-xl border-brand-200 text-brand-700 hover:bg-brand-50"
+                                onClick={() => setAiOpen(true)}
+                            >
+                                <Sparkles className="mr-1.5 size-4" />
+                                Generate dengan AI
+                            </Button>
+                            <Button
+                                size="sm"
+                                className="rounded-xl bg-brand-600 hover:bg-brand-700"
+                                onClick={handleNewQuestion}
+                            >
+                                <Plus className="mr-1.5 size-4" />
+                                Tambah Soal
+                            </Button>
+                        </div>
                     </div>
 
                     {assessment.questions.length === 0 ? (
@@ -295,6 +318,14 @@ export default function AssessmentShow({ assessment }: Props) {
                             : assessment.questions.find((q) => q.id === editingId) ?? null
                     }
                     onClose={handleClose}
+                />
+            )}
+
+            {aiOpen && (
+                <AiGenerateDialog
+                    assessmentId={assessment.id}
+                    lessons={lessons}
+                    onClose={() => setAiOpen(false)}
                 />
             )}
 
@@ -551,5 +582,355 @@ function Stat({ label, value }: { label: string; value: string }) {
                 {value}
             </div>
         </div>
+    );
+}
+
+type DraftQuestion = {
+    question_text: string;
+    points: number;
+    options: { option_text: string; is_correct: boolean }[];
+};
+
+function AiGenerateDialog({
+    assessmentId,
+    lessons,
+    onClose,
+}: {
+    assessmentId: number;
+    lessons: LessonOption[];
+    onClose: () => void;
+}) {
+    const [lessonId, setLessonId] = useState<string>('__none__');
+    const [count, setCount] = useState(5);
+    const [difficulty, setDifficulty] = useState<'easy' | 'medium' | 'hard'>('medium');
+    const [extraContext, setExtraContext] = useState('');
+    const [drafts, setDrafts] = useState<DraftQuestion[] | null>(null);
+    const [generating, setGenerating] = useState(false);
+    const [saving, setSaving] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+
+    async function generate() {
+        setError(null);
+        setGenerating(true);
+        try {
+            const match = document.cookie.match(/(?:^|;\s*)XSRF-TOKEN=([^;]+)/);
+            const xsrf = match ? decodeURIComponent(match[1]) : '';
+            const res = await fetch(
+                `/admin/assessments/${assessmentId}/generate-questions`,
+                {
+                    method: 'POST',
+                    credentials: 'same-origin',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Accept: 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-XSRF-TOKEN': xsrf,
+                    },
+                    body: JSON.stringify({
+                        lesson_id: lessonId === '__none__' ? null : Number(lessonId),
+                        extra_context: extraContext,
+                        count,
+                        difficulty,
+                    }),
+                },
+            );
+            const json = await res.json();
+            if (!res.ok) {
+                setError(json.message ?? 'Generate gagal.');
+                return;
+            }
+            const items: DraftQuestion[] = (json.questions ?? []).map(
+                (q: {
+                    question: string;
+                    options: string[];
+                    correct_index: number;
+                }) => ({
+                    question_text: q.question,
+                    points: 1,
+                    options: q.options.map((text: string, i: number) => ({
+                        option_text: text,
+                        is_correct: i === q.correct_index,
+                    })),
+                }),
+            );
+            setDrafts(items);
+        } catch (e: unknown) {
+            setError((e as Error).message ?? 'Network error.');
+        } finally {
+            setGenerating(false);
+        }
+    }
+
+    function saveAll() {
+        if (!drafts) return;
+        setSaving(true);
+        router.post(
+            `/admin/assessments/${assessmentId}/questions/bulk`,
+            { questions: drafts },
+            {
+                onSuccess: () => onClose(),
+                onFinish: () => setSaving(false),
+            },
+        );
+    }
+
+    function updateDraft(idx: number, partial: Partial<DraftQuestion>) {
+        setDrafts((d) => {
+            if (!d) return d;
+            const copy = [...d];
+            copy[idx] = { ...copy[idx], ...partial };
+            return copy;
+        });
+    }
+
+    function updateOption(
+        qi: number,
+        oi: number,
+        partial: Partial<{ option_text: string; is_correct: boolean }>,
+    ) {
+        setDrafts((d) => {
+            if (!d) return d;
+            const copy = [...d];
+            const opts = copy[qi].options.map((o, i) => {
+                if (i === oi) {
+                    return { ...o, ...partial };
+                }
+                if (partial.is_correct === true) {
+                    return { ...o, is_correct: false };
+                }
+                return o;
+            });
+            copy[qi] = { ...copy[qi], options: opts };
+            return copy;
+        });
+    }
+
+    function removeDraft(idx: number) {
+        setDrafts((d) => (d ? d.filter((_, i) => i !== idx) : d));
+    }
+
+    return (
+        <Dialog open={true} onOpenChange={(open) => !open && onClose()}>
+            <DialogContent className="max-w-3xl">
+                <DialogHeader>
+                    <DialogTitle className="inline-flex items-center gap-2">
+                        <Sparkles className="size-5 text-brand-600" />
+                        Generate Soal dengan AI
+                    </DialogTitle>
+                    <DialogDescription>
+                        Pilih lesson sumber atau paste materi tambahan. AI akan
+                        membuatkan soal pilihan ganda yang bisa Anda edit sebelum
+                        disimpan.
+                    </DialogDescription>
+                </DialogHeader>
+
+                {!drafts ? (
+                    <div className="space-y-3">
+                        <div className="grid gap-3 sm:grid-cols-3">
+                            <div className="sm:col-span-1">
+                                <RequiredLabel>Lesson sumber</RequiredLabel>
+                                <Select
+                                    value={lessonId}
+                                    onValueChange={setLessonId}
+                                >
+                                    <SelectTrigger>
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="__none__">
+                                            (tanpa lesson)
+                                        </SelectItem>
+                                        {lessons.map((l) => (
+                                            <SelectItem
+                                                key={l.id}
+                                                value={String(l.id)}
+                                            >
+                                                {l.title}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <div>
+                                <RequiredLabel>Jumlah soal</RequiredLabel>
+                                <Select
+                                    value={String(count)}
+                                    onValueChange={(v) => setCount(Number(v))}
+                                >
+                                    <SelectTrigger>
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {[3, 5, 7, 10].map((n) => (
+                                            <SelectItem key={n} value={String(n)}>
+                                                {n} soal
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <div>
+                                <RequiredLabel>Tingkat kesulitan</RequiredLabel>
+                                <Select
+                                    value={difficulty}
+                                    onValueChange={(v) =>
+                                        setDifficulty(v as 'easy' | 'medium' | 'hard')
+                                    }
+                                >
+                                    <SelectTrigger>
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="easy">Mudah</SelectItem>
+                                        <SelectItem value="medium">Sedang</SelectItem>
+                                        <SelectItem value="hard">Sulit</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                        </div>
+                        <div>
+                            <RequiredLabel>Konteks tambahan (opsional)</RequiredLabel>
+                            <Textarea
+                                rows={4}
+                                placeholder="Paste materi tambahan, ringkasan, atau panduan khusus untuk AI…"
+                                value={extraContext}
+                                onChange={(e) => setExtraContext(e.target.value)}
+                            />
+                        </div>
+
+                        {error && (
+                            <p className="rounded-xl bg-rose-50 p-3 text-[12.5px] text-rose-700 ring-1 ring-rose-200/60">
+                                {error}
+                            </p>
+                        )}
+
+                        <DialogFooter>
+                            <Button variant="outline" onClick={onClose}>
+                                Batal
+                            </Button>
+                            <Button
+                                onClick={generate}
+                                disabled={generating}
+                                className="bg-brand-600 hover:bg-brand-700"
+                            >
+                                {generating ? (
+                                    <>
+                                        <Loader2 className="mr-1.5 size-4 animate-spin" />
+                                        Generating…
+                                    </>
+                                ) : (
+                                    <>
+                                        <Sparkles className="mr-1.5 size-4" />
+                                        Generate Soal
+                                    </>
+                                )}
+                            </Button>
+                        </DialogFooter>
+                    </div>
+                ) : (
+                    <div className="space-y-3">
+                        <div className="flex items-center justify-between">
+                            <p className="text-[12.5px] text-slate-500">
+                                {drafts.length} soal di-generate. Edit kalau perlu lalu
+                                klik "Simpan ke Assessment".
+                            </p>
+                            <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => setDrafts(null)}
+                            >
+                                Generate ulang
+                            </Button>
+                        </div>
+
+                        <div className="max-h-[420px] space-y-3 overflow-y-auto">
+                            {drafts.map((d, qi) => (
+                                <div
+                                    key={qi}
+                                    className="rounded-xl bg-slate-50 p-3 ring-1 ring-slate-200"
+                                >
+                                    <div className="mb-2 flex items-start gap-2">
+                                        <span className="grid size-6 shrink-0 place-items-center rounded-full bg-brand-600 text-[11px] font-bold text-white">
+                                            {qi + 1}
+                                        </span>
+                                        <Textarea
+                                            rows={2}
+                                            value={d.question_text}
+                                            onChange={(e) =>
+                                                updateDraft(qi, {
+                                                    question_text: e.target.value,
+                                                })
+                                            }
+                                            className="flex-1"
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={() => removeDraft(qi)}
+                                            className="p-1.5 text-slate-400 hover:text-rose-600"
+                                            aria-label="Hapus"
+                                        >
+                                            <X className="size-4" />
+                                        </button>
+                                    </div>
+                                    <ul className="space-y-1.5 pl-8">
+                                        {d.options.map((o, oi) => (
+                                            <li
+                                                key={oi}
+                                                className="flex items-center gap-2"
+                                            >
+                                                <input
+                                                    type="radio"
+                                                    name={`correct-${qi}`}
+                                                    checked={o.is_correct}
+                                                    onChange={() =>
+                                                        updateOption(qi, oi, {
+                                                            is_correct: true,
+                                                        })
+                                                    }
+                                                    className="size-3.5"
+                                                />
+                                                <input
+                                                    value={o.option_text}
+                                                    onChange={(e) =>
+                                                        updateOption(qi, oi, {
+                                                            option_text:
+                                                                e.target.value,
+                                                        })
+                                                    }
+                                                    className="flex-1 rounded-md border border-slate-200 bg-white px-2 py-1 text-[12.5px]"
+                                                />
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            ))}
+                        </div>
+
+                        <DialogFooter>
+                            <Button variant="outline" onClick={onClose}>
+                                Batal
+                            </Button>
+                            <Button
+                                onClick={saveAll}
+                                disabled={saving || drafts.length === 0}
+                                className="bg-brand-600 hover:bg-brand-700"
+                            >
+                                {saving ? (
+                                    <>
+                                        <Loader2 className="mr-1.5 size-4 animate-spin" />
+                                        Menyimpan…
+                                    </>
+                                ) : (
+                                    <>
+                                        <Save className="mr-1.5 size-4" />
+                                        Simpan ke Assessment ({drafts.length})
+                                    </>
+                                )}
+                            </Button>
+                        </DialogFooter>
+                    </div>
+                )}
+            </DialogContent>
+        </Dialog>
     );
 }

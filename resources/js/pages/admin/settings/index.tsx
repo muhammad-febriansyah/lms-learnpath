@@ -11,11 +11,13 @@ import {
     Settings,
     ToggleRight,
     Upload,
+    Wallet,
     X,
 } from 'lucide-react';
 import { useMemo, useRef, useState } from 'react';
 
 import { FieldError } from '@/components/form/field-error';
+import { RupiahInput } from '@/components/form/rupiah-input';
 import { RequiredLabel } from '@/components/form/required-label';
 import { IconChevR } from '@/components/learnpath-icons';
 import { Badge } from '@/components/ui/badge';
@@ -84,6 +86,13 @@ const GROUP_META: Record<
         tint: 'bg-emerald-50',
         text: 'text-emerald-600',
     },
+    payout: {
+        label: 'Payout',
+        description: 'Bagi hasil instruktur, fee tarik, dan batas minimum.',
+        icon: Wallet,
+        tint: 'bg-teal-50',
+        text: 'text-teal-600',
+    },
     legal: {
         label: 'Legal',
         description: 'Syarat & ketentuan, privasi, perusahaan.',
@@ -100,8 +109,8 @@ const GROUP_META: Record<
     },
 };
 
-const GROUP_ORDER = ['general', 'seo', 'social', 'payment', 'legal', 'feature'];
-const HIDDEN_GROUPS = ['branding'];
+const GROUP_ORDER = ['general', 'seo', 'social', 'payment', 'payout', 'legal', 'feature'];
+const HIDDEN_GROUPS = ['branding', 'feature'];
 
 export default function SettingsIndex({ groups }: Props) {
     const orderedGroups = useMemo(
@@ -261,12 +270,12 @@ function SettingGroupForm({ group }: { group: SettingGroup }) {
                     </div>
                 </div>
                 <Badge className="border-transparent bg-slate-100 text-slate-600 sm:self-start">
-                    {group.items.length} pengaturan
+                    {group.group === 'legal' ? '2 dokumen' : `${group.items.length} pengaturan`}
                 </Badge>
             </div>
 
             <div className="space-y-5 p-5 sm:p-6">
-                {group.group === 'legal' && (
+                {group.group === 'legal' ? (
                     <div className="grid gap-4 lg:grid-cols-2">
                         <Link
                             href={admin.settings.legal.terms.edit().url}
@@ -292,32 +301,34 @@ function SettingGroupForm({ group }: { group: SettingGroup }) {
                             </p>
                         </Link>
                     </div>
+                ) : (
+                    group.items.map((item) => (
+                        <SettingFieldRenderer
+                            key={item.key}
+                            item={item}
+                            value={form.data.values[item.key] ?? ''}
+                            fileValue={form.data.files[item.key] ?? null}
+                            error={(form.errors as Record<string, string>)[`values.${item.key}`]}
+                            fileError={(form.errors as Record<string, string>)[`files.${item.key}`]}
+                            onChange={(v) => setValue(item.key, v)}
+                            onFileChange={(f) => setFile(item.key, f)}
+                        />
+                    ))
                 )}
-
-                {group.items.map((item) => (
-                    <SettingFieldRenderer
-                        key={item.key}
-                        item={item}
-                        value={form.data.values[item.key] ?? ''}
-                        fileValue={form.data.files[item.key] ?? null}
-                        error={(form.errors as Record<string, string>)[`values.${item.key}`]}
-                        fileError={(form.errors as Record<string, string>)[`files.${item.key}`]}
-                        onChange={(v) => setValue(item.key, v)}
-                        onFileChange={(f) => setFile(item.key, f)}
-                    />
-                ))}
             </div>
 
-            <div className="flex items-center justify-end gap-2 border-t border-slate-100 bg-slate-50/40 p-5 sm:p-6">
-                <Button
-                    type="submit"
-                    disabled={form.processing}
-                    className="rounded-xl bg-brand-600 hover:bg-brand-700"
-                >
-                    <Save className="mr-1.5 size-4" />
-                    {form.processing ? 'Menyimpan...' : 'Simpan Pengaturan'}
-                </Button>
-            </div>
+            {group.group !== 'legal' && (
+                <div className="flex items-center justify-end gap-2 border-t border-slate-100 bg-slate-50/40 p-5 sm:p-6">
+                    <Button
+                        type="submit"
+                        disabled={form.processing}
+                        className="rounded-xl bg-brand-600 hover:bg-brand-700"
+                    >
+                        <Save className="mr-1.5 size-4" />
+                        {form.processing ? 'Menyimpan...' : 'Simpan Pengaturan'}
+                    </Button>
+                </div>
+            )}
         </form>
     );
 }
@@ -339,6 +350,8 @@ function SettingFieldRenderer({
     onChange: (value: string | boolean | null) => void;
     onFileChange: (file: File | null) => void;
 }) {
+    const isRupiahField = item.key === 'payout_min_amount';
+
     if (item.type === 'boolean') {
         return (
             <div className="flex items-center justify-between rounded-xl bg-slate-50/60 p-4">
@@ -386,12 +399,21 @@ function SettingFieldRenderer({
                 />
             )}
             {item.type === 'number' && (
-                <Input
-                    type="number"
-                    placeholder={item.description ?? ''}
-                    value={value === null || value === undefined ? '' : String(value)}
-                    onChange={(e) => onChange(e.target.value)}
-                />
+                isRupiahField ? (
+                    <RupiahInput
+                        value={value === null || value === undefined ? '' : String(value)}
+                        placeholder={item.description ?? 'Contoh: Rp 50.000'}
+                        onChange={(nextValue) => onChange(String(nextValue))}
+                        onClear={() => onChange('')}
+                    />
+                ) : (
+                    <Input
+                        type="number"
+                        placeholder={item.description ?? ''}
+                        value={value === null || value === undefined ? '' : String(value)}
+                        onChange={(e) => onChange(e.target.value)}
+                    />
+                )
             )}
             {item.type === 'color' && (
                 <ColorField

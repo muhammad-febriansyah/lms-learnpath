@@ -1,5 +1,20 @@
 import { Head, Link, router } from '@inertiajs/react';
-import { Ban, CreditCard, Receipt } from 'lucide-react';
+import {
+    Ban,
+    Calendar,
+    CalendarClock,
+    CheckCircle2,
+    Copy,
+    CreditCard,
+    Hash,
+    Mail,
+    Phone,
+    Receipt,
+    ShoppingBag,
+    Sparkles,
+    User,
+    Wallet,
+} from 'lucide-react';
 import { useState } from 'react';
 
 import { IconChevR } from '@/components/learnpath-icons';
@@ -14,6 +29,7 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog';
+import { cn } from '@/lib/utils';
 
 type Payment = {
     id: number;
@@ -75,6 +91,13 @@ const STATUS_TO_BADGE: Record<string, string> = {
     refunded: 'failed',
 };
 
+const PAYMENT_STATUS_TONE: Record<string, string> = {
+    completed: 'border-transparent bg-emerald-50 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300',
+    pending: 'border-transparent bg-amber-50 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300',
+    failed: 'border-transparent bg-rose-50 text-rose-700 dark:bg-rose-500/15 dark:text-rose-300',
+    expired: 'border-transparent bg-slate-100 text-slate-600 dark:bg-slate-500/15 dark:text-slate-300',
+};
+
 function formatRupiah(value: number): string {
     return new Intl.NumberFormat('id-ID', {
         style: 'currency',
@@ -97,9 +120,22 @@ function formatDateTime(value: string | null): string {
     });
 }
 
+function getInitials(name: string | null | undefined): string {
+    if (!name) {
+        return '?';
+    }
+    return name
+        .split(' ')
+        .filter(Boolean)
+        .slice(0, 2)
+        .map((p) => p[0]?.toUpperCase() ?? '')
+        .join('');
+}
+
 export default function AdminOrderShow({ order }: Props) {
     const [cancelOpen, setCancelOpen] = useState(false);
     const [cancelling, setCancelling] = useState(false);
+    const [copiedKey, setCopiedKey] = useState<string | null>(null);
 
     const performCancel = () => {
         setCancelling(true);
@@ -116,79 +152,183 @@ export default function AdminOrderShow({ order }: Props) {
         );
     };
 
+    const copyToClipboard = async (text: string, key: string) => {
+        try {
+            await navigator.clipboard.writeText(text);
+            setCopiedKey(key);
+            window.setTimeout(() => setCopiedKey(null), 1500);
+        } catch {
+            // ignore
+        }
+    };
+
+    const customerName = order.user?.name ?? order.customer_name ?? '-';
+    const customerEmail = order.user?.email ?? order.customer_email ?? null;
+    const customerPhone = order.user?.phone ?? order.customer_phone ?? null;
+    const totalItems = order.items.reduce((acc, it) => acc + it.quantity, 0);
+    const lastPayment = order.payments[0];
+    const isPaid = order.status === 'paid';
+    const canCancel = order.status === 'pending';
+
     return (
         <>
             <Head title={`Order ${order.order_number}`} />
-            <div className="space-y-5">
-                <div>
-                    <nav className="flex items-center gap-1.5 text-[12.5px] text-slate-500">
-                        <Link
-                            href="/admin/dashboard"
-                            className="hover:text-slate-700"
-                        >
-                            Dashboard
-                        </Link>
-                        <IconChevR size={12} className="text-slate-300" />
-                        <Link
-                            href="/admin/orders"
-                            className="hover:text-slate-700"
-                        >
-                            Order
-                        </Link>
-                        <IconChevR size={12} className="text-slate-300" />
-                        <span className="font-mono font-semibold text-slate-900">
-                            {order.order_number}
-                        </span>
-                    </nav>
-                    <div className="mt-1.5 flex flex-wrap items-center justify-between gap-3">
-                        <h1 className="inline-flex items-center gap-3 text-2xl font-extrabold tracking-tight text-slate-900">
-                            Detail Order
-                            <StatusBadge
-                                status={
-                                    STATUS_TO_BADGE[order.status] ??
-                                    order.status
-                                }
-                            />
-                        </h1>
-                        {order.status === 'pending' && (
-                            <Button
-                                variant="outline"
-                                onClick={() => setCancelOpen(true)}
-                                className="rounded-xl text-rose-600 hover:bg-rose-50 hover:text-rose-700"
-                            >
-                                <Ban className="mr-1.5 size-4" />
-                                Batalkan Order
-                            </Button>
+            <div className="space-y-6">
+                <nav className="flex items-center gap-1.5 text-[12.5px] text-slate-500 dark:text-neutral-400">
+                    <Link
+                        href="/admin/dashboard"
+                        className="transition hover:text-slate-700 dark:hover:text-neutral-200"
+                    >
+                        Dashboard
+                    </Link>
+                    <IconChevR size={12} className="text-slate-300" />
+                    <Link
+                        href="/admin/orders"
+                        className="transition hover:text-slate-700 dark:hover:text-neutral-200"
+                    >
+                        Order
+                    </Link>
+                    <IconChevR size={12} className="text-slate-300" />
+                    <span className="font-mono font-semibold text-slate-900 dark:text-neutral-100">
+                        {order.order_number}
+                    </span>
+                </nav>
+
+                {/* Hero */}
+                <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 via-slate-900 to-indigo-950 p-6 text-white shadow-[0_10px_40px_-20px_rgba(15,23,42,0.5)] sm:p-8 dark:from-neutral-950 dark:via-neutral-950 dark:to-indigo-950">
+                    <div className="pointer-events-none absolute -top-24 -right-24 size-72 rounded-full bg-indigo-500/20 blur-3xl" />
+                    <div className="pointer-events-none absolute -bottom-24 -left-24 size-72 rounded-full bg-violet-500/10 blur-3xl" />
+
+                    <div className="relative flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+                        <div className="min-w-0 flex-1">
+                            <div className="flex flex-wrap items-center gap-2">
+                                <span className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1 text-[11px] font-semibold tracking-wider uppercase ring-1 ring-white/15 backdrop-blur">
+                                    <Sparkles className="size-3" />
+                                    Detail Order
+                                </span>
+                                <StatusBadge
+                                    status={
+                                        STATUS_TO_BADGE[order.status] ??
+                                        order.status
+                                    }
+                                />
+                            </div>
+
+                            <div className="mt-3 flex flex-wrap items-center gap-2">
+                                <h1 className="font-mono text-2xl font-extrabold tracking-tight break-all sm:text-3xl">
+                                    {order.order_number}
+                                </h1>
+                                <button
+                                    type="button"
+                                    onClick={() =>
+                                        copyToClipboard(
+                                            order.order_number,
+                                            'order',
+                                        )
+                                    }
+                                    className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-white/10 px-2.5 py-1 text-[11.5px] font-medium ring-1 ring-white/15 backdrop-blur transition hover:bg-white/20"
+                                >
+                                    {copiedKey === 'order' ? (
+                                        <>
+                                            <CheckCircle2 className="size-3.5 text-emerald-300" />
+                                            Tersalin
+                                        </>
+                                    ) : (
+                                        <>
+                                            <Copy className="size-3.5" />
+                                            Salin
+                                        </>
+                                    )}
+                                </button>
+                            </div>
+
+                            <p className="mt-2 flex items-center gap-1.5 text-[12.5px] text-white/60">
+                                <CalendarClock className="size-3.5" />
+                                Dibuat {formatDateTime(order.created_at)}
+                            </p>
+
+                            {/* Quick stats */}
+                            <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
+                                <QuickStat
+                                    icon={<Wallet className="size-4" />}
+                                    label="Total"
+                                    value={formatRupiah(order.total)}
+                                    emphasis
+                                />
+                                <QuickStat
+                                    icon={<ShoppingBag className="size-4" />}
+                                    label="Item"
+                                    value={`${totalItems} item`}
+                                />
+                                <QuickStat
+                                    icon={<CreditCard className="size-4" />}
+                                    label="Pembayaran"
+                                    value={
+                                        lastPayment
+                                            ? lastPayment.gateway.toUpperCase()
+                                            : 'Belum ada'
+                                    }
+                                />
+                                <QuickStat
+                                    icon={<Calendar className="size-4" />}
+                                    label={isPaid ? 'Dibayar' : 'Kedaluwarsa'}
+                                    value={
+                                        isPaid
+                                            ? formatDateTime(order.paid_at)
+                                            : formatDateTime(order.expires_at)
+                                    }
+                                />
+                            </div>
+                        </div>
+
+                        {canCancel && (
+                            <div className="flex shrink-0 items-start">
+                                <Button
+                                    variant="outline"
+                                    onClick={() => setCancelOpen(true)}
+                                    className="rounded-xl border-rose-300/30 bg-rose-500/10 text-rose-100 ring-1 ring-rose-300/20 backdrop-blur transition hover:bg-rose-500/20 hover:text-white"
+                                >
+                                    <Ban className="mr-1.5 size-4" />
+                                    Batalkan Order
+                                </Button>
+                            </div>
                         )}
                     </div>
-                    <p className="mt-1 text-[12.5px] text-slate-500">
-                        Dibuat {formatDateTime(order.created_at)}
-                    </p>
                 </div>
 
-                <div className="grid gap-5 lg:grid-cols-[1fr_320px]">
-                    <div className="space-y-5">
+                {/* Body */}
+                <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_340px]">
+                    {/* Main column */}
+                    <div className="min-w-0 space-y-5">
                         <Card
                             title="Item Pesanan"
                             icon={<Receipt className="size-4" />}
+                            badge={`${order.items.length} produk`}
                         >
-                            <ul className="divide-y divide-slate-100">
+                            <ul className="divide-y divide-slate-100 dark:divide-neutral-800">
                                 {order.items.map((it) => (
                                     <li
                                         key={it.id}
-                                        className="flex items-start justify-between gap-4 py-3 first:pt-0 last:pb-0"
+                                        className="flex items-start justify-between gap-4 py-3.5 first:pt-0 last:pb-0"
                                     >
-                                        <div>
-                                            <div className="text-[13.5px] font-semibold text-slate-900">
-                                                {it.name}
-                                            </div>
-                                            <div className="text-[11.5px] text-slate-500">
-                                                {it.quantity}× ·{' '}
-                                                {formatRupiah(it.unit_price)}
+                                        <div className="flex min-w-0 items-start gap-3">
+                                            <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-indigo-50 to-violet-50 text-indigo-600 ring-1 ring-indigo-100 dark:from-indigo-500/15 dark:to-violet-500/15 dark:text-indigo-300 dark:ring-indigo-500/20">
+                                                <ShoppingBag className="size-4" />
+                                            </span>
+                                            <div className="min-w-0">
+                                                <div className="text-[13.5px] font-semibold break-words text-slate-900 dark:text-neutral-100">
+                                                    {it.name}
+                                                </div>
+                                                <div className="mt-0.5 text-[11.5px] text-slate-500 dark:text-neutral-400">
+                                                    {it.quantity}× ·{' '}
+                                                    {formatRupiah(it.unit_price)}
+                                                </div>
                                             </div>
                                         </div>
-                                        <div className="font-semibold text-slate-900 tabular-nums">
-                                            {formatRupiah(it.subtotal)}
+                                        <div className="shrink-0 text-right">
+                                            <div className="text-[13.5px] font-bold text-slate-900 tabular-nums dark:text-neutral-100">
+                                                {formatRupiah(it.subtotal)}
+                                            </div>
                                         </div>
                                     </li>
                                 ))}
@@ -198,129 +338,211 @@ export default function AdminOrderShow({ order }: Props) {
                         <Card
                             title="Riwayat Pembayaran"
                             icon={<CreditCard className="size-4" />}
+                            badge={
+                                order.payments.length > 0
+                                    ? `${order.payments.length} attempt`
+                                    : undefined
+                            }
                         >
                             {order.payments.length === 0 ? (
-                                <p className="text-sm text-slate-500 italic">
-                                    Belum ada attempt pembayaran.
-                                </p>
+                                <div className="flex flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-slate-200 bg-slate-50/60 py-10 text-center dark:border-neutral-800 dark:bg-neutral-900/40">
+                                    <div className="grid size-10 place-items-center rounded-full bg-white shadow-sm ring-1 ring-slate-200 dark:bg-neutral-900 dark:ring-neutral-700">
+                                        <CreditCard className="size-4 text-slate-400" />
+                                    </div>
+                                    <p className="text-sm text-slate-500 dark:text-neutral-400">
+                                        Belum ada attempt pembayaran.
+                                    </p>
+                                </div>
                             ) : (
-                                <ul className="space-y-2">
+                                <ol className="relative space-y-3 before:absolute before:top-3 before:bottom-3 before:left-[15px] before:w-px before:bg-slate-200 dark:before:bg-neutral-800">
                                     {order.payments.map((p) => (
                                         <li
                                             key={p.id}
-                                            className="rounded-xl bg-slate-50/60 p-3"
+                                            className="relative pl-9"
                                         >
-                                            <div className="flex items-center justify-between gap-3">
-                                                <div>
-                                                    <div className="text-[12.5px] font-semibold text-slate-900">
-                                                        {p.gateway.toUpperCase()}{' '}
-                                                        ·{' '}
-                                                        {p.payment_method ??
-                                                            '-'}
+                                            <span
+                                                className={cn(
+                                                    'absolute top-3 left-0 grid size-8 place-items-center rounded-full ring-4 ring-white dark:ring-neutral-950',
+                                                    p.status === 'completed'
+                                                        ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-300'
+                                                        : p.status === 'failed'
+                                                          ? 'bg-rose-100 text-rose-700 dark:bg-rose-500/20 dark:text-rose-300'
+                                                          : 'bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-300',
+                                                )}
+                                            >
+                                                {p.status === 'completed' ? (
+                                                    <CheckCircle2 className="size-4" />
+                                                ) : (
+                                                    <CreditCard className="size-4" />
+                                                )}
+                                            </span>
+                                            <div className="rounded-xl bg-slate-50/70 p-3.5 ring-1 ring-slate-100 transition hover:bg-slate-50 dark:bg-neutral-900/40 dark:ring-neutral-800/80 dark:hover:bg-neutral-900/60">
+                                                <div className="flex flex-wrap items-start justify-between gap-3">
+                                                    <div className="min-w-0">
+                                                        <div className="flex flex-wrap items-center gap-2">
+                                                            <span className="text-[12.5px] font-bold text-slate-900 dark:text-neutral-100">
+                                                                {p.gateway.toUpperCase()}
+                                                            </span>
+                                                            {p.payment_method && (
+                                                                <span className="rounded-md bg-white px-1.5 py-0.5 font-mono text-[10.5px] text-slate-600 ring-1 ring-slate-200 dark:bg-neutral-900 dark:text-neutral-300 dark:ring-neutral-700">
+                                                                    {
+                                                                        p.payment_method
+                                                                    }
+                                                                </span>
+                                                            )}
+                                                        </div>
+                                                        <div className="mt-0.5 text-[11px] text-slate-500 dark:text-neutral-400">
+                                                            {formatDateTime(
+                                                                p.created_at,
+                                                            )}
+                                                        </div>
                                                     </div>
-                                                    <div className="text-[11px] text-slate-500">
-                                                        {formatDateTime(
-                                                            p.created_at,
-                                                        )}
+                                                    <div className="flex shrink-0 items-center gap-2">
+                                                        <span className="text-[13px] font-bold text-slate-900 tabular-nums dark:text-neutral-100">
+                                                            {formatRupiah(
+                                                                p.amount,
+                                                            )}
+                                                        </span>
+                                                        <Badge
+                                                            className={
+                                                                PAYMENT_STATUS_TONE[
+                                                                    p.status
+                                                                ] ??
+                                                                'border-transparent bg-slate-100 text-slate-600 dark:bg-slate-500/15 dark:text-slate-300'
+                                                            }
+                                                        >
+                                                            {p.status}
+                                                        </Badge>
                                                     </div>
                                                 </div>
-                                                <div className="flex items-center gap-2">
-                                                    <span className="font-semibold text-slate-900 tabular-nums">
-                                                        {formatRupiah(p.amount)}
-                                                    </span>
-                                                    <Badge
-                                                        className={
-                                                            p.status ===
-                                                            'completed'
-                                                                ? 'border-transparent bg-emerald-50 text-emerald-700'
-                                                                : 'border-transparent bg-amber-50 text-amber-700'
-                                                        }
-                                                    >
-                                                        {p.status}
-                                                    </Badge>
-                                                </div>
+                                                {p.payment_number && (
+                                                    <div className="mt-3 flex items-stretch gap-2">
+                                                        <div className="min-w-0 flex-1 rounded-lg bg-white px-3 py-2 font-mono text-[11.5px] break-all text-slate-700 ring-1 ring-slate-200 dark:bg-neutral-950 dark:text-neutral-200 dark:ring-neutral-800">
+                                                            {p.payment_number}
+                                                        </div>
+                                                        <button
+                                                            type="button"
+                                                            onClick={() =>
+                                                                copyToClipboard(
+                                                                    p.payment_number!,
+                                                                    `pay-${p.id}`,
+                                                                )
+                                                            }
+                                                            className="inline-flex shrink-0 items-center justify-center rounded-lg bg-white px-2 ring-1 ring-slate-200 transition hover:bg-slate-50 dark:bg-neutral-900 dark:ring-neutral-700 dark:hover:bg-neutral-800"
+                                                            aria-label="Salin nomor pembayaran"
+                                                        >
+                                                            {copiedKey ===
+                                                            `pay-${p.id}` ? (
+                                                                <CheckCircle2 className="size-3.5 text-emerald-600" />
+                                                            ) : (
+                                                                <Copy className="size-3.5 text-slate-500" />
+                                                            )}
+                                                        </button>
+                                                    </div>
+                                                )}
                                             </div>
-                                            {p.payment_number && (
-                                                <div className="mt-2 rounded-lg bg-white px-3 py-2 font-mono text-[12px] text-slate-700">
-                                                    {p.payment_number}
-                                                </div>
-                                            )}
                                         </li>
                                     ))}
-                                </ul>
+                                </ol>
                             )}
                         </Card>
                     </div>
 
-                    <aside className="space-y-4">
-                        <Card title="Ringkasan">
-                            <dl className="space-y-2 text-[13px]">
+                    {/* Sidebar */}
+                    <aside className="space-y-5">
+                        <Card
+                            title="Ringkasan"
+                            icon={<Receipt className="size-4" />}
+                        >
+                            <dl className="space-y-2.5 text-[13px]">
                                 <Row
                                     label="Subtotal"
                                     value={formatRupiah(order.subtotal)}
                                 />
-                                <Row
-                                    label="Diskon"
-                                    value={`- ${formatRupiah(order.discount)}`}
-                                />
+                                {order.discount > 0 && (
+                                    <Row
+                                        label="Diskon"
+                                        value={`− ${formatRupiah(order.discount)}`}
+                                        valueClass="text-emerald-600 dark:text-emerald-400"
+                                    />
+                                )}
                                 <Row
                                     label="PPN"
                                     value={formatRupiah(order.tax)}
                                 />
-                                <div className="border-t border-slate-100 pt-2">
-                                    <Row
-                                        label="Total"
-                                        value={formatRupiah(order.total)}
-                                        emphasis
-                                    />
+                                <div className="mt-3 rounded-xl bg-gradient-to-br from-indigo-50 to-violet-50 p-3 ring-1 ring-indigo-100 dark:from-indigo-500/10 dark:to-violet-500/10 dark:ring-indigo-500/20">
+                                    <div className="flex items-center justify-between">
+                                        <dt className="text-[12px] font-semibold tracking-wider text-indigo-700 uppercase dark:text-indigo-300">
+                                            Total
+                                        </dt>
+                                        <dd className="text-[18px] font-extrabold text-indigo-900 tabular-nums dark:text-indigo-100">
+                                            {formatRupiah(order.total)}
+                                        </dd>
+                                    </div>
                                 </div>
                             </dl>
                         </Card>
 
-                        <Card title="Data Pemesan">
-                            <dl className="space-y-2 text-[12.5px]">
-                                <Field
-                                    label="Nama"
-                                    value={
-                                        order.user?.name ??
-                                        order.customer_name ??
-                                        '-'
-                                    }
-                                />
-                                <Field
+                        <Card
+                            title="Data Pemesan"
+                            icon={<User className="size-4" />}
+                        >
+                            <div className="flex items-center gap-3 rounded-xl bg-slate-50/70 p-3 ring-1 ring-slate-100 dark:bg-neutral-900/40 dark:ring-neutral-800">
+                                <div className="grid size-11 shrink-0 place-items-center rounded-full bg-gradient-to-br from-indigo-500 to-violet-600 text-[13px] font-bold text-white shadow-sm">
+                                    {getInitials(customerName)}
+                                </div>
+                                <div className="min-w-0">
+                                    <div className="truncate text-[13.5px] font-bold text-slate-900 dark:text-neutral-100">
+                                        {customerName}
+                                    </div>
+                                    <div className="text-[11px] text-slate-500 dark:text-neutral-400">
+                                        {order.user
+                                            ? 'Pengguna terdaftar'
+                                            : 'Tamu'}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <dl className="mt-3 space-y-2.5 text-[12.5px]">
+                                <ContactRow
+                                    icon={<Mail className="size-3.5" />}
                                     label="Email"
-                                    value={
-                                        order.user?.email ??
-                                        order.customer_email ??
-                                        '-'
-                                    }
+                                    value={customerEmail}
                                 />
-                                <Field
+                                <ContactRow
+                                    icon={<Phone className="size-3.5" />}
                                     label="Telepon"
-                                    value={
-                                        order.user?.phone ??
-                                        order.customer_phone ??
-                                        '-'
-                                    }
+                                    value={customerPhone}
+                                />
+                                <ContactRow
+                                    icon={<Hash className="size-3.5" />}
+                                    label="Tipe"
+                                    value={order.type}
                                 />
                             </dl>
                         </Card>
 
-                        <Card title="Tanggal Penting">
-                            <dl className="space-y-2 text-[12.5px]">
-                                <Field
+                        <Card
+                            title="Tanggal Penting"
+                            icon={<CalendarClock className="size-4" />}
+                        >
+                            <ol className="relative space-y-3 before:absolute before:top-2 before:bottom-2 before:left-[7px] before:w-px before:bg-slate-200 dark:before:bg-neutral-800">
+                                <Timeline
                                     label="Dibuat"
                                     value={formatDateTime(order.created_at)}
+                                    tone="slate"
                                 />
-                                <Field
+                                <Timeline
                                     label="Kedaluwarsa"
                                     value={formatDateTime(order.expires_at)}
+                                    tone="amber"
                                 />
-                                <Field
+                                <Timeline
                                     label="Dibayar"
                                     value={formatDateTime(order.paid_at)}
+                                    tone={order.paid_at ? 'emerald' : 'slate'}
                                 />
-                            </dl>
+                            </ol>
                         </Card>
                     </aside>
                 </div>
@@ -363,19 +585,66 @@ export default function AdminOrderShow({ order }: Props) {
 function Card({
     title,
     icon,
+    badge,
     children,
 }: {
     title: string;
     icon?: React.ReactNode;
+    badge?: string;
     children: React.ReactNode;
 }) {
     return (
-        <div className="rounded-2xl bg-card p-5 shadow-[0_1px_2px_rgba(15,23,42,0.04)] ring-1 ring-slate-200/70">
-            <h2 className="mb-3 inline-flex items-center gap-2 text-[15px] font-bold text-slate-900">
-                {icon}
-                {title}
-            </h2>
+        <div className="rounded-2xl bg-card p-5 shadow-[0_1px_2px_rgba(15,23,42,0.04),0_8px_24px_-12px_rgba(15,23,42,0.08)] ring-1 ring-slate-200/70 dark:ring-neutral-800">
+            <div className="mb-4 flex items-center justify-between gap-3">
+                <h2 className="inline-flex items-center gap-2 text-[14.5px] font-bold text-slate-900 dark:text-neutral-100">
+                    {icon && (
+                        <span className="grid size-7 place-items-center rounded-lg bg-indigo-50 text-indigo-600 dark:bg-indigo-500/15 dark:text-indigo-300">
+                            {icon}
+                        </span>
+                    )}
+                    {title}
+                </h2>
+                {badge && (
+                    <span className="rounded-full bg-slate-100 px-2.5 py-1 text-[10.5px] font-semibold tracking-wider text-slate-600 uppercase dark:bg-neutral-800 dark:text-neutral-300">
+                        {badge}
+                    </span>
+                )}
+            </div>
             <div>{children}</div>
+        </div>
+    );
+}
+
+function QuickStat({
+    icon,
+    label,
+    value,
+    emphasis,
+}: {
+    icon: React.ReactNode;
+    label: string;
+    value: string;
+    emphasis?: boolean;
+}) {
+    return (
+        <div
+            className={cn(
+                'min-w-0 rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 backdrop-blur',
+                emphasis && 'bg-white/10',
+            )}
+        >
+            <div className="flex items-center gap-1.5 text-[10.5px] font-semibold tracking-wider text-white/60 uppercase">
+                {icon}
+                {label}
+            </div>
+            <div
+                className={cn(
+                    'mt-1 truncate text-[14px] font-bold text-white tabular-nums',
+                    emphasis && 'text-[15px]',
+                )}
+            >
+                {value}
+            </div>
         </div>
     );
 }
@@ -383,27 +652,20 @@ function Card({
 function Row({
     label,
     value,
-    emphasis,
+    valueClass,
 }: {
     label: string;
     value: string;
-    emphasis?: boolean;
+    valueClass?: string;
 }) {
     return (
-        <div className="flex justify-between">
-            <dt
-                className={
-                    emphasis ? 'font-semibold text-slate-900' : 'text-slate-600'
-                }
-            >
-                {label}
-            </dt>
+        <div className="flex items-center justify-between gap-3">
+            <dt className="text-slate-600 dark:text-neutral-400">{label}</dt>
             <dd
-                className={
-                    emphasis
-                        ? 'text-[16px] font-extrabold text-slate-900 tabular-nums'
-                        : 'text-slate-900 tabular-nums'
-                }
+                className={cn(
+                    'font-medium text-slate-900 tabular-nums dark:text-neutral-100',
+                    valueClass,
+                )}
             >
                 {value}
             </dd>
@@ -411,11 +673,61 @@ function Row({
     );
 }
 
-function Field({ label, value }: { label: string; value: string }) {
+function ContactRow({
+    icon,
+    label,
+    value,
+}: {
+    icon: React.ReactNode;
+    label: string;
+    value: string | null;
+}) {
     return (
-        <div>
-            <dt className="text-slate-500">{label}</dt>
-            <dd className="font-medium text-slate-900">{value}</dd>
+        <div className="flex items-start gap-2.5">
+            <span className="mt-0.5 grid size-6 shrink-0 place-items-center rounded-md bg-slate-100 text-slate-500 dark:bg-neutral-800 dark:text-neutral-400">
+                {icon}
+            </span>
+            <div className="min-w-0 flex-1">
+                <dt className="text-[10.5px] font-semibold tracking-wider text-slate-400 uppercase dark:text-neutral-500">
+                    {label}
+                </dt>
+                <dd className="font-medium break-words text-slate-900 dark:text-neutral-100">
+                    {value ?? '-'}
+                </dd>
+            </div>
         </div>
+    );
+}
+
+function Timeline({
+    label,
+    value,
+    tone,
+}: {
+    label: string;
+    value: string;
+    tone: 'slate' | 'amber' | 'emerald';
+}) {
+    const toneClass =
+        tone === 'emerald'
+            ? 'bg-emerald-500 ring-emerald-100 dark:ring-emerald-500/20'
+            : tone === 'amber'
+              ? 'bg-amber-500 ring-amber-100 dark:ring-amber-500/20'
+              : 'bg-slate-300 ring-slate-100 dark:bg-neutral-700 dark:ring-neutral-800';
+    return (
+        <li className="relative pl-6">
+            <span
+                className={cn(
+                    'absolute top-1.5 left-0 size-3.5 rounded-full ring-4',
+                    toneClass,
+                )}
+            />
+            <dt className="text-[10.5px] font-semibold tracking-wider text-slate-400 uppercase dark:text-neutral-500">
+                {label}
+            </dt>
+            <dd className="text-[12.5px] font-medium text-slate-900 dark:text-neutral-100">
+                {value}
+            </dd>
+        </li>
     );
 }

@@ -35,10 +35,10 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
-import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
 
 type Position = { id: number; name: string; division: string | null };
+type DivisionOption = { id: number; name: string };
 
 type Invitation = {
     id: number;
@@ -68,6 +68,7 @@ type Props = {
         seats_available: number;
     };
     positions: Position[];
+    divisions: DivisionOption[];
 };
 
 type Tab = 'paste' | 'csv' | 'direct';
@@ -81,7 +82,7 @@ function formatDate(iso: string | null): string {
     });
 }
 
-export default function InvitationsIndex({ invitations, organization, positions }: Props) {
+export default function InvitationsIndex({ invitations, organization, positions, divisions }: Props) {
     const pageProps = usePage<{ flash?: { bulk_preview?: PreviewPayload } }>().props;
     const [tab, setTab] = useState<Tab>(() =>
         pageProps.flash?.bulk_preview ? 'csv' : 'paste',
@@ -139,9 +140,9 @@ export default function InvitationsIndex({ invitations, organization, positions 
                     </div>
 
                     <div className="p-5">
-                        {tab === 'paste' && <PasteForm positions={positions} />}
+                        {tab === 'paste' && <PasteForm positions={positions} divisions={divisions} />}
                         {tab === 'csv' && <CsvForm />}
-                        {tab === 'direct' && <DirectCreateForm positions={positions} />}
+                        {tab === 'direct' && <DirectCreateForm positions={positions} divisions={divisions} />}
                     </div>
                 </div>
 
@@ -228,7 +229,9 @@ function TabButton({
     );
 }
 
-function PasteForm({ positions }: { positions: Position[] }) {
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+function PasteForm({ positions, divisions }: { positions: Position[]; divisions: DivisionOption[] }) {
     const form = useForm<{
         emails: string;
         position_id: string;
@@ -241,36 +244,167 @@ function PasteForm({ positions }: { positions: Position[] }) {
         branch: '',
     });
 
+    const [chips, setChips] = useState<string[]>([]);
+    const [draft, setDraft] = useState('');
+    const inputRef = useRef<HTMLInputElement | null>(null);
+
+    // Keep form.emails in sync so backend (newline-joined string) is satisfied.
+    useEffect(() => {
+        form.setData('emails', chips.join('\n'));
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [chips]);
+
+    const addEmails = (raw: string) => {
+        const parts = raw
+            .split(/[\s,;]+/)
+            .map((s) => s.trim())
+            .filter(Boolean);
+        if (parts.length === 0) return;
+
+        setChips((prev) => {
+            const next = [...prev];
+            for (const p of parts) {
+                const lower = p.toLowerCase();
+                if (!next.some((e) => e.toLowerCase() === lower)) {
+                    next.push(p);
+                }
+            }
+            return next;
+        });
+        setDraft('');
+    };
+
+    const removeChip = (email: string) => {
+        setChips((prev) => prev.filter((e) => e !== email));
+    };
+
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (['Enter', ',', ';', 'Tab'].includes(e.key) && draft.trim()) {
+            e.preventDefault();
+            addEmails(draft);
+        } else if (e.key === 'Backspace' && draft === '' && chips.length > 0) {
+            // Quick remove last chip on backspace when input is empty.
+            e.preventDefault();
+            setChips((prev) => prev.slice(0, -1));
+        }
+    };
+
+    const handlePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
+        const text = e.clipboardData.getData('text');
+        if (/[\s,;]/.test(text)) {
+            e.preventDefault();
+            addEmails(text);
+        }
+    };
+
+    const handleBlur = () => {
+        if (draft.trim()) {
+            addEmails(draft);
+        }
+    };
+
     function submit(event: React.FormEvent) {
         event.preventDefault();
+        // Commit any unconverted draft into chips before submitting.
+        if (draft.trim()) {
+            const finalChips = (() => {
+                const parts = draft.split(/[\s,;]+/).map((s) => s.trim()).filter(Boolean);
+                const next = [...chips];
+                for (const p of parts) {
+                    if (!next.some((e) => e.toLowerCase() === p.toLowerCase())) next.push(p);
+                }
+                return next;
+            })();
+            setChips(finalChips);
+            setDraft('');
+            form.setData('emails', finalChips.join('\n'));
+        }
         form.transform((data) => ({
             ...data,
             position_id: data.position_id === '' ? null : Number(data.position_id),
         }));
         form.post('/business/invitations', {
             preserveScroll: true,
-            onSuccess: () => form.reset(),
+            onSuccess: () => {
+                form.reset();
+                setChips([]);
+                setDraft('');
+            },
         });
     }
+
+    const invalidCount = chips.filter((e) => !EMAIL_RE.test(e)).length;
 
     return (
         <form onSubmit={submit} className="space-y-4">
             <p className="text-[12px] text-slate-500">
-                Paste daftar email karyawan (1 per baris, atau pisah dengan koma/titik koma). Email
-                undangan otomatis terkirim via Mailketing.
+                Ketik email lalu tekan <kbd className="rounded border border-slate-300 bg-slate-100 px-1 py-0.5 text-[10px] font-semibold">Enter</kbd> /
+                {' '}<kbd className="rounded border border-slate-300 bg-slate-100 px-1 py-0.5 text-[10px] font-semibold">,</kbd> untuk menambah. Anda juga bisa paste banyak email sekaligus.
             </p>
 
             <div className="space-y-1.5">
-                <RequiredLabel htmlFor="emails" required>
-                    Email Karyawan
+                <RequiredLabel htmlFor="emails-input" required>
+                    Email Karyawan {chips.length > 0 && <span className="text-slate-500">({chips.length})</span>}
                 </RequiredLabel>
-                <Textarea
-                    id="emails"
-                    rows={5}
-                    placeholder={`andi@perusahaan.com\nbudi@perusahaan.com\ncici@perusahaan.com`}
-                    value={form.data.emails}
-                    onChange={(e) => form.setData('emails', e.target.value)}
-                />
+
+                <div
+                    onClick={() => inputRef.current?.focus()}
+                    className={cn(
+                        'flex min-h-[42px] flex-wrap items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-2.5 py-1.5 transition focus-within:border-brand-500 focus-within:ring-2 focus-within:ring-brand-100',
+                        invalidCount > 0 && 'border-rose-300 focus-within:border-rose-500 focus-within:ring-rose-100',
+                    )}
+                >
+                    {chips.map((email) => {
+                        const valid = EMAIL_RE.test(email);
+                        return (
+                            <span
+                                key={email}
+                                className={cn(
+                                    'inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[12px] font-medium',
+                                    valid
+                                        ? 'bg-brand-50 text-brand-700'
+                                        : 'bg-rose-50 text-rose-700',
+                                )}
+                                title={valid ? email : `${email} (format tidak valid)`}
+                            >
+                                {email}
+                                <button
+                                    type="button"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        removeChip(email);
+                                    }}
+                                    className={cn(
+                                        'rounded-full p-0.5 transition hover:bg-white/80',
+                                        valid ? 'text-brand-600 hover:text-brand-800' : 'text-rose-600 hover:text-rose-800',
+                                    )}
+                                    aria-label={`Hapus ${email}`}
+                                >
+                                    <X className="size-3" />
+                                </button>
+                            </span>
+                        );
+                    })}
+                    <input
+                        ref={inputRef}
+                        id="emails-input"
+                        type="text"
+                        autoComplete="off"
+                        placeholder={chips.length === 0 ? 'andi@perusahaan.com' : ''}
+                        value={draft}
+                        onChange={(e) => setDraft(e.target.value)}
+                        onKeyDown={handleKeyDown}
+                        onPaste={handlePaste}
+                        onBlur={handleBlur}
+                        className="min-w-[140px] flex-1 border-0 bg-transparent px-1.5 py-1 text-[13.5px] text-slate-900 placeholder:text-slate-400 focus:outline-none"
+                    />
+                </div>
+
+                {invalidCount > 0 && (
+                    <p className="text-[11.5px] text-rose-600">
+                        {invalidCount} email memiliki format tidak valid (chip warna merah).
+                    </p>
+                )}
                 <FieldError message={form.errors.emails} />
             </div>
 
@@ -305,11 +439,22 @@ function PasteForm({ positions }: { positions: Position[] }) {
 
                 <div className="space-y-1.5">
                     <RequiredLabel>Divisi (opsional)</RequiredLabel>
-                    <Input
-                        placeholder="Engineering"
-                        value={form.data.division}
-                        onChange={(e) => form.setData('division', e.target.value)}
-                    />
+                    <Select
+                        value={form.data.division === '' ? '__none__' : form.data.division}
+                        onValueChange={(v) => form.setData('division', v === '__none__' ? '' : v)}
+                    >
+                        <SelectTrigger>
+                            <SelectValue placeholder="Pilih divisi" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="__none__">Tanpa divisi</SelectItem>
+                            {divisions.map((d) => (
+                                <SelectItem key={d.id} value={d.name}>
+                                    {d.name}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
                     <FieldError message={form.errors.division} />
                 </div>
 
@@ -327,11 +472,15 @@ function PasteForm({ positions }: { positions: Position[] }) {
             <div className="flex items-center justify-end">
                 <Button
                     type="submit"
-                    disabled={form.processing || !form.data.emails.trim()}
+                    disabled={form.processing || (chips.length === 0 && !draft.trim())}
                     className="rounded-xl bg-brand-600 hover:bg-brand-700"
                 >
                     <Send className="mr-1.5 size-4" />
-                    {form.processing ? 'Mengirim...' : 'Kirim Undangan'}
+                    {form.processing
+                        ? 'Mengirim...'
+                        : chips.length > 0
+                            ? `Kirim ${chips.length} Undangan`
+                            : 'Kirim Undangan'}
                 </Button>
             </div>
         </form>
@@ -623,7 +772,7 @@ function SummaryCard({
     );
 }
 
-function DirectCreateForm({ positions }: { positions: Position[] }) {
+function DirectCreateForm({ positions, divisions }: { positions: Position[]; divisions: DivisionOption[] }) {
     const form = useForm<{
         name: string;
         email: string;
@@ -737,12 +886,22 @@ function DirectCreateForm({ positions }: { positions: Position[] }) {
                 <div className="grid grid-cols-2 gap-3">
                     <div className="space-y-1.5">
                         <RequiredLabel htmlFor="division">Divisi</RequiredLabel>
-                        <Input
-                            id="division"
-                            placeholder="Sales"
-                            value={form.data.division}
-                            onChange={(e) => form.setData('division', e.target.value)}
-                        />
+                        <Select
+                            value={form.data.division === '' ? '__none__' : form.data.division}
+                            onValueChange={(v) => form.setData('division', v === '__none__' ? '' : v)}
+                        >
+                            <SelectTrigger id="division">
+                                <SelectValue placeholder="Pilih divisi" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="__none__">Tanpa divisi</SelectItem>
+                                {divisions.map((d) => (
+                                    <SelectItem key={d.id} value={d.name}>
+                                        {d.name}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
                         <FieldError message={form.errors.division} />
                     </div>
                     <div className="space-y-1.5">

@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
     'content',
     'tokens',
     'model',
+    'citations',
 ])]
 class ChatMessage extends Model
 {
@@ -30,6 +31,7 @@ class ChatMessage extends Model
     {
         return [
             'tokens' => 'integer',
+            'citations' => 'array',
         ];
     }
 

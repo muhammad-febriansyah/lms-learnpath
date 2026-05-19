@@ -220,6 +220,58 @@ it('injects retrieved citations into the tutor system prompt', function () {
     });
 });
 
+it('persists citations on the assistant message and exposes them via the controller', function () {
+    Http::fake([
+        'api.openai.com/v1/embeddings' => Http::response([
+            'model' => 'text-embedding-3-small',
+            'usage' => ['total_tokens' => 5],
+            'data' => [['index' => 0, 'embedding' => [1.0, 0.0]]],
+        ], 200),
+        'api.openai.com/v1/chat/completions' => Http::response([
+            'model' => 'gpt-5',
+            'choices' => [['message' => ['role' => 'assistant', 'content' => 'Sesuai [Sumber 1].']]],
+            'usage' => ['prompt_tokens' => 10, 'completion_tokens' => 5, 'total_tokens' => 15],
+        ], 200),
+    ]);
+
+    $doc = CourseDocument::create([
+        'course_id' => $this->course->id,
+        'uploaded_by_user_id' => $this->instructor->id,
+        'title' => 'Modul X',
+        'source_type' => 'paste',
+        'status' => 'ready',
+    ]);
+    CourseDocumentChunk::create([
+        'course_document_id' => $doc->id,
+        'chunk_index' => 0,
+        'content' => 'Isi kutipan dari modul X.',
+        'embedding' => [1.0, 0.0],
+    ]);
+
+    $student = User::factory()->create();
+    $thread = app(TutorService::class)->sendMessage(
+        user: $student,
+        userMessage: 'Apa katanya?',
+        course: $this->course,
+    );
+
+    $assistant = $thread->messages()->where('role', 'assistant')->latest('id')->first();
+    expect($assistant->citations)->toBeArray();
+    expect($assistant->citations[0]['title'])->toBe('Modul X');
+    expect($assistant->citations[0]['document_id'])->toBe($doc->id);
+    expect($assistant->citations[0]['content'])->toContain('Isi kutipan');
+
+    // Controller payload mirrors them.
+    $payload = $this->actingAs($student)
+        ->get("/my-tutor/{$thread->id}")
+        ->assertOk()
+        ->viewData('page');
+    $messages = $payload['props']['activeThread']['messages'];
+    $last = collect($messages)->where('role', 'assistant')->last();
+    expect($last['citations'])->toBeArray();
+    expect($last['citations'][0]['title'])->toBe('Modul X');
+});
+
 it('lets the instructor upload a .txt file and runs ingestion', function () {
     Http::fake([
         'api.openai.com/v1/embeddings' => Http::response([
@@ -252,13 +304,10 @@ it('lets the instructor upload a .txt file and runs ingestion', function () {
 });
 
 it('extracts text from a .pdf upload and runs ingestion', function () {
-    $this->app->instance(PdfTextExtractor::class, new class extends PdfTextExtractor
-    {
-        public function extract(string $path): string
-        {
-            return 'Isi PDF: pengantar manajemen risiko kredit.';
-        }
-    });
+    $stub = Mockery::mock(PdfTextExtractor::class);
+    $stub->shouldReceive('extract')
+        ->andReturn('Isi PDF: pengantar manajemen risiko kredit.');
+    $this->app->instance(PdfTextExtractor::class, $stub);
 
     Http::fake([
         'api.openai.com/v1/embeddings' => Http::response([
@@ -287,13 +336,9 @@ it('extracts text from a .pdf upload and runs ingestion', function () {
 });
 
 it('rejects a PDF that yields no extractable text (scanned/image)', function () {
-    $this->app->instance(PdfTextExtractor::class, new class extends PdfTextExtractor
-    {
-        public function extract(string $path): string
-        {
-            return '';
-        }
-    });
+    $stub = Mockery::mock(PdfTextExtractor::class);
+    $stub->shouldReceive('extract')->andReturn('');
+    $this->app->instance(PdfTextExtractor::class, $stub);
 
     $file = UploadedFile::fake()->create('scanned.pdf', 50, 'application/pdf');
 

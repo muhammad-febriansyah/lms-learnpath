@@ -5,8 +5,9 @@ import {
     DataTablePagination,
 } from '@/components/data-table/data-table-pagination';
 import type { Paginator } from '@/components/data-table/data-table-pagination';
+import { PageHeader } from '@/components/front/page-header';
 import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
+import { stripHtml } from '@/lib/strip-html';
 
 type Bundle = {
     id: number;
@@ -44,30 +45,36 @@ export default function BundlesIndex({ bundles, filters }: Props) {
 
     return (
         <>
-            <Head title="Paket Kursus" />
-            <div className="mx-auto max-w-7xl space-y-6 px-4 py-8 sm:px-6 lg:px-8">
-                <div>
-                    <h1 className="inline-flex items-center gap-2 text-3xl font-extrabold tracking-tight text-slate-900">
-                        <Package className="size-7 text-brand-600" />
-                        Paket Kursus
-                    </h1>
-                    <p className="mt-1 text-sm text-slate-500">
-                        Beli beberapa kursus sekaligus dengan harga lebih hemat.
-                    </p>
-                </div>
+            <Head title="Paket Kursus · Learnpath" />
 
-                <div className="relative max-w-md">
-                    <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-slate-400" />
-                    <Input
+            <PageHeader
+                eyebrow="Paket Hemat"
+                title="Belajar lebih banyak, bayar lebih sedikit"
+                description="Beli beberapa kursus sekaligus dalam satu paket dengan harga jauh lebih hemat. Akses seumur hidup ke semua kursus di paket pilihan Anda."
+                breadcrumbs={[
+                    { label: 'Beranda', href: '/' },
+                    { label: 'Paket Kursus' },
+                ]}
+            >
+                <div className="relative max-w-xl">
+                    <Search className="absolute top-1/2 left-4 size-4 -translate-y-1/2 text-white/60" />
+                    <input
+                        type="search"
                         defaultValue={filters.search ?? ''}
                         onChange={(e) => handleSearch(e.target.value)}
                         placeholder="Cari paket..."
-                        className="pl-9"
+                        className="block w-full rounded-full border border-white/15 bg-white/10 px-12 py-3.5 text-[14px] text-white placeholder:text-white/60 backdrop-blur focus:border-white/40 focus:outline-none focus:ring-2 focus:ring-white/30"
                     />
                 </div>
+            </PageHeader>
+
+            <div className="mx-auto max-w-7xl px-5 py-12 lg:px-8 lg:py-16">
+                <p className="text-[12.5px] text-slate-500">
+                    <strong className="text-slate-900">{bundles.total}</strong> paket tersedia
+                </p>
 
                 {bundles.data.length === 0 ? (
-                    <div className="rounded-2xl bg-card p-12 text-center shadow-[0_1px_2px_rgba(15,23,42,0.04)] ring-1 ring-slate-200/70">
+                    <div className="mt-8 rounded-2xl border border-dashed border-slate-200 bg-white p-12 text-center">
                         <Package className="mx-auto size-10 text-slate-400" />
                         <p className="mt-3 text-sm font-semibold text-slate-900">
                             Belum ada paket tersedia
@@ -77,14 +84,16 @@ export default function BundlesIndex({ bundles, filters }: Props) {
                         </p>
                     </div>
                 ) : (
-                    <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                    <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
                         {bundles.data.map((b) => (
                             <BundleCard key={b.id} bundle={b} />
                         ))}
                     </div>
                 )}
 
-                <DataTablePagination paginator={bundles} />
+                <div className="mt-8">
+                    <DataTablePagination paginator={bundles} />
+                </div>
             </div>
         </>
     );
@@ -132,7 +141,7 @@ function BundleCard({ bundle }: { bundle: Bundle }) {
                 </h3>
                 {bundle.description && (
                     <p className="line-clamp-2 text-[12.5px] text-slate-500">
-                        {bundle.description}
+                        {stripHtml(bundle.description)}
                     </p>
                 )}
                 <div className="mt-auto">

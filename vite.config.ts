@@ -28,4 +28,10 @@ export default defineConfig({
             formVariants: true,
         }),
     ],
+    resolve: {
+        dedupe: ['react', 'react-dom'],
+    },
+    optimizeDeps: {
+        include: ['motion/react'],
+    },
 });

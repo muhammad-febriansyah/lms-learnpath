@@ -75,6 +75,12 @@ class DashboardController extends Controller
                 'seats_available' => $org->seatsAvailable(),
                 'status' => $org->status,
             ],
+            'contract' => [
+                'ends_at' => $org->contract_ends_at?->toDateString(),
+                'days_left' => $org->daysUntilContractEnd(),
+                'expiring_soon' => $org->isContractExpiringSoon(30),
+                'expired' => $org->isContractExpired(),
+            ],
             'stats' => [
                 'members' => $memberIds->count(),
                 'pending_invites' => $org->invitations()

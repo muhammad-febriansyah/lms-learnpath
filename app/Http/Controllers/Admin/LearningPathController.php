@@ -139,6 +139,8 @@ class LearningPathController extends Controller
                 'position_id' => $learningPath->position_id,
                 'target_audience' => $learningPath->target_audience,
                 'outcomes' => $learningPath->outcomes,
+                'price' => $learningPath->price,
+                'compare_at_price' => $learningPath->compare_at_price,
                 'is_published' => (bool) $learningPath->is_published,
             ],
             'positions' => $this->positionOptions(),

@@ -28,8 +28,8 @@ export default function LegalDocumentForm({ document }: Props) {
         event.preventDefault();
         form.post(
             document.type === 'terms'
-                ? admin.settings.legal.terms.update()
-                : admin.settings.legal.privacy.update(),
+                ? admin.settings.legal.terms.update().url
+                : admin.settings.legal.privacy.update().url,
             {
                 preserveScroll: true,
             },

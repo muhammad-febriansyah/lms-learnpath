@@ -1,6 +1,15 @@
 import { Link, router, usePage } from '@inertiajs/react';
-import { ChevronDown } from 'lucide-react';
-import { useEffect, useMemo, useState } from 'react';
+import {
+    BookOpen,
+    ChevronDown,
+    Coins,
+    Flame,
+    Headset,
+    Mail,
+    Phone,
+    User as UserIcon,
+} from 'lucide-react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 import AppLogoIcon from '@/components/app-logo-icon';
 import {
@@ -11,7 +20,6 @@ import {
     IconLogout,
     IconPanel,
     IconSearch,
-    IconSparkle,
 } from '@/components/learnpath-icons';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
@@ -32,14 +40,13 @@ import {
     USER_PUBLIC_NAV,
 } from '@/lib/admin-nav';
 import type { AdminNavSection } from '@/lib/admin-nav';
-import { dashboard, logout } from '@/routes';
+import { logout } from '@/routes';
 import { edit as editProfile } from '@/routes/profile';
 import type { User } from '@/types';
 
 const ADMIN_ROLES = ['superadmin', 'admin_tenant', 'hr', 'instructor', 'supervisor'];
 
 const COLLAPSED_KEY = 'lp_sb_collapsed';
-const GROUP_STATE_KEY = 'lp_sb_groups';
 
 type SidebarProps = {
     mobileOpen: boolean;
@@ -59,6 +66,8 @@ export function LearnpathSidebar({
         tenant: {
             id: number;
             name: string;
+            display_name: string | null;
+            tagline: string | null;
             slug: string;
             logo_url: string | null;
             industry: string | null;
@@ -66,13 +75,20 @@ export function LearnpathSidebar({
             seats_used: number;
             seats_available: number;
         } | null;
+        about: {
+            title: string | null;
+            tagline: string | null;
+            contact_email: string | null;
+            contact_phone: string | null;
+            contact_address: string | null;
+        } | null;
     }>();
     const user = props.auth.user;
     const tenant = props.tenant;
+    const about = props.about;
     const { hasRole, hasPermission } = usePermission();
 
     const isAdmin = hasRole(ADMIN_ROLES);
-    const isPrivilegedAdmin = hasRole(['superadmin', 'admin_tenant']);
     const isInstructorOnly =
         hasRole(['instructor']) &&
         !hasRole(['superadmin', 'admin_tenant', 'hr', 'supervisor']);
@@ -99,8 +115,8 @@ export function LearnpathSidebar({
                         : STUDENT_NAV;
 
     const visibleNav = useMemo(
-        () => filterByPermission(navSource, hasPermission),
-        [navSource, hasPermission],
+        () => filterByPermission(navSource, hasPermission, hasRole),
+        [navSource, hasPermission, hasRole],
     );
 
     const labelHidden = collapsed ? 'lg:hidden' : '';
@@ -120,7 +136,7 @@ export function LearnpathSidebar({
             <aside
                 className={
                     'fixed top-0 left-0 z-40 flex h-screen w-[260px] shrink-0 flex-col bg-white ring-1 ring-slate-200/70 transition-[width,transform] duration-300 ease-out lg:sticky lg:border-r lg:border-slate-200/70 lg:ring-0 ' +
-                    (collapsed ? 'lg:w-[76px]' : 'lg:w-[260px]') +
+                    (collapsed ? 'lg:w-[76px] ' : 'lg:w-[260px] ') +
                     (mobileOpen
                         ? 'translate-x-0'
                         : '-translate-x-full lg:translate-x-0')
@@ -135,19 +151,22 @@ export function LearnpathSidebar({
                     }
                 >
                     <Link
-                        href={dashboard()}
-                        className="grid size-9 shrink-0 place-items-center rounded-xl bg-brand-600 text-white"
+                        href="/"
+                        aria-label="Beranda Learnpath"
+                        className="flex items-center gap-2.5"
                     >
-                        <AppLogoIcon className="size-5" />
+                        <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-brand-600 text-white">
+                            <AppLogoIcon className="size-5" />
+                        </span>
+                        <span className={'leading-tight ' + labelHidden}>
+                            <span className="block text-[17px] font-extrabold tracking-tight text-slate-900">
+                                Learnpath
+                            </span>
+                            <span className="block text-[10px] tracking-[0.16em] text-slate-400 uppercase">
+                                {isAdmin ? 'Admin Console' : 'Belajar'}
+                            </span>
+                        </span>
                     </Link>
-                    <div className={'leading-tight ' + labelHidden}>
-                        <div className="text-[17px] font-extrabold tracking-tight text-slate-900">
-                            Learnpath
-                        </div>
-                        <div className="text-[10px] tracking-[0.16em] text-slate-400 uppercase">
-                            {isAdmin ? 'Admin Console' : 'Belajar'}
-                        </div>
-                    </div>
                 </div>
 
                 {/* Tenant context card */}
@@ -186,8 +205,8 @@ export function LearnpathSidebar({
 
                 <nav
                     className={
-                        'flex-1 space-y-1 overflow-x-hidden overflow-y-auto py-4 ' +
-                        (collapsed ? 'px-3 lg:px-2' : 'px-3')
+                        'flex-1 space-y-1.5 overflow-x-hidden overflow-y-auto py-5 ' +
+                        (collapsed ? 'px-4 lg:px-3' : 'px-4')
                     }
                 >
                     {visibleNav.map((section, idx) => {
@@ -196,7 +215,7 @@ export function LearnpathSidebar({
                                 <div
                                     key={`divider-${idx}-${section.label}`}
                                     className={
-                                        'mt-3 mb-1 px-3 pt-1 text-[10.5px] font-bold tracking-wider text-slate-400 uppercase ' +
+                                        'mt-5 mb-2 px-3 pt-1 text-[10.5px] font-bold tracking-wider text-slate-400 uppercase ' +
                                         (collapsed ? 'lg:hidden' : '')
                                     }
                                 >
@@ -230,28 +249,57 @@ export function LearnpathSidebar({
                     })}
                 </nav>
 
-                {isAdmin && !isPrivilegedAdmin && (
-                    <div className={'p-3 ' + labelHidden}>
-                        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-brand-600 to-brand-800 p-4 text-white">
-                            <div className="absolute -top-10 -right-10 size-28 rounded-full bg-white/10 blur-xl" />
-                            <div className="absolute top-3 right-3 text-white/40">
-                                <IconSparkle size={20} />
-                            </div>
-                            <div className="relative">
-                                <div className="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-2 py-0.5 text-[10px] font-bold tracking-wider uppercase">
-                                    <span className="size-1.5 rounded-full bg-emerald-300" />{' '}
-                                    Baru
+                {about &&
+                    (about.contact_email || about.contact_phone) &&
+                    !collapsed && (
+                        <div className={'p-3 ' + labelHidden}>
+                            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-brand-600 to-brand-800 p-4 text-white">
+                                <div className="absolute -top-10 -right-10 size-28 rounded-full bg-white/10 blur-xl" />
+                                <div className="absolute top-3 right-3 text-white/40">
+                                    <Headset size={20} />
                                 </div>
-                                <div className="mt-2 pr-6 text-[15px] leading-snug font-bold">
-                                    Aktifkan AI Tutor untuk semua kursus
+                                <div className="relative">
+                                    <div className="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-2 py-0.5 text-[10px] font-bold tracking-wider uppercase">
+                                        <span className="size-1.5 rounded-full bg-emerald-300" />
+                                        Butuh Bantuan?
+                                    </div>
+                                    <div className="mt-2 pr-6 text-[14px] leading-snug font-bold">
+                                        Hubungi Admin
+                                    </div>
+                                    <div className="mt-2 space-y-1.5">
+                                        {about.contact_email && (
+                                            <a
+                                                href={`mailto:${about.contact_email}`}
+                                                className="flex items-center gap-2 text-[11.5px] text-white/90 transition hover:text-white"
+                                            >
+                                                <Mail
+                                                    size={12}
+                                                    className="shrink-0 text-white/60"
+                                                />
+                                                <span className="truncate">
+                                                    {about.contact_email}
+                                                </span>
+                                            </a>
+                                        )}
+                                        {about.contact_phone && (
+                                            <a
+                                                href={`tel:${about.contact_phone.replace(/\s+/g, '')}`}
+                                                className="flex items-center gap-2 text-[11.5px] text-white/90 transition hover:text-white"
+                                            >
+                                                <Phone
+                                                    size={12}
+                                                    className="shrink-0 text-white/60"
+                                                />
+                                                <span className="truncate">
+                                                    {about.contact_phone}
+                                                </span>
+                                            </a>
+                                        )}
+                                    </div>
                                 </div>
-                                <button className="mt-3 inline-flex items-center gap-1.5 rounded-lg bg-white px-2.5 py-1.5 text-[12px] font-semibold text-brand-700 transition hover:bg-brand-50">
-                                    Pelajari <IconChevR size={12} />
-                                </button>
                             </div>
                         </div>
-                    </div>
-                )}
+                    )}
 
                 <div
                     className={
@@ -301,6 +349,8 @@ function TenantCard({
     tenant: {
         id: number;
         name: string;
+        display_name: string | null;
+        tagline: string | null;
         slug: string;
         logo_url: string | null;
         seat_quota: number;
@@ -309,7 +359,8 @@ function TenantCard({
     };
     collapsed: boolean;
 }) {
-    const initials = tenant.name
+    const label = tenant.display_name || tenant.name;
+    const initials = label
         .split(' ')
         .filter(Boolean)
         .slice(0, 2)
@@ -325,13 +376,13 @@ function TenantCard({
         return (
             <div className="mt-3 hidden justify-center lg:flex">
                 <div
-                    title={tenant.name}
+                    title={label}
                     className="grid size-9 place-items-center rounded-xl bg-gradient-to-br from-brand-100 to-brand-200 text-[12px] font-bold text-brand-700 ring-1 ring-brand-200"
                 >
                     {tenant.logo_url ? (
                         <img
                             src={tenant.logo_url}
-                            alt={tenant.name}
+                            alt={label}
                             className="size-9 rounded-xl object-cover"
                         />
                     ) : (
@@ -349,7 +400,7 @@ function TenantCard({
                     {tenant.logo_url ? (
                         <img
                             src={tenant.logo_url}
-                            alt={tenant.name}
+                            alt={label}
                             className="size-10 object-cover"
                         />
                     ) : (
@@ -362,10 +413,18 @@ function TenantCard({
                     </div>
                     <div
                         className="truncate text-[12.5px] font-bold text-slate-900"
-                        title={tenant.name}
+                        title={label}
                     >
-                        {tenant.name}
+                        {label}
                     </div>
+                    {tenant.tagline && (
+                        <div
+                            className="truncate text-[10.5px] text-slate-500"
+                            title={tenant.tagline}
+                        >
+                            {tenant.tagline}
+                        </div>
+                    )}
                 </div>
             </div>
             {tenant.seat_quota > 0 && (
@@ -420,10 +479,10 @@ function SingleLink({
             onClick={onClick}
             title={collapsed ? title : undefined}
             className={
-                'group/item relative flex w-full items-center rounded-xl text-[14px] font-medium transition ' +
+                'group/item relative flex min-h-[38px] w-full items-center rounded-xl text-[14px] font-medium transition ' +
                 (collapsed
-                    ? 'gap-3 px-3 py-2.5 lg:justify-center lg:px-0 lg:py-2.5 '
-                    : 'gap-3 px-3 py-2.5 ') +
+                    ? 'gap-3 px-3 py-2 lg:justify-center lg:px-0 lg:py-2 '
+                    : 'gap-3 px-3 py-2 ') +
                 (isActive
                     ? 'bg-brand-600 text-white shadow-[0_8px_18px_-10px_rgba(18,35,125,0.6)]'
                     : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900')
@@ -475,22 +534,22 @@ function NavGroup({
     const hasActive = section.items.some((item) =>
         isUrlActive(currentUrl, item.href),
     );
-    const [open, setOpen] = useGroupOpenState(section.label, hasActive);
+    const [open, setOpen] = useState<boolean>(false);
 
     const labelHidden = collapsed ? 'lg:hidden' : '';
     const Icon = section.icon;
 
     return (
-        <div className="space-y-0.5">
+        <div className={'space-y-0.5 ' + (open && !collapsed ? 'pb-3' : '')}>
             <button
                 type="button"
                 onClick={() => setOpen(!open)}
                 title={collapsed ? section.label : undefined}
                 className={
-                    'group/group relative flex w-full items-center rounded-xl text-[13px] font-semibold tracking-wider uppercase transition ' +
+                    'group/group relative flex min-h-[38px] w-full items-center rounded-xl text-[13px] font-semibold tracking-wider uppercase transition ' +
                     (collapsed
-                        ? 'gap-3 px-3 py-2 lg:justify-center lg:px-0'
-                        : 'gap-3 px-3 py-2') +
+                        ? 'gap-3 px-3 py-2 lg:justify-center lg:px-0 '
+                        : 'gap-3 px-3 py-2 ') +
                     (hasActive
                         ? 'text-brand-700'
                         : 'text-slate-500 hover:bg-slate-50 hover:text-slate-700')
@@ -524,10 +583,9 @@ function NavGroup({
             </button>
 
             {open && !collapsed && (
-                <ul className="space-y-0.5 pl-2">
+                <ul className="mt-2 space-y-1.5 pl-3">
                     {section.items.map((item) => {
                         const is = isUrlActive(currentUrl, item.href);
-                        const ItemIcon = item.icon;
 
                         return (
                             <li key={item.href} className="group/item relative">
@@ -535,22 +593,20 @@ function NavGroup({
                                     href={item.href}
                                     onClick={onClickItem}
                                     className={
-                                        'flex w-full items-center gap-3 rounded-lg py-2 pr-3 pl-5 text-[13.5px] font-medium transition ' +
+                                        'flex w-full items-center gap-2.5 rounded-lg py-2 pr-3 pl-4 text-[13.5px] font-medium transition ' +
                                         (is
                                             ? 'bg-brand-600 text-white shadow-[0_8px_18px_-10px_rgba(18,35,125,0.6)]'
                                             : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900')
                                     }
                                 >
-                                    {ItemIcon && (
-                                        <ItemIcon
-                                            size={16}
-                                            className={
-                                                is
-                                                    ? 'shrink-0 text-white'
-                                                    : 'shrink-0 text-slate-400 group-hover/item:text-brand-600'
-                                            }
-                                        />
-                                    )}
+                                    <span
+                                        className={
+                                            'inline-block size-1.5 shrink-0 rounded-full ' +
+                                            (is
+                                                ? 'bg-white'
+                                                : 'bg-slate-300 group-hover/item:bg-brand-500')
+                                        }
+                                    />
                                     <span className="flex-1 text-left">
                                         {item.title}
                                     </span>
@@ -570,7 +626,6 @@ function NavGroup({
                     <ul className="space-y-0.5">
                         {section.items.map((item) => {
                             const is = isUrlActive(currentUrl, item.href);
-                            const ItemIcon = item.icon;
 
                             return (
                                 <li key={item.href}>
@@ -578,13 +633,18 @@ function NavGroup({
                                         href={item.href}
                                         onClick={onClickItem}
                                         className={
-                                            'flex items-center gap-2 rounded-lg px-3 py-2 text-[13px] font-medium whitespace-nowrap transition ' +
+                                            'flex items-center gap-2.5 rounded-lg px-3 py-2 text-[13px] font-medium whitespace-nowrap transition ' +
                                             (is
                                                 ? 'bg-brand-50 text-brand-700'
                                                 : 'text-slate-600 hover:bg-slate-50')
                                         }
                                     >
-                                        {ItemIcon && <ItemIcon size={14} />}
+                                        <span
+                                            className={
+                                                'inline-block size-1.5 shrink-0 rounded-full ' +
+                                                (is ? 'bg-brand-600' : 'bg-slate-300')
+                                            }
+                                        />
                                         {item.title}
                                     </Link>
                                 </li>
@@ -610,28 +670,37 @@ function isUrlActive(currentUrl: string, href: string): boolean {
 function filterByPermission(
     sections: AdminNavSection[],
     hasPermission: (perm: string | string[]) => boolean,
+    hasRole: (roles: string | string[]) => boolean,
 ): AdminNavSection[] {
+    const allowedByGate = (gate: { permission?: string; roles?: string[] }) => {
+        if (gate.permission && !hasPermission(gate.permission)) {
+            return false;
+        }
+        if (gate.roles && gate.roles.length > 0 && !hasRole(gate.roles)) {
+            return false;
+        }
+        return true;
+    };
+
     return sections
         .map((section) => {
             if (section.type === 'divider') {
-                return section;
-            }
-
-            if (section.type === 'item') {
-                if (section.permission && !hasPermission(section.permission)) {
+                if (section.roles && section.roles.length > 0 && !hasRole(section.roles)) {
                     return null;
                 }
 
                 return section;
             }
 
-            if (section.permission && !hasPermission(section.permission)) {
+            if (section.type === 'item') {
+                return allowedByGate(section) ? section : null;
+            }
+
+            if (! allowedByGate(section)) {
                 return null;
             }
 
-            const items = section.items.filter(
-                (item) => !item.permission || hasPermission(item.permission),
-            );
+            const items = section.items.filter((item) => allowedByGate(item));
 
             if (items.length === 0) {
                 return null;
@@ -640,44 +709,6 @@ function filterByPermission(
             return { ...section, items };
         })
         .filter((s): s is AdminNavSection => s !== null);
-}
-
-function useGroupOpenState(
-    key: string,
-    defaultOpen: boolean,
-): [boolean, (v: boolean) => void] {
-    const [open, setOpen] = useState<boolean>(defaultOpen);
-
-    useEffect(() => {
-        try {
-            const raw = localStorage.getItem(GROUP_STATE_KEY);
-
-            if (!raw) return;
-
-            const map = JSON.parse(raw) as Record<string, boolean>;
-
-            if (key in map) {
-                setOpen(map[key]);
-            }
-        } catch {
-            /* noop */
-        }
-    }, [key]);
-
-    const update = (v: boolean) => {
-        setOpen(v);
-
-        try {
-            const raw = localStorage.getItem(GROUP_STATE_KEY);
-            const map = raw ? (JSON.parse(raw) as Record<string, boolean>) : {};
-            map[key] = v;
-            localStorage.setItem(GROUP_STATE_KEY, JSON.stringify(map));
-        } catch {
-            /* noop */
-        }
-    };
-
-    return [open, update];
 }
 
 function initials(name: string) {
@@ -742,23 +773,303 @@ export function LearnpathTopbar({
 
                 <div className="flex-1" />
 
-                <div className="hidden w-[320px] items-center gap-2 rounded-xl bg-white px-3.5 py-2.5 ring-1 ring-slate-200 transition focus-within:ring-2 focus-within:ring-brand-600 md:flex">
-                    <IconSearch size={18} className="text-slate-400" />
-                    <input
-                        placeholder="Cari kursus, siswa…"
-                        className="min-w-0 flex-1 bg-transparent text-[13.5px] outline-none placeholder:text-slate-400"
-                    />
-                    <span className="rounded px-1.5 py-0.5 text-[10px] font-semibold text-slate-400 ring-1 ring-slate-200">
-                        ⌘K
-                    </span>
-                </div>
+                <QuickSearch />
 
                 <div className="flex items-center gap-2">
+                    {user && <PointsBadge />}
                     <NotificationDropdown />
                     {user && <UserDropdown user={user} />}
                 </div>
             </div>
         </header>
+    );
+}
+
+type QuickSearchCourse = {
+    id: number;
+    title: string;
+    slug: string;
+    thumbnail: string | null;
+    review_status: string | null;
+    instructor: string | null;
+    url: string;
+};
+
+type QuickSearchUser = {
+    id: number;
+    name: string;
+    email: string;
+    avatar: string | null;
+    role: string | null;
+    url: string;
+};
+
+type QuickSearchResponse = {
+    query: string;
+    courses: QuickSearchCourse[];
+    users: QuickSearchUser[];
+};
+
+function QuickSearch() {
+    const [query, setQuery] = useState('');
+    const [results, setResults] = useState<QuickSearchResponse | null>(null);
+    const [loading, setLoading] = useState(false);
+    const [open, setOpen] = useState(false);
+    const containerRef = useRef<HTMLDivElement | null>(null);
+    const inputRef = useRef<HTMLInputElement | null>(null);
+
+    useEffect(() => {
+        const term = query.trim();
+
+        if (term.length < 2) {
+            setResults(null);
+            setLoading(false);
+            return;
+        }
+
+        const controller = new AbortController();
+        setLoading(true);
+
+        const timer = setTimeout(() => {
+            fetch(`/admin/search/quick?q=${encodeURIComponent(term)}`, {
+                headers: { Accept: 'application/json' },
+                credentials: 'same-origin',
+                signal: controller.signal,
+            })
+                .then((res) => (res.ok ? res.json() : Promise.reject(res)))
+                .then((data: QuickSearchResponse) => {
+                    setResults(data);
+                    setLoading(false);
+                })
+                .catch((err) => {
+                    if (err?.name === 'AbortError') return;
+                    setLoading(false);
+                });
+        }, 250);
+
+        return () => {
+            controller.abort();
+            clearTimeout(timer);
+        };
+    }, [query]);
+
+    useEffect(() => {
+        const handleClick = (event: MouseEvent) => {
+            if (!containerRef.current) return;
+            if (!containerRef.current.contains(event.target as Node)) {
+                setOpen(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClick);
+        return () => document.removeEventListener('mousedown', handleClick);
+    }, []);
+
+    useEffect(() => {
+        const handleKey = (event: KeyboardEvent) => {
+            const isMac = navigator.platform.toLowerCase().includes('mac');
+            const cmd = isMac ? event.metaKey : event.ctrlKey;
+            if (cmd && event.key.toLowerCase() === 'k') {
+                event.preventDefault();
+                inputRef.current?.focus();
+                setOpen(true);
+            }
+            if (event.key === 'Escape') {
+                setOpen(false);
+                inputRef.current?.blur();
+            }
+        };
+        document.addEventListener('keydown', handleKey);
+        return () => document.removeEventListener('keydown', handleKey);
+    }, []);
+
+    const handleSelect = (url: string) => {
+        setOpen(false);
+        setQuery('');
+        setResults(null);
+        router.visit(url);
+    };
+
+    const totalResults =
+        (results?.courses.length ?? 0) + (results?.users.length ?? 0);
+    const hasQuery = query.trim().length >= 2;
+    const showDropdown = open && hasQuery;
+
+    return (
+        <div
+            ref={containerRef}
+            className="relative hidden w-[320px] md:block"
+        >
+            <div className="flex items-center gap-2 rounded-xl bg-white px-3.5 py-2.5 ring-1 ring-slate-200 transition focus-within:ring-2 focus-within:ring-brand-600">
+                <IconSearch size={18} className="text-slate-400" />
+                <input
+                    ref={inputRef}
+                    value={query}
+                    onChange={(e) => {
+                        setQuery(e.target.value);
+                        setOpen(true);
+                    }}
+                    onFocus={() => setOpen(true)}
+                    placeholder="Cari kursus, siswa…"
+                    className="min-w-0 flex-1 bg-transparent text-[13.5px] outline-none placeholder:text-slate-400"
+                />
+                <span className="rounded px-1.5 py-0.5 text-[10px] font-semibold text-slate-400 ring-1 ring-slate-200">
+                    ⌘K
+                </span>
+            </div>
+
+            {showDropdown && (
+                <div className="absolute top-[calc(100%+8px)] right-0 left-0 z-50 max-h-[420px] overflow-y-auto rounded-xl bg-white p-2 shadow-xl ring-1 ring-slate-200">
+                    {loading && !results && (
+                        <div className="px-3 py-6 text-center text-[12.5px] text-slate-500">
+                            Mencari…
+                        </div>
+                    )}
+
+                    {!loading && results && totalResults === 0 && (
+                        <div className="px-3 py-6 text-center">
+                            <IconSearch
+                                size={20}
+                                className="mx-auto mb-2 text-slate-300"
+                            />
+                            <div className="text-[12.5px] font-semibold text-slate-700">
+                                Tidak ada hasil
+                            </div>
+                            <div className="text-[11px] text-slate-500">
+                                Coba kata kunci lain.
+                            </div>
+                        </div>
+                    )}
+
+                    {results && results.courses.length > 0 && (
+                        <div className="mb-1">
+                            <div className="px-2 pt-1 pb-1.5 text-[10px] font-bold tracking-wider text-slate-400 uppercase">
+                                Kursus
+                            </div>
+                            <ul className="space-y-0.5">
+                                {results.courses.map((course) => (
+                                    <li key={`c-${course.id}`}>
+                                        <button
+                                            type="button"
+                                            onClick={() =>
+                                                handleSelect(course.url)
+                                            }
+                                            className="flex w-full items-center gap-2.5 rounded-lg px-2 py-2 text-left transition hover:bg-slate-50"
+                                        >
+                                            <span className="grid size-8 shrink-0 place-items-center overflow-hidden rounded-md bg-brand-50 text-brand-600">
+                                                {course.thumbnail ? (
+                                                    <img
+                                                        src={course.thumbnail}
+                                                        alt={course.title}
+                                                        className="size-8 object-cover"
+                                                    />
+                                                ) : (
+                                                    <BookOpen size={14} />
+                                                )}
+                                            </span>
+                                            <span className="min-w-0 flex-1">
+                                                <span className="block truncate text-[13px] font-semibold text-slate-900">
+                                                    {course.title}
+                                                </span>
+                                                <span className="block truncate text-[11px] text-slate-500">
+                                                    {course.instructor
+                                                        ? `oleh ${course.instructor}`
+                                                        : course.slug}
+                                                </span>
+                                            </span>
+                                            {course.review_status && (
+                                                <span className="shrink-0 rounded-full bg-slate-100 px-1.5 py-0.5 text-[9.5px] font-semibold tracking-wide text-slate-600 uppercase">
+                                                    {course.review_status}
+                                                </span>
+                                            )}
+                                        </button>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    )}
+
+                    {results && results.users.length > 0 && (
+                        <div>
+                            <div className="px-2 pt-1 pb-1.5 text-[10px] font-bold tracking-wider text-slate-400 uppercase">
+                                Pengguna
+                            </div>
+                            <ul className="space-y-0.5">
+                                {results.users.map((u) => (
+                                    <li key={`u-${u.id}`}>
+                                        <button
+                                            type="button"
+                                            onClick={() => handleSelect(u.url)}
+                                            className="flex w-full items-center gap-2.5 rounded-lg px-2 py-2 text-left transition hover:bg-slate-50"
+                                        >
+                                            <span className="grid size-8 shrink-0 place-items-center overflow-hidden rounded-full bg-gradient-to-br from-brand-300 to-brand-600 text-[11px] font-bold text-white">
+                                                {u.avatar ? (
+                                                    <img
+                                                        src={u.avatar}
+                                                        alt={u.name}
+                                                        className="size-8 rounded-full object-cover"
+                                                    />
+                                                ) : (
+                                                    initials(u.name)
+                                                )}
+                                            </span>
+                                            <span className="min-w-0 flex-1">
+                                                <span className="block truncate text-[13px] font-semibold text-slate-900">
+                                                    {u.name}
+                                                </span>
+                                                <span className="block truncate text-[11px] text-slate-500">
+                                                    {u.email}
+                                                </span>
+                                            </span>
+                                            {u.role && (
+                                                <span className="flex shrink-0 items-center gap-1 rounded-full bg-slate-100 px-1.5 py-0.5 text-[9.5px] font-semibold tracking-wide text-slate-600 uppercase">
+                                                    <UserIcon size={9} />
+                                                    {u.role}
+                                                </span>
+                                            )}
+                                        </button>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    )}
+                </div>
+            )}
+        </div>
+    );
+}
+
+function PointsBadge() {
+    const { props } = usePage<{
+        gamification: {
+            total_points: number;
+            level: string;
+            current_streak: number;
+        } | null;
+    }>();
+    const data = props.gamification;
+    if (!data) {
+        return null;
+    }
+
+    const formatted = new Intl.NumberFormat('id-ID').format(data.total_points);
+
+    return (
+        <Link
+            href="/my-points"
+            className="hidden h-10 items-center gap-2 rounded-xl bg-white px-3 ring-1 ring-slate-200 hover:bg-slate-50 sm:inline-flex"
+            aria-label="Lihat poin & streak"
+        >
+            <Coins className="size-4 text-amber-500" />
+            <span className="text-[12.5px] font-bold tabular-nums text-slate-900">
+                {formatted}
+            </span>
+            {data.current_streak > 0 && (
+                <span className="ml-1 inline-flex items-center gap-0.5 rounded-md bg-rose-50 px-1.5 py-0.5 text-[10.5px] font-bold text-rose-700">
+                    <Flame className="size-2.5" />
+                    {data.current_streak}
+                </span>
+            )}
+        </Link>
     );
 }
 
@@ -883,6 +1194,15 @@ function NotificationDropdown() {
                         ))
                     )}
                 </div>
+                <div className="border-t border-slate-100 px-3 py-2">
+                    <button
+                        type="button"
+                        onClick={() => router.visit('/notifications')}
+                        className="w-full text-[11.5px] font-semibold text-brand-600 hover:underline"
+                    >
+                        Lihat semua notifikasi
+                    </button>
+                </div>
             </DropdownMenuContent>
         </DropdownMenu>
     );
@@ -974,16 +1294,7 @@ function UserDropdown({ user }: { user: User }) {
                 <DropdownMenuItem asChild>
                     <Link href={editProfile()} className="cursor-pointer">
                         <IconPanel size={14} className="mr-2 text-slate-500" />
-                        Profil Saya
-                    </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                    <Link href="/settings/security" className="cursor-pointer">
-                        <IconSparkle
-                            size={14}
-                            className="mr-2 text-slate-500"
-                        />
-                        Keamanan
+                        Edit Profil
                     </Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />

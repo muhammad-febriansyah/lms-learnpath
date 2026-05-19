@@ -6,10 +6,12 @@ use App\Actions\SkillMatrix\CalculateSkillGap;
 use App\Http\Controllers\Controller;
 use App\Models\Position;
 use App\Models\SkillGap;
+use App\Services\AI\SkillGapAIRemediator;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
+use Throwable;
 
 class SkillGapController extends Controller
 {
@@ -61,5 +63,18 @@ class SkillGapController extends Controller
         $count = $action->executeAll();
 
         return back()->with('success', "Berhasil menghitung ulang {$count} entri skill gap.");
+    }
+
+    public function recommendAi(Request $request, SkillGap $skillGap, SkillGapAIRemediator $remediator): RedirectResponse
+    {
+        abort_unless($request->user()?->can('skill_matrix.view'), 403);
+
+        try {
+            $remediator->remediate($skillGap);
+        } catch (Throwable $e) {
+            return back()->with('error', 'Gagal generate rekomendasi AI: '.mb_substr($e->getMessage(), 0, 200));
+        }
+
+        return back()->with('success', 'Rekomendasi AI berhasil dibuat.');
     }
 }

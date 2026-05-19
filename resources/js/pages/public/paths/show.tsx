@@ -4,10 +4,8 @@ import {
     BookOpen,
     Calendar,
     CheckCircle2,
-    ChevronRight,
     Circle,
     Clock,
-    Compass,
     GraduationCap,
     PlayCircle,
     Sparkles,
@@ -16,8 +14,12 @@ import {
 } from 'lucide-react';
 import { useState } from 'react';
 
+import { PageHeader } from '@/components/front/page-header';
+import {
+    RedeemPointButton,
+    type PointOffer,
+} from '@/components/redeem-point-button';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
 type Course = {
@@ -48,6 +50,9 @@ type Path = {
     total_courses: number;
     total_students: number;
     enrollments_count: number;
+    price: number;
+    compare_at_price: number | null;
+    savings: number;
     position: { id: number; name: string; division: string | null } | null;
     courses: Course[];
 };
@@ -66,6 +71,7 @@ type Props = {
     path: Path;
     userEnrollment: UserEnrollment | null;
     courseProgress: Record<number, CourseProgress>;
+    pointOffer: PointOffer | null;
 };
 
 function formatDuration(minutes: number): string {
@@ -87,7 +93,7 @@ function levelLabel(level: string | null): string {
     );
 }
 
-export default function PathShow({ path, userEnrollment, courseProgress }: Props) {
+export default function PathShow({ path, userEnrollment, courseProgress, pointOffer }: Props) {
     const page = usePage<{ auth: { user: { id: number } | null } }>();
     const isAuthed = Boolean(page.props.auth?.user);
     const [enrolling, setEnrolling] = useState(false);
@@ -109,138 +115,138 @@ export default function PathShow({ path, userEnrollment, courseProgress }: Props
     };
 
     const isCompleted = userEnrollment?.status === 'completed';
+    const isPaid = path.price > 0;
+    const priceLabel = new Intl.NumberFormat('id-ID', {
+        style: 'currency',
+        currency: 'IDR',
+        minimumFractionDigits: 0,
+    }).format(path.price);
+
+    const handleBuyPath = () => {
+        if (!isAuthed) {
+            router.visit(`/login?redirect=/checkout/path/${path.slug}`);
+            return;
+        }
+        router.visit(`/checkout/path/${path.slug}`);
+    };
+
+    const enrollButton = !userEnrollment ? (
+        <div className="flex flex-wrap items-center gap-2">
+            {isPaid ? (
+                <button
+                    type="button"
+                    onClick={handleBuyPath}
+                    className="inline-flex items-center gap-2 rounded-full bg-white px-5 py-2.5 text-[14px] font-bold text-brand-700 shadow-sm transition hover:-translate-y-0.5 hover:bg-brand-50"
+                >
+                    Beli {path.total_courses} Kelas · {priceLabel}
+                </button>
+            ) : (
+                <button
+                    type="button"
+                    onClick={handleEnroll}
+                    disabled={enrolling}
+                    className="inline-flex items-center gap-2 rounded-full bg-white px-5 py-2.5 text-[14px] font-semibold text-brand-700 transition hover:-translate-y-0.5 hover:bg-brand-50 disabled:cursor-not-allowed disabled:opacity-70"
+                >
+                    {enrolling ? 'Memproses...' : 'Mulai Path Ini'}
+                </button>
+            )}
+            {pointOffer && (
+                <RedeemPointButton offer={pointOffer} label="Tukar Path" />
+            )}
+        </div>
+    ) : !isCompleted ? (
+        <Link
+            href="/my-paths"
+            className="inline-flex items-center gap-2 rounded-full bg-white px-5 py-2.5 text-[14px] font-semibold text-brand-700 transition hover:-translate-y-0.5 hover:bg-brand-50"
+        >
+            Lanjut Belajar
+        </Link>
+    ) : (
+        <span className="inline-flex items-center gap-2 rounded-full bg-emerald-500/25 px-4 py-2 text-[13px] font-bold text-white ring-1 ring-emerald-300/40 backdrop-blur">
+            <Award className="size-4 text-emerald-200" />
+            Path Selesai
+        </span>
+    );
 
     return (
         <>
-            <Head title={path.title} />
-            <div className="space-y-6">
-                {/* Breadcrumb */}
-                <nav className="flex items-center gap-1.5 text-[12.5px] text-slate-500">
-                    <Link href="/paths" className="hover:text-slate-700">
-                        Learning Path
-                    </Link>
-                    <ChevronRight className="size-3 text-slate-300" />
-                    <span className="line-clamp-1 font-semibold text-slate-900">
-                        {path.title}
+            <Head title={`${path.title} · Learnpath`} />
+
+            <PageHeader
+                eyebrow="Learning Path"
+                title={path.title}
+                description={path.subtitle ?? undefined}
+                breadcrumbs={[
+                    { label: 'Beranda', href: '/' },
+                    { label: 'Learning Path', href: '/paths' },
+                    { label: path.title },
+                ]}
+                actions={enrollButton}
+            >
+                <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-[13px] text-white/85">
+                    <span className="inline-flex items-center gap-1.5">
+                        <BookOpen className="size-4 text-brand-300" />
+                        {path.total_courses} course
                     </span>
-                </nav>
+                    {path.duration_weeks && (
+                        <span className="inline-flex items-center gap-1.5">
+                            <Calendar className="size-4 text-brand-300" />
+                            {path.duration_weeks} minggu
+                        </span>
+                    )}
+                    <span className="inline-flex items-center gap-1.5">
+                        <Sparkles className="size-4 text-brand-300" />
+                        {levelLabel(path.level)}
+                    </span>
+                    <span className="inline-flex items-center gap-1.5">
+                        <Users className="size-4 text-brand-300" />
+                        {path.enrollments_count.toLocaleString('id-ID')} peserta
+                    </span>
+                    {path.position && (
+                        <span className="inline-flex items-center gap-1.5">
+                            <Target className="size-4 text-brand-300" />
+                            Untuk {path.position.name}
+                        </span>
+                    )}
+                </div>
 
-                {/* Hero */}
-                <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-violet-700 via-indigo-700 to-brand-700 p-6 text-white sm:p-10">
-                    <div
-                        className="absolute -top-24 -right-24 size-96 rounded-full bg-white/10 blur-3xl"
-                        aria-hidden="true"
-                    />
-                    <div
-                        className="absolute -bottom-32 -left-24 size-96 rounded-full bg-violet-300/20 blur-3xl"
-                        aria-hidden="true"
-                    />
-                    <div className="relative flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
-                        <div className="max-w-2xl">
-                            <div className="inline-flex items-center gap-2 rounded-full bg-white/15 px-2.5 py-1 text-[11px] font-bold tracking-[0.16em] ring-1 ring-white/20 uppercase backdrop-blur">
-                                <Compass className="size-3" />
-                                Learning Path
-                            </div>
-                            <h1 className="mt-3 text-[28px] leading-[1.15] font-extrabold tracking-tight sm:text-[36px]">
-                                {path.title}
-                            </h1>
-                            {path.subtitle && (
-                                <p className="mt-3 text-[14.5px] leading-relaxed text-white/85 sm:text-[16px]">
-                                    {path.subtitle}
-                                </p>
-                            )}
-
-                            <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2 text-[12.5px] text-white/85">
-                                <span className="inline-flex items-center gap-1.5">
-                                    <BookOpen className="size-3.5" />
-                                    {path.total_courses} course
-                                </span>
-                                {path.duration_weeks && (
-                                    <span className="inline-flex items-center gap-1.5">
-                                        <Calendar className="size-3.5" />
-                                        {path.duration_weeks} minggu
-                                    </span>
-                                )}
-                                <span className="inline-flex items-center gap-1.5">
-                                    <Sparkles className="size-3.5" />
-                                    {levelLabel(path.level)}
-                                </span>
-                                <span className="inline-flex items-center gap-1.5">
-                                    <Users className="size-3.5" />
-                                    {path.enrollments_count.toLocaleString('id-ID')} peserta
-                                </span>
-                                {path.position && (
-                                    <span className="inline-flex items-center gap-1.5">
-                                        <Target className="size-3.5" />
-                                        Untuk {path.position.name}
-                                    </span>
-                                )}
-                            </div>
+                {userEnrollment && (
+                    <div className="mt-6 max-w-md rounded-2xl bg-white/10 p-4 ring-1 ring-white/20 backdrop-blur">
+                        <div className="flex items-center justify-between text-[12px] text-white/80">
+                            <span>Progress Anda</span>
+                            <span className="font-bold text-white tabular-nums">
+                                {userEnrollment.progress_percent}%
+                            </span>
                         </div>
-
-                        <div className="flex flex-col gap-2 sm:min-w-[220px]">
-                            {!userEnrollment && (
-                                <Button
-                                    size="lg"
-                                    onClick={handleEnroll}
-                                    disabled={enrolling}
-                                    className="h-12 rounded-xl bg-white px-6 text-indigo-700 hover:bg-slate-50"
-                                >
-                                    {enrolling ? 'Memproses...' : 'Mulai Path Ini'}
-                                </Button>
-                            )}
-                            {userEnrollment && !isCompleted && (
-                                <Button
-                                    asChild
-                                    size="lg"
-                                    className="h-12 rounded-xl bg-white px-6 text-indigo-700 hover:bg-slate-50"
-                                >
-                                    <Link href="/my-paths">Lanjut Belajar</Link>
-                                </Button>
-                            )}
-                            {isCompleted && (
-                                <div className="inline-flex items-center gap-2 rounded-xl bg-emerald-500/20 px-3 py-2 text-[12.5px] font-bold ring-1 ring-emerald-300/40">
-                                    <Award className="size-4 text-emerald-200" />
-                                    Path Selesai
-                                </div>
-                            )}
-                            {userEnrollment && (
-                                <div className="rounded-xl bg-white/10 p-3 ring-1 ring-white/20">
-                                    <div className="flex items-center justify-between text-[11.5px] text-white/80">
-                                        <span>Progress Anda</span>
-                                        <span className="font-bold text-white tabular-nums">
-                                            {userEnrollment.progress_percent}%
-                                        </span>
-                                    </div>
-                                    <div className="mt-2 h-2 overflow-hidden rounded-full bg-white/20">
-                                        <div
-                                            className="h-full bg-white"
-                                            style={{
-                                                width: `${userEnrollment.progress_percent}%`,
-                                            }}
-                                        />
-                                    </div>
-                                    <p className="mt-2 text-[11px] text-white/75">
-                                        {userEnrollment.courses_completed} dari {path.total_courses}{' '}
-                                        course selesai
-                                    </p>
-                                </div>
-                            )}
+                        <div className="mt-2 h-2 overflow-hidden rounded-full bg-white/20">
+                            <div
+                                className="h-full bg-white"
+                                style={{
+                                    width: `${userEnrollment.progress_percent}%`,
+                                }}
+                            />
                         </div>
+                        <p className="mt-2 text-[11.5px] text-white/75">
+                            {userEnrollment.courses_completed} dari {path.total_courses}{' '}
+                            course selesai
+                        </p>
                     </div>
-                </section>
+                )}
+            </PageHeader>
 
+            <div className="mx-auto max-w-7xl px-5 py-12 lg:px-8 lg:py-16">
                 {/* Description & outcomes */}
-                <section className="grid gap-5 lg:grid-cols-[2fr_1fr]">
+                <section className="grid gap-6 lg:grid-cols-[2fr_1fr]">
                     <div className="space-y-5">
                         {path.description && (
                             <div className="rounded-2xl bg-card p-6 ring-1 ring-slate-200/70 shadow-[0_1px_2px_rgba(15,23,42,0.04)]">
                                 <h2 className="text-[18px] font-extrabold text-slate-900">
                                     Tentang Path
                                 </h2>
-                                <p className="mt-2 text-[13.5px] leading-relaxed whitespace-pre-line text-slate-700">
-                                    {path.description}
-                                </p>
+                                <div
+                                    className="prose prose-sm mt-2 max-w-none text-[13.5px] leading-relaxed text-slate-700 [&_a]:text-brand-600 [&_a]:underline [&_ol]:list-decimal [&_ol]:pl-5 [&_p]:my-2 [&_strong]:font-semibold [&_ul]:list-disc [&_ul]:pl-5"
+                                    dangerouslySetInnerHTML={{ __html: path.description }}
+                                />
                             </div>
                         )}
 
@@ -277,7 +283,7 @@ export default function PathShow({ path, userEnrollment, courseProgress }: Props
                                                     completed
                                                         ? 'bg-emerald-500 text-white ring-emerald-200'
                                                         : inProgress
-                                                          ? 'bg-indigo-500 text-white ring-indigo-200'
+                                                          ? 'bg-brand-500 text-white ring-brand-200'
                                                           : 'bg-slate-100 text-slate-600 ring-slate-200',
                                                 )}
                                             >
@@ -303,7 +309,7 @@ export default function PathShow({ path, userEnrollment, courseProgress }: Props
                                                 </div>
                                                 <Link
                                                     href={`/courses/${course.slug}`}
-                                                    className="mt-1 line-clamp-1 block text-[14.5px] font-bold text-slate-900 transition hover:text-indigo-700"
+                                                    className="mt-1 line-clamp-1 block text-[14.5px] font-bold text-slate-900 transition hover:text-brand-700"
                                                 >
                                                     {course.title}
                                                 </Link>
@@ -325,7 +331,7 @@ export default function PathShow({ path, userEnrollment, courseProgress }: Props
                                                         {levelLabel(course.level)}
                                                     </span>
                                                     {inProgress && (
-                                                        <span className="font-bold text-indigo-600">
+                                                        <span className="font-bold text-brand-600">
                                                             {progress.progress_percent}% selesai
                                                         </span>
                                                     )}
@@ -339,7 +345,7 @@ export default function PathShow({ path, userEnrollment, courseProgress }: Props
                                                         'inline-flex items-center gap-1 rounded-lg px-3 py-1.5 text-[11.5px] font-bold transition',
                                                         completed
                                                             ? 'bg-emerald-500 text-white hover:bg-emerald-600'
-                                                            : 'bg-indigo-600 text-white hover:bg-indigo-700',
+                                                            : 'bg-brand-600 text-white hover:bg-brand-700',
                                                     )}
                                                 >
                                                     <PlayCircle className="size-3.5" />
@@ -354,9 +360,9 @@ export default function PathShow({ path, userEnrollment, courseProgress }: Props
                     </div>
 
                     {/* Sidebar */}
-                    <aside className="space-y-5">
+                    <aside className="space-y-5 lg:sticky lg:top-24 lg:self-start">
                         {path.outcomes && path.outcomes.length > 0 && (
-                            <div className="rounded-2xl bg-card p-5 ring-1 ring-slate-200/70">
+                            <div className="rounded-2xl bg-white p-6 ring-1 ring-slate-200">
                                 <h3 className="text-[14px] font-extrabold text-slate-900">
                                     Yang Anda Capai
                                 </h3>
@@ -375,7 +381,7 @@ export default function PathShow({ path, userEnrollment, courseProgress }: Props
                         )}
 
                         {path.target_audience && path.target_audience.length > 0 && (
-                            <div className="rounded-2xl bg-card p-5 ring-1 ring-slate-200/70">
+                            <div className="rounded-2xl bg-white p-6 ring-1 ring-slate-200">
                                 <h3 className="text-[14px] font-extrabold text-slate-900">
                                     Cocok untuk
                                 </h3>
@@ -385,7 +391,7 @@ export default function PathShow({ path, userEnrollment, courseProgress }: Props
                                             key={i}
                                             className="flex items-start gap-2 text-[12.5px] text-slate-700"
                                         >
-                                            <Circle className="mt-1 size-2 shrink-0 fill-indigo-500 text-indigo-500" />
+                                            <Circle className="mt-1 size-2 shrink-0 fill-brand-500 text-brand-500" />
                                             <span>{t}</span>
                                         </li>
                                     ))}
@@ -394,8 +400,8 @@ export default function PathShow({ path, userEnrollment, courseProgress }: Props
                         )}
 
                         {path.position && (
-                            <div className="rounded-2xl bg-gradient-to-br from-indigo-50 to-violet-50 p-5 ring-1 ring-indigo-200/70">
-                                <div className="flex items-center gap-2 text-[11px] font-bold tracking-wider text-indigo-700 uppercase">
+                            <div className="rounded-2xl bg-gradient-to-br from-brand-50 to-white p-6 ring-1 ring-brand-100">
+                                <div className="flex items-center gap-2 text-[11px] font-bold tracking-wider text-brand-700 uppercase">
                                     <Target className="size-3.5" />
                                     Mapped to Jabatan
                                 </div>

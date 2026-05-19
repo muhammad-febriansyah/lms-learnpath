@@ -12,8 +12,8 @@ class SettingSeeder extends Seeder
         $rows = [
             // ===== General =====
             ['key' => 'site_name', 'value' => 'LearnPath', 'type' => 'text', 'group' => 'general', 'label' => 'Nama Website', 'is_public' => true, 'sort_order' => 1],
-            ['key' => 'site_tagline', 'value' => 'Belajar tanpa batas, kapan saja, di mana saja', 'type' => 'text', 'group' => 'general', 'label' => 'Tagline', 'is_public' => true, 'sort_order' => 2],
-            ['key' => 'site_description', 'value' => 'Platform pembelajaran online untuk meningkatkan kompetensi profesional Anda.', 'type' => 'textarea', 'group' => 'general', 'label' => 'Deskripsi Website', 'is_public' => true, 'sort_order' => 3],
+            ['key' => 'site_tagline', 'value' => 'Platform LMS modern untuk kursus online, sertifikasi, dan corporate training', 'type' => 'text', 'group' => 'general', 'label' => 'Tagline', 'is_public' => true, 'sort_order' => 2],
+            ['key' => 'site_description', 'value' => 'LearnPath adalah platform LMS dan pembelajaran online untuk pelatihan karyawan, sertifikasi digital, learning path, dan pengembangan kompetensi profesional di Indonesia.', 'type' => 'textarea', 'group' => 'general', 'label' => 'Deskripsi Website', 'is_public' => true, 'sort_order' => 3],
             ['key' => 'site_logo', 'value' => null, 'type' => 'image', 'group' => 'general', 'label' => 'Logo', 'is_public' => true, 'sort_order' => 4],
             ['key' => 'site_favicon', 'value' => null, 'type' => 'image', 'group' => 'general', 'label' => 'Favicon', 'is_public' => true, 'sort_order' => 5],
             ['key' => 'site_email', 'value' => 'hello@learnpath.id', 'type' => 'email', 'group' => 'general', 'label' => 'Email Kontak', 'is_public' => true, 'sort_order' => 7],
@@ -22,9 +22,9 @@ class SettingSeeder extends Seeder
             ['key' => 'site_address', 'value' => 'Jakarta, Indonesia', 'type' => 'textarea', 'group' => 'general', 'label' => 'Alamat', 'is_public' => true, 'sort_order' => 10],
 
             // ===== SEO =====
-            ['key' => 'seo_meta_title', 'value' => 'LearnPath - Platform Belajar Online', 'type' => 'text', 'group' => 'seo', 'label' => 'Meta Title', 'is_public' => true, 'sort_order' => 1],
-            ['key' => 'seo_meta_description', 'value' => 'Tingkatkan kompetensi Anda dengan kursus online berkualitas.', 'type' => 'textarea', 'group' => 'seo', 'label' => 'Meta Description', 'is_public' => true, 'sort_order' => 2],
-            ['key' => 'seo_meta_keywords', 'value' => 'lms, kursus online, belajar online, sertifikasi, training, skill matrix', 'type' => 'text', 'group' => 'seo', 'label' => 'Meta Keywords', 'is_public' => true, 'sort_order' => 3],
+            ['key' => 'seo_meta_title', 'value' => 'LearnPath | LMS, Kursus Online, Sertifikasi, dan Corporate Training', 'type' => 'text', 'group' => 'seo', 'label' => 'Meta Title', 'is_public' => true, 'sort_order' => 1],
+            ['key' => 'seo_meta_description', 'value' => 'Kelola pembelajaran lebih efektif dengan LearnPath, platform LMS untuk kursus online, training perusahaan, sertifikasi digital, learning path, dan skill matrix.', 'type' => 'textarea', 'group' => 'seo', 'label' => 'Meta Description', 'is_public' => true, 'sort_order' => 2],
+            ['key' => 'seo_meta_keywords', 'value' => 'learnpath, lms indonesia, kursus online, training perusahaan, corporate training, sertifikasi digital, learning path, skill matrix, learning management system', 'type' => 'text', 'group' => 'seo', 'label' => 'Meta Keywords', 'is_public' => true, 'sort_order' => 3],
             ['key' => 'seo_og_image', 'value' => null, 'type' => 'image', 'group' => 'seo', 'label' => 'Open Graph Image', 'is_public' => true, 'sort_order' => 4],
             ['key' => 'seo_google_analytics_id', 'value' => null, 'type' => 'text', 'group' => 'seo', 'label' => 'Google Analytics ID', 'is_public' => false, 'sort_order' => 5],
             ['key' => 'seo_gtm_id', 'value' => null, 'type' => 'text', 'group' => 'seo', 'label' => 'Google Tag Manager ID', 'is_public' => false, 'sort_order' => 6],
@@ -48,6 +48,11 @@ class SettingSeeder extends Seeder
             ['key' => 'payment_tax_percent', 'value' => '0', 'type' => 'number', 'group' => 'payment', 'label' => 'Persentase PPN (%)', 'is_public' => false, 'sort_order' => 2],
             ['key' => 'payment_fee_percent', 'value' => '0', 'type' => 'number', 'group' => 'payment', 'label' => 'Persentase Fee Platform (%)', 'is_public' => false, 'sort_order' => 3],
             ['key' => 'payment_order_expiry_hours', 'value' => '24', 'type' => 'number', 'group' => 'payment', 'label' => 'Expiry Order (jam)', 'is_public' => false, 'sort_order' => 4],
+
+            // ===== Payout (penarikan dana instructor) =====
+            ['key' => 'payout_revenue_share_percent', 'value' => '100', 'type' => 'number', 'group' => 'payout', 'label' => 'Bagi Hasil Instruktur (%)', 'description' => 'Persentase penjualan yang masuk ke saldo instruktur. Sisanya = bagian platform.', 'is_public' => false, 'sort_order' => 1],
+            ['key' => 'payout_fee_percent', 'value' => '0', 'type' => 'number', 'group' => 'payout', 'label' => 'Fee Tarik (%)', 'description' => 'Persentase potongan saat instruktur menarik dana.', 'is_public' => false, 'sort_order' => 2],
+            ['key' => 'payout_min_amount', 'value' => '50000', 'type' => 'number', 'group' => 'payout', 'label' => 'Minimum Tarik (Rp)', 'description' => 'Jumlah minimum sekali tarikan.', 'is_public' => false, 'sort_order' => 3],
 
             // ===== Legal =====
             ['key' => 'legal_terms_url', 'value' => '/terms', 'type' => 'url', 'group' => 'legal', 'label' => 'Syarat & Ketentuan', 'is_public' => true, 'sort_order' => 1],

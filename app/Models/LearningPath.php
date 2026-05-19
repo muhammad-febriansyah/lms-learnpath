@@ -23,6 +23,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
     'position_id',
     'total_courses',
     'total_students',
+    'price',
+    'compare_at_price',
     'is_published',
     'published_at',
 ])]
@@ -39,9 +41,25 @@ class LearningPath extends Model
             'outcomes' => 'array',
             'total_courses' => 'integer',
             'total_students' => 'integer',
+            'price' => 'integer',
+            'compare_at_price' => 'integer',
             'is_published' => 'boolean',
             'published_at' => 'datetime',
         ];
+    }
+
+    public function savings(): int
+    {
+        if (! $this->compare_at_price || $this->compare_at_price <= $this->price) {
+            return 0;
+        }
+
+        return (int) $this->compare_at_price - (int) $this->price;
+    }
+
+    public function isFree(): bool
+    {
+        return (int) $this->price === 0;
     }
 
     public function getRouteKeyName(): string

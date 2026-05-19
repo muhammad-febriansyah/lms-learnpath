@@ -188,8 +188,8 @@ export default function SkillMatrixDashboard({
 
                 <Section title="Aksi Cepat" icon={<BarChart3 className="size-4 text-brand-600" />}>
                     <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
-                        <QuickLink href="/admin/positions" label="Master Jabatan" />
-                        <QuickLink href="/admin/competencies" label="Master Kompetensi" />
+                        <QuickLink href="/admin/positions" label="Posisi / Jabatan" />
+                        <QuickLink href="/admin/competencies" label="Kompetensi" />
                         <QuickLink href="/admin/position-competency-targets" label="Target Jabatan" />
                         <QuickLink href="/admin/course-competency-mappings" label="Mapping Course" />
                         <QuickLink href="/admin/ojt-assessments" label="OJT Assessment" />

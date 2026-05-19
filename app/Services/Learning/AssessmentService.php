@@ -8,6 +8,7 @@ use App\Models\AssessmentAttempt;
 use App\Models\Enrollment;
 use App\Models\User;
 use App\Services\Gamification\BadgeAwardingService;
+use App\Services\Gamification\PointService;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\DB;
 use RuntimeException;
@@ -126,12 +127,22 @@ final class AssessmentService
 
             $this->applyEnrollmentSideEffects($attempt->fresh(), $assessment, $passed);
 
-            // Gamification: award perfect-score badge if applicable
-            if ($scorePercent === 100) {
-                $user = $attempt->user;
-                if ($user) {
-                    App::make(BadgeAwardingService::class)->evaluateForUser($user);
+            $user = $attempt->user;
+            if ($user && $passed) {
+                $points = App::make(PointService::class);
+                $points->award($user, 'assessment_pass', $attempt);
+                if ($scorePercent === 100) {
+                    $points->award(
+                        $user,
+                        'assessment_perfect_bonus',
+                        $attempt,
+                        ['dedupe_key' => "assessment_perfect_bonus:{$user->id}:{$attempt->id}"],
+                    );
                 }
+            }
+
+            if ($scorePercent === 100 && $user) {
+                App::make(BadgeAwardingService::class)->evaluateForUser($user);
             }
 
             return $attempt->fresh();

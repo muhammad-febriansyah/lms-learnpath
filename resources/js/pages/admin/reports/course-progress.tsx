@@ -3,6 +3,7 @@ import { BookOpen, CheckCircle2, Clock, GraduationCap, Hourglass, TrendingUp, XC
 
 import { IconChevR } from '@/components/learnpath-icons';
 import { DateRangeFilter } from '@/components/reports/date-range-filter';
+import { ExportCsvButton } from '@/components/reports/export-csv-button';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 
@@ -60,12 +61,20 @@ export default function CourseProgressReport({ range, totals, perCourse, byStatu
                         <IconChevR size={12} className="text-slate-300" />
                         <span className="font-semibold text-slate-900">Course Progress</span>
                     </nav>
-                    <h1 className="mt-1.5 text-2xl font-extrabold tracking-tight text-slate-900">
-                        Course Progress Report
-                    </h1>
-                    <p className="mt-1 text-[13.5px] text-slate-500">
-                        Statistik enrollment dan tingkat penyelesaian course pada periode terpilih.
-                    </p>
+                    <div className="mt-1.5 flex items-start justify-between gap-3">
+                        <div>
+                            <h1 className="text-2xl font-extrabold tracking-tight text-slate-900">
+                                Course Progress Report
+                            </h1>
+                            <p className="mt-1 text-[13.5px] text-slate-500">
+                                Statistik enrollment dan tingkat penyelesaian course pada periode terpilih.
+                            </p>
+                        </div>
+                        <ExportCsvButton
+                            href="/admin/reports/course-progress/export.csv"
+                            params={{ from: range.from, to: range.to }}
+                        />
+                    </div>
                 </div>
 
                 <DateRangeFilter from={range.from} to={range.to} basePath="/admin/reports/course-progress" />

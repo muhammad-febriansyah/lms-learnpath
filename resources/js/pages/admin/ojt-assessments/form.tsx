@@ -69,9 +69,9 @@ export default function OjtAssessmentForm({ userOptions, competencyOptions, cour
 
                 <form
                     onSubmit={submit}
-                    className="space-y-5 rounded-2xl bg-card p-5 shadow-[0_1px_2px_rgba(15,23,42,0.04)] ring-1 ring-slate-200/70 sm:p-6"
+                    className="space-y-7 rounded-2xl bg-card p-6 shadow-[0_1px_2px_rgba(15,23,42,0.04)] ring-1 ring-slate-200/70 sm:p-7"
                 >
-                    <div className="space-y-2">
+                    <div className="space-y-2.5">
                         <RequiredLabel htmlFor="user_id" required>
                             Karyawan (bawahan langsung)
                         </RequiredLabel>
@@ -102,7 +102,7 @@ export default function OjtAssessmentForm({ userOptions, competencyOptions, cour
                         <FieldError message={form.errors.user_id} />
                     </div>
 
-                    <div className="space-y-2">
+                    <div className="space-y-2.5">
                         <RequiredLabel htmlFor="competency_id" required>
                             Kompetensi
                         </RequiredLabel>
@@ -129,7 +129,7 @@ export default function OjtAssessmentForm({ userOptions, competencyOptions, cour
                         <FieldError message={form.errors.competency_id} />
                     </div>
 
-                    <div className="space-y-2">
+                    <div className="space-y-2.5">
                         <RequiredLabel htmlFor="course_id">Course Terkait (opsional)</RequiredLabel>
                         <Select
                             value={form.data.course_id || 'none'}
@@ -151,7 +151,7 @@ export default function OjtAssessmentForm({ userOptions, competencyOptions, cour
                     </div>
 
                     <div className="grid gap-4 sm:grid-cols-2">
-                        <div className="space-y-2">
+                        <div className="space-y-2.5">
                             <RequiredLabel htmlFor="rubric_score" required>
                                 Skor Rubrik (0–100)
                             </RequiredLabel>
@@ -170,7 +170,7 @@ export default function OjtAssessmentForm({ userOptions, competencyOptions, cour
                             />
                             <FieldError message={form.errors.rubric_score} />
                         </div>
-                        <div className="space-y-2">
+                        <div className="space-y-2.5">
                             <RequiredLabel required>Level Aktual</RequiredLabel>
                             <div className="flex items-center gap-1">
                                 {[0, 1, 2, 3, 4, 5].map((lv) => (
@@ -195,7 +195,7 @@ export default function OjtAssessmentForm({ userOptions, competencyOptions, cour
                         </div>
                     </div>
 
-                    <div className="space-y-2">
+                    <div className="space-y-2.5">
                         <RequiredLabel htmlFor="notes">Catatan / Bukti</RequiredLabel>
                         <Textarea
                             id="notes"
@@ -207,7 +207,7 @@ export default function OjtAssessmentForm({ userOptions, competencyOptions, cour
                         <FieldError message={form.errors.notes} />
                     </div>
 
-                    <div className="space-y-2">
+                    <div className="space-y-2.5">
                         <RequiredLabel required>Status</RequiredLabel>
                         <Select
                             value={form.data.status}

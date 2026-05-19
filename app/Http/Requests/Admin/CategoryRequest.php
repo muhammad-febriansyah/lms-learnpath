@@ -26,6 +26,8 @@ class CategoryRequest extends FormRequest
                 Rule::unique('categories', 'slug')->ignore($categoryId),
             ],
             'description' => ['nullable', 'string'],
+            'thumbnail' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+            'remove_thumbnail' => ['nullable', 'boolean'],
             'is_active' => ['boolean'],
         ];
     }
@@ -53,6 +55,7 @@ class CategoryRequest extends FormRequest
             'name' => 'Nama kategori',
             'slug' => 'Slug',
             'description' => 'Deskripsi',
+            'thumbnail' => 'Thumbnail',
             'is_active' => 'Status aktif',
         ];
     }
@@ -64,6 +67,8 @@ class CategoryRequest extends FormRequest
     {
         $data = parent::validated($key, $default);
         $data['is_active'] = (bool) ($data['is_active'] ?? false);
+        // file handled in controller, not auto-cast here
+        unset($data['thumbnail'], $data['remove_thumbnail']);
 
         return $data;
     }

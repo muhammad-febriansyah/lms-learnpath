@@ -132,7 +132,7 @@ export default function BundleCheckout({ bundle, paymentMethods, customer, quote
     return (
         <>
             <Head title="Checkout Paket" />
-            <div className="mx-auto max-w-5xl space-y-5">
+            <div className="space-y-5">
                 <div>
                     <nav className="flex items-center gap-1.5 text-[12.5px] text-slate-500">
                         <Link href="/bundles" className="hover:text-slate-700">

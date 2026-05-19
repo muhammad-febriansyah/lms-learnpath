@@ -14,6 +14,7 @@ import {
 
 import { FieldError } from '@/components/form/field-error';
 import { RequiredLabel } from '@/components/form/required-label';
+import { storageUrl } from '@/lib/storage-url';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -65,6 +66,7 @@ type Props = {
     paymentMethods: PaymentMethodOption[];
     customer: Customer;
     corporateAccess: CorporateAccess | null;
+    subscriptionAccess?: boolean;
     quote: Quote;
 };
 
@@ -85,6 +87,7 @@ export default function CheckoutShow({
     paymentMethods,
     customer,
     corporateAccess,
+    subscriptionAccess = false,
     quote,
 }: Props) {
     const form = useForm({
@@ -136,7 +139,7 @@ export default function CheckoutShow({
     return (
         <>
             <Head title="Checkout" />
-            <div className="mx-auto max-w-5xl space-y-5">
+            <div className="space-y-5">
                 <div>
                     <nav className="flex items-center gap-1.5 text-[12.5px] text-slate-500">
                         <Link href="/courses" className="hover:text-slate-700">
@@ -185,6 +188,28 @@ export default function CheckoutShow({
                                 </p>
                                 <p className="mt-1 text-[12px] opacity-90">
                                     Course ini sudah termasuk dalam paket perusahaan Anda. Klik "Daftar
+                                    Sekarang" untuk langsung enroll tanpa biaya.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {!isCorporate && subscriptionAccess && (
+                    <div className="rounded-2xl bg-gradient-to-br from-violet-600 to-fuchsia-600 p-5 text-white shadow-md">
+                        <div className="flex items-start gap-3">
+                            <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-white/15">
+                                <ShieldCheck className="size-5" />
+                            </div>
+                            <div>
+                                <div className="text-[11px] font-bold tracking-wider uppercase opacity-80">
+                                    Akses Langganan
+                                </div>
+                                <p className="mt-0.5 text-[14px] font-bold">
+                                    Termasuk dalam langganan aktif Anda
+                                </p>
+                                <p className="mt-1 text-[12px] opacity-90">
+                                    Course ini gratis selama langganan aktif. Klik "Daftar
                                     Sekarang" untuk langsung enroll tanpa biaya.
                                 </p>
                             </div>
@@ -359,7 +384,7 @@ export default function CheckoutShow({
                                 <div className="grid size-14 shrink-0 place-items-center overflow-hidden rounded-xl bg-gradient-to-br from-brand-500 to-brand-700 text-white">
                                     {course.thumbnail ? (
                                         <img
-                                            src={course.thumbnail}
+                                            src={storageUrl(course.thumbnail) ?? ''}
                                             alt={course.title}
                                             className="size-full object-cover"
                                         />

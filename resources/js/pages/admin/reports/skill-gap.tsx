@@ -2,6 +2,7 @@ import { Head, Link } from '@inertiajs/react';
 import { AlertCircle, Award, BarChart3, Briefcase, Building2, CheckCircle2, Users } from 'lucide-react';
 
 import { IconChevR } from '@/components/learnpath-icons';
+import { ExportCsvButton } from '@/components/reports/export-csv-button';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 
@@ -62,15 +63,20 @@ export default function SkillGapReport({ totals, perPosition, byDivision, topCom
                         <IconChevR size={12} className="text-slate-300" />
                         <span className="font-semibold text-slate-900">Skill Gap</span>
                     </nav>
-                    <h1 className="mt-1.5 text-2xl font-extrabold tracking-tight text-slate-900">
-                        Skill Gap Report
-                    </h1>
-                    <p className="mt-1 text-[13.5px] text-slate-500">
-                        Rangkuman gap kompetensi seluruh organisasi.{' '}
-                        <Link href="/admin/skill-gaps" className="text-brand-600 hover:underline">
-                            Detail per karyawan →
-                        </Link>
-                    </p>
+                    <div className="mt-1.5 flex items-start justify-between gap-3">
+                        <div>
+                            <h1 className="text-2xl font-extrabold tracking-tight text-slate-900">
+                                Skill Gap Report
+                            </h1>
+                            <p className="mt-1 text-[13.5px] text-slate-500">
+                                Rangkuman gap kompetensi seluruh organisasi.{' '}
+                                <Link href="/admin/skill-gaps" className="text-brand-600 hover:underline">
+                                    Detail per karyawan →
+                                </Link>
+                            </p>
+                        </div>
+                        <ExportCsvButton href="/admin/reports/skill-gap/export.csv" />
+                    </div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">

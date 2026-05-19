@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Course;
 use App\Models\Enrollment;
+use App\Models\Review;
+use App\Support\PointOfferPresenter;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -116,6 +118,7 @@ class CourseCatalogController extends Controller
             'isEnrolled' => $isEnrolled,
             'reviews' => $reviews,
             'ratingBreakdown' => $ratingBreakdown,
+            'pointOffer' => PointOfferPresenter::for($course, $request->user()),
             'related' => Course::query()
                 ->where('is_published', true)
                 ->where('id', '!=', $course->id)
@@ -131,7 +134,7 @@ class CourseCatalogController extends Controller
      */
     private function ratingBreakdown(int $courseId): array
     {
-        $rows = \App\Models\Review::query()
+        $rows = Review::query()
             ->where('course_id', $courseId)
             ->where('is_public', true)
             ->selectRaw('rating, COUNT(*) as total')

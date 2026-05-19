@@ -13,8 +13,10 @@ import {
     Users,
 } from 'lucide-react';
 
+import { PageHeader } from '@/components/front/page-header';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { storageUrl } from '@/lib/storage-url';
 import { cn } from '@/lib/utils';
 
 type Category = {
@@ -148,69 +150,49 @@ export default function CorporateHub({ categories, activeSlug, courses, stats }:
         <>
             <Head title="Learnpath untuk Perusahaan — Course Library" />
 
-            <div className="space-y-10">
-                {/* Hero */}
-                <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-700 via-brand-700 to-purple-800 p-8 text-white sm:p-12">
-                    <div
-                        className="absolute -top-24 -right-24 size-96 rounded-full bg-white/10 blur-3xl"
-                        aria-hidden="true"
-                    />
-                    <div
-                        className="absolute -bottom-32 -left-24 size-96 rounded-full bg-brand-300/20 blur-3xl"
-                        aria-hidden="true"
-                    />
-                    <div className="relative max-w-3xl">
-                        <div className="inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1.5 text-[11px] font-bold tracking-[0.18em] ring-1 ring-white/20 uppercase backdrop-blur">
-                            <Building2 className="size-3.5" />
-                            Untuk Perusahaan
-                        </div>
-                        <h1 className="mt-4 text-[32px] leading-[1.1] font-extrabold tracking-tight sm:text-[44px]">
-                            Library training untuk karyawan Anda
-                        </h1>
-                        <p className="mt-4 max-w-2xl text-[15px] leading-relaxed text-white/85 sm:text-[16.5px]">
-                            Course terkurasi untuk HR, Sales, Leadership, Compliance, dan Operations.
-                            Otomatis terdaftar di akun karyawan sesuai jabatan. Lengkap dengan
-                            skill matrix dan sertifikat resmi.
-                        </p>
+            <PageHeader
+                eyebrow="Untuk Perusahaan"
+                title="Library training untuk karyawan Anda"
+                description="Course terkurasi untuk HR, Sales, Leadership, Compliance, dan Operations. Otomatis terdaftar di akun karyawan sesuai jabatan. Lengkap dengan skill matrix dan sertifikat resmi."
+                breadcrumbs={[
+                    { label: 'Beranda', href: '/' },
+                    { label: 'Untuk Bisnis' },
+                ]}
+                actions={
+                    <>
+                        <Link
+                            href="/business/register"
+                            className="inline-flex items-center gap-2 rounded-full bg-white px-5 py-2.5 text-[14px] font-semibold text-brand-700 transition hover:-translate-y-0.5 hover:bg-brand-50"
+                        >
+                            Mulai untuk Tim
+                            <ArrowRight className="size-4" />
+                        </Link>
+                        <Link
+                            href="/corporate/case-studies"
+                            className="inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-[14px] font-semibold text-white/85 ring-1 ring-white/20 transition hover:bg-white/10 hover:text-white"
+                        >
+                            Lihat Studi Kasus
+                        </Link>
+                    </>
+                }
+            >
+                <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-[13px] text-white/85">
+                    <span className="inline-flex items-center gap-1.5">
+                        <BookOpen className="size-4 text-brand-300" />
+                        {stats.total_courses} course aktif
+                    </span>
+                    <span className="inline-flex items-center gap-1.5">
+                        <Sparkles className="size-4 text-brand-300" />
+                        {stats.total_categories} kategori bisnis
+                    </span>
+                    <span className="inline-flex items-center gap-1.5">
+                        <Award className="size-4 text-brand-300" />
+                        Sertifikat resmi
+                    </span>
+                </div>
+            </PageHeader>
 
-                        <div className="mt-7 flex flex-wrap items-center gap-3">
-                            <Button
-                                asChild
-                                size="lg"
-                                className="h-12 rounded-xl bg-white px-7 text-brand-700 hover:bg-slate-50"
-                            >
-                                <Link href="/business/register">
-                                    Coba Demo Gratis
-                                    <ArrowRight className="ml-1.5 size-4" />
-                                </Link>
-                            </Button>
-                            <Button
-                                asChild
-                                variant="outline"
-                                size="lg"
-                                className="h-12 rounded-xl border-white/30 bg-transparent px-6 text-white hover:bg-white/10 hover:text-white"
-                            >
-                                <Link href="/business">Lihat Pricing Bisnis</Link>
-                            </Button>
-                        </div>
-
-                        <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-2 text-[12.5px] text-white/85">
-                            <span className="inline-flex items-center gap-1.5">
-                                <BookOpen className="size-3.5" />
-                                {stats.total_courses} course aktif
-                            </span>
-                            <span className="inline-flex items-center gap-1.5">
-                                <Sparkles className="size-3.5" />
-                                {stats.total_categories} kategori bisnis
-                            </span>
-                            <span className="inline-flex items-center gap-1.5">
-                                <Award className="size-3.5" />
-                                Sertifikat resmi
-                            </span>
-                        </div>
-                    </div>
-                </section>
-
+            <div className="mx-auto max-w-7xl space-y-14 px-5 py-12 lg:px-8 lg:py-16">
                 {/* Benefit cards */}
                 <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
                     {BENEFITS.map((b) => (
@@ -383,7 +365,7 @@ function CourseCard({ course }: { course: Course }) {
             <div className="relative aspect-[16/10] overflow-hidden bg-gradient-to-br from-brand-400 via-brand-600 to-brand-800">
                 {course.thumbnail ? (
                     <img
-                        src={course.thumbnail}
+                        src={storageUrl(course.thumbnail) ?? ''}
                         alt={course.title}
                         className="size-full object-cover"
                     />

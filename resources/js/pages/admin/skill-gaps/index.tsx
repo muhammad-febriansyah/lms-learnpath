@@ -1,6 +1,17 @@
 import { Head, Link, router } from '@inertiajs/react';
 import type { ColumnDef } from '@tanstack/react-table';
-import { AlertCircle, BarChart3, CheckCircle2, RefreshCw, TrendingUp } from 'lucide-react';
+import {
+    AlertCircle,
+    BarChart3,
+    CheckCircle2,
+    ChevronDown,
+    ChevronUp,
+    Loader2,
+    RefreshCw,
+    Sparkles,
+    TrendingUp,
+} from 'lucide-react';
+import { useState } from 'react';
 
 import { DataTable } from '@/components/data-table/data-table';
 import { DataTablePagination, type Paginator } from '@/components/data-table/data-table-pagination';
@@ -14,7 +25,26 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTitle,
+} from '@/components/ui/dialog';
 import { cn } from '@/lib/utils';
+
+type AiRecommendation = {
+    summary: string;
+    recommendations: Array<{
+        course_id: number;
+        title: string;
+        slug: string;
+        rationale: string;
+        order: number;
+    }>;
+    generated_at: string;
+};
 
 type Gap = {
     id: number;
@@ -23,6 +53,8 @@ type Gap = {
     gap: number;
     status: string;
     calculated_at: string | null;
+    ai_recommendation: AiRecommendation | null;
+    ai_recommended_at: string | null;
     user: { id: number; name: string; email: string } | null;
     position: { id: number; name: string; division: string | null } | null;
     competency: { id: number; name: string; category: string | null } | null;
@@ -67,6 +99,30 @@ function formatDateTime(value: string | null): string {
 }
 
 export default function SkillGapsIndex({ gaps, filters, positionOptions, stats }: Props) {
+    const [busyId, setBusyId] = useState<number | null>(null);
+    const [activeAi, setActiveAi] = useState<Gap | null>(null);
+
+    const triggerAi = (gap: Gap) => {
+        setBusyId(gap.id);
+        router.post(
+            `/admin/skill-gaps/${gap.id}/recommend-ai`,
+            {},
+            {
+                preserveScroll: true,
+                preserveState: true,
+                onSuccess: () => {
+                    // After the page reloads with fresh gaps, open the dialog
+                    // for this gap if its recommendation is now available.
+                    setTimeout(() => {
+                        const refreshed = gaps.data.find((g) => g.id === gap.id);
+                        if (refreshed?.ai_recommendation) setActiveAi(refreshed);
+                    }, 50);
+                },
+                onFinish: () => setBusyId(null),
+            },
+        );
+    };
+
     const handleFilter = (next: Record<string, string | undefined>) => {
         router.get(
             '/admin/skill-gaps',
@@ -162,6 +218,19 @@ export default function SkillGapsIndex({ gaps, filters, positionOptions, stats }
                 </Badge>
             ),
             meta: { label: 'Status' },
+        },
+        {
+            id: 'ai',
+            header: 'AI',
+            cell: ({ row }) => (
+                <AiButton
+                    gap={row.original}
+                    busy={busyId === row.original.id}
+                    onGenerate={(g) => triggerAi(g)}
+                    onView={(g) => setActiveAi(g)}
+                />
+            ),
+            meta: { label: 'AI' },
         },
     ];
 
@@ -265,6 +334,11 @@ export default function SkillGapsIndex({ gaps, filters, positionOptions, stats }
                     </div>
                 </div>
             </div>
+
+            <AiRecommendationDialog
+                gap={activeAi}
+                onClose={() => setActiveAi(null)}
+            />
         </>
     );
 }
@@ -296,5 +370,132 @@ function StatCard({
                 </div>
             </div>
         </div>
+    );
+}
+
+function AiButton({
+    gap,
+    busy,
+    onGenerate,
+    onView,
+}: {
+    gap: Gap;
+    busy: boolean;
+    onGenerate: (gap: Gap) => void;
+    onView: (gap: Gap) => void;
+}) {
+    const hasRec = !!gap.ai_recommendation;
+    if (busy) {
+        return (
+            <Button
+                size="sm"
+                variant="outline"
+                className="h-8 rounded-lg"
+                disabled
+            >
+                <Loader2 className="mr-1 size-3.5 animate-spin" />
+                AI…
+            </Button>
+        );
+    }
+    if (hasRec) {
+        return (
+            <Button
+                size="sm"
+                variant="outline"
+                className="h-8 rounded-lg border-brand-200 text-brand-700 hover:bg-brand-50"
+                onClick={() => onView(gap)}
+            >
+                <Sparkles className="mr-1 size-3.5" />
+                Lihat
+            </Button>
+        );
+    }
+    return (
+        <Button
+            size="sm"
+            className="h-8 rounded-lg bg-brand-600 text-white hover:bg-brand-700"
+            onClick={() => onGenerate(gap)}
+        >
+            <Sparkles className="mr-1 size-3.5" />
+            Rekomendasi
+        </Button>
+    );
+}
+
+function AiRecommendationDialog({
+    gap,
+    onClose,
+}: {
+    gap: Gap | null;
+    onClose: () => void;
+}) {
+    const rec = gap?.ai_recommendation;
+
+    return (
+        <Dialog open={!!gap} onOpenChange={(open) => !open && onClose()}>
+            <DialogContent className="max-w-2xl">
+                <DialogHeader>
+                    <DialogTitle className="inline-flex items-center gap-2">
+                        <Sparkles className="size-5 text-brand-600" />
+                        Rekomendasi AI — {gap?.competency?.name ?? ''}
+                    </DialogTitle>
+                    <DialogDescription>
+                        Untuk {gap?.user?.name ?? '-'} · gap {gap?.gap} level
+                        (target {gap?.target_level} → aktual {gap?.actual_level})
+                    </DialogDescription>
+                </DialogHeader>
+
+                {rec ? (
+                    <div className="space-y-4">
+                        <p className="rounded-xl bg-brand-50 p-3 text-[13px] text-brand-900 ring-1 ring-brand-200/60">
+                            {rec.summary}
+                        </p>
+
+                        {rec.recommendations.length === 0 ? (
+                            <p className="rounded-xl bg-amber-50 p-3 text-[12.5px] text-amber-800 ring-1 ring-amber-200/60">
+                                AI tidak menemukan course internal yang cocok untuk gap
+                                ini. Pertimbangkan menambahkan course baru atau memetakan
+                                course existing ke kompetensi ini.
+                            </p>
+                        ) : (
+                            <ol className="space-y-3">
+                                {rec.recommendations.map((r, i) => (
+                                    <li
+                                        key={r.course_id}
+                                        className="rounded-xl bg-white p-3 ring-1 ring-slate-200/70"
+                                    >
+                                        <div className="flex items-start gap-3">
+                                            <span className="grid size-7 shrink-0 place-items-center rounded-full bg-brand-600 text-[12px] font-bold text-white">
+                                                {i + 1}
+                                            </span>
+                                            <div className="min-w-0 flex-1">
+                                                <Link
+                                                    href={`/courses/${r.slug}`}
+                                                    className="text-[13.5px] font-bold text-slate-900 hover:text-brand-700"
+                                                >
+                                                    {r.title}
+                                                </Link>
+                                                <p className="mt-1 text-[12px] leading-relaxed text-slate-600">
+                                                    {r.rationale}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </li>
+                                ))}
+                            </ol>
+                        )}
+
+                        <p className="text-[10.5px] text-slate-400">
+                            Dibuat {new Date(rec.generated_at).toLocaleString('id-ID')}
+                        </p>
+                    </div>
+                ) : (
+                    <p className="text-[13px] text-slate-500">
+                        Belum ada rekomendasi.
+                    </p>
+                )}
+            </DialogContent>
+        </Dialog>
     );
 }

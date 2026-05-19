@@ -7,9 +7,9 @@ use App\Models\Certificate;
 use App\Models\CertificateTemplate;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Inertia\Response;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class CertificateController extends Controller
 {
@@ -37,33 +37,9 @@ class CertificateController extends Controller
             ->paginate(15)
             ->withQueryString();
 
-        $builderTemplates = CertificateTemplate::query()
-            ->orderBy('sort_order')
-            ->latest('id')
-            ->get()
-            ->map(fn (CertificateTemplate $template) => [
-                'id' => $template->id,
-                'name' => $template->name,
-                'scope' => str($template->scope)->replace('_', ' ')->title()->toString(),
-                'orientation' => $template->orientation,
-                'status' => $template->status,
-                'background_type' => $template->background_type,
-                'background_preset' => $template->background_preset,
-                'title' => $template->title,
-                'subtitle' => $template->subtitle,
-                'body_text' => $template->body_text,
-                'show_qr' => $template->show_qr,
-                'show_signature' => $template->show_signature,
-                'sort_order' => $template->sort_order,
-                'background_url' => $template->background_path
-                    ? Storage::url($template->background_path)
-                    : null,
-            ]);
-
         return Inertia::render('admin/certificates/index', [
             'certificates' => $certificates,
             'filters' => $request->only('search', 'status'),
-            'builderTemplates' => $builderTemplates,
         ]);
     }
 
@@ -88,6 +64,14 @@ class CertificateController extends Controller
             'status' => ['required', 'in:draft,active,archived'],
             'background_type' => ['required', 'in:preset,upload'],
             'background_preset' => ['nullable', 'string', 'max:64'],
+            'primary_color' => ['required', 'string', 'regex:/^#[0-9a-fA-F]{6}$/'],
+            'accent_color' => ['required', 'string', 'regex:/^#[0-9a-fA-F]{6}$/'],
+            'font_family' => ['required', 'in:sans,serif,display,mono'],
+            'issuer_name' => ['nullable', 'string', 'max:160'],
+            'issuer_logo' => ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp,svg', 'max:2048'],
+            'signatory_name' => ['nullable', 'string', 'max:160'],
+            'signatory_title' => ['nullable', 'string', 'max:160'],
+            'signature_image' => ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
             'title' => ['required', 'string', 'max:160'],
             'subtitle' => ['nullable', 'string', 'max:255'],
             'body_text' => ['nullable', 'string', 'max:2000'],
@@ -101,6 +85,7 @@ class CertificateController extends Controller
             'max' => ':attribute terlalu panjang.',
             'image' => ':attribute harus berupa gambar.',
             'mimes' => ':attribute harus berformat jpg, jpeg, png, atau webp.',
+            'regex' => ':attribute harus berupa kode HEX (#RRGGBB).',
         ], [
             'name' => 'Nama template',
             'scope' => 'Cakupan template',
@@ -108,6 +93,14 @@ class CertificateController extends Controller
             'status' => 'Status',
             'background_type' => 'Tipe background',
             'background_preset' => 'Preset background',
+            'primary_color' => 'Warna primer',
+            'accent_color' => 'Warna aksen',
+            'font_family' => 'Jenis font',
+            'issuer_name' => 'Nama penerbit',
+            'issuer_logo' => 'Logo penerbit',
+            'signatory_name' => 'Nama penandatangan',
+            'signatory_title' => 'Jabatan penandatangan',
+            'signature_image' => 'Gambar tanda tangan',
             'title' => 'Judul sertifikat',
             'subtitle' => 'Subjudul',
             'body_text' => 'Deskripsi',
@@ -135,7 +128,9 @@ class CertificateController extends Controller
                 ->withInput();
         }
 
-        $backgroundPath = $request->file('background')?->store('certificate-templates', 'public');
+        $backgroundPath = $request->file('background')?->store('certificate-templates/backgrounds', 'public');
+        $issuerLogoPath = $request->file('issuer_logo')?->store('certificate-templates/logos', 'public');
+        $signaturePath = $request->file('signature_image')?->store('certificate-templates/signatures', 'public');
 
         CertificateTemplate::query()->create([
             'name' => $payload['name'],
@@ -147,6 +142,14 @@ class CertificateController extends Controller
                 ? $payload['background_preset']
                 : null,
             'background_path' => $backgroundPath,
+            'primary_color' => $payload['primary_color'],
+            'accent_color' => $payload['accent_color'],
+            'font_family' => $payload['font_family'],
+            'issuer_name' => $payload['issuer_name'] ?? null,
+            'issuer_logo_path' => $issuerLogoPath,
+            'signatory_name' => $payload['signatory_name'] ?? null,
+            'signatory_title' => $payload['signatory_title'] ?? null,
+            'signature_path' => $signaturePath,
             'title' => $payload['title'],
             'subtitle' => $payload['subtitle'] ?? null,
             'body_text' => $payload['body_text'] ?? null,
@@ -155,7 +158,9 @@ class CertificateController extends Controller
             'sort_order' => $payload['sort_order'] ?? 0,
         ]);
 
-        return back()->with('success', 'Template sertifikat berhasil dibuat.');
+        return redirect()
+            ->route('admin.certificates.index')
+            ->with('success', 'Template sertifikat berhasil dibuat.');
     }
 
     public function revoke(Request $request, Certificate $certificate): RedirectResponse
@@ -167,5 +172,108 @@ class CertificateController extends Controller
         ]);
 
         return back()->with('success', 'Sertifikat berhasil dicabut.');
+    }
+
+    public function bulkRevoke(Request $request): RedirectResponse
+    {
+        abort_unless($request->user()?->can('certificate.revoke'), 403);
+
+        $ids = $this->validateBulkIds($request);
+
+        $affected = Certificate::query()
+            ->whereIn('id', $ids)
+            ->where('status', 'issued')
+            ->update(['status' => 'revoked']);
+
+        $skipped = count($ids) - $affected;
+
+        return back()->with(
+            'success',
+            "Sertifikat dicabut: {$affected}".($skipped > 0 ? ", dilewati: {$skipped}" : '').'.',
+        );
+    }
+
+    public function bulkReissue(Request $request): RedirectResponse
+    {
+        abort_unless($request->user()?->can('certificate.issue'), 403);
+
+        $ids = $this->validateBulkIds($request);
+
+        $affected = Certificate::query()
+            ->whereIn('id', $ids)
+            ->whereIn('status', ['revoked', 'expired'])
+            ->update([
+                'status' => 'issued',
+                'issued_at' => now(),
+            ]);
+
+        $skipped = count($ids) - $affected;
+
+        return back()->with(
+            'success',
+            "Sertifikat diaktifkan kembali: {$affected}".($skipped > 0 ? ", dilewati: {$skipped}" : '').'.',
+        );
+    }
+
+    public function bulkExport(Request $request): StreamedResponse
+    {
+        abort_unless($request->user()?->can('certificate.view'), 403);
+
+        $ids = $this->validateBulkIds($request);
+
+        $filename = 'certificates-'.now()->format('Ymd-His').'.csv';
+
+        return response()->streamDownload(function () use ($ids) {
+            $handle = fopen('php://output', 'w');
+            fputcsv($handle, [
+                'Nomor Sertifikat',
+                'Kode Verifikasi',
+                'Peserta',
+                'Email',
+                'Course / Learning Path',
+                'Status',
+                'Tanggal Terbit',
+                'Tanggal Kedaluwarsa',
+            ]);
+
+            Certificate::query()
+                ->with(['user:id,name,email', 'course:id,title', 'learningPath:id,title'])
+                ->whereIn('id', $ids)
+                ->orderBy('id')
+                ->chunk(200, function ($chunk) use ($handle) {
+                    foreach ($chunk as $certificate) {
+                        fputcsv($handle, [
+                            $certificate->certificate_number,
+                            $certificate->verification_code,
+                            $certificate->user?->name ?? '-',
+                            $certificate->user?->email ?? '-',
+                            $certificate->subjectTitle() ?: '-',
+                            $certificate->status,
+                            $certificate->issued_at?->toDateString() ?? '-',
+                            $certificate->expired_at?->toDateString() ?? '-',
+                        ]);
+                    }
+                });
+
+            fclose($handle);
+        }, $filename, [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+        ]);
+    }
+
+    /**
+     * @return array<int,int>
+     */
+    private function validateBulkIds(Request $request): array
+    {
+        $data = $request->validate([
+            'ids' => ['required', 'array', 'min:1', 'max:500'],
+            'ids.*' => ['integer', 'distinct'],
+        ], [
+            'ids.required' => 'Pilih minimal 1 sertifikat.',
+            'ids.max' => 'Maksimal :max sertifikat per aksi.',
+        ]);
+
+        return $data['ids'];
     }
 }

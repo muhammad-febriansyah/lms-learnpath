@@ -2,6 +2,7 @@ import { Head, Link, useForm } from '@inertiajs/react';
 import { ArrowLeft, Save } from 'lucide-react';
 
 import { FieldError } from '@/components/form/field-error';
+import { RupiahInput } from '@/components/form/rupiah-input';
 import { RequiredLabel } from '@/components/form/required-label';
 import { IconChevR } from '@/components/learnpath-icons';
 import { Button } from '@/components/ui/button';
@@ -112,10 +113,10 @@ export default function CouponForm({ coupon, courses }: Props) {
 
                 <form
                     onSubmit={submit}
-                    className="space-y-5 rounded-2xl bg-card p-5 shadow-[0_1px_2px_rgba(15,23,42,0.04)] ring-1 ring-slate-200/70 sm:p-6"
+                    className="space-y-7 rounded-2xl bg-card p-6 shadow-[0_1px_2px_rgba(15,23,42,0.04)] ring-1 ring-slate-200/70 sm:p-7"
                 >
                     <div className="grid gap-4 sm:grid-cols-2">
-                        <div className="space-y-2">
+                        <div className="space-y-2.5">
                             <RequiredLabel htmlFor="code" required>
                                 Kode Voucher
                             </RequiredLabel>
@@ -134,7 +135,7 @@ export default function CouponForm({ coupon, courses }: Props) {
                             <FieldError message={form.errors.code} />
                         </div>
 
-                        <div className="space-y-2">
+                        <div className="space-y-2.5">
                             <RequiredLabel htmlFor="name">Nama Internal</RequiredLabel>
                             <Input
                                 id="name"
@@ -149,7 +150,7 @@ export default function CouponForm({ coupon, courses }: Props) {
                         </div>
                     </div>
 
-                    <div className="space-y-2">
+                    <div className="space-y-2.5">
                         <RequiredLabel required>Tipe Diskon</RequiredLabel>
                         <div className="grid gap-2 sm:grid-cols-2">
                             <RadioCard
@@ -169,43 +170,46 @@ export default function CouponForm({ coupon, courses }: Props) {
                     </div>
 
                     <div className="grid gap-4 sm:grid-cols-2">
-                        <div className="space-y-2">
+                        <div className="space-y-2.5">
                             <RequiredLabel htmlFor="discount_value" required>
                                 {isPercentage ? 'Diskon (%)' : 'Diskon (Rp)'}
                             </RequiredLabel>
-                            <Input
-                                id="discount_value"
-                                type="number"
-                                min={1}
-                                max={isPercentage ? 100 : undefined}
-                                value={form.data.discount_value}
-                                onChange={(e) =>
-                                    form.setData(
-                                        'discount_value',
-                                        e.target.value === '' ? '' : Number(e.target.value),
-                                    )
-                                }
-                            />
+                            {isPercentage ? (
+                                <Input
+                                    id="discount_value"
+                                    type="number"
+                                    min={1}
+                                    max={100}
+                                    value={form.data.discount_value}
+                                    onChange={(e) =>
+                                        form.setData(
+                                            'discount_value',
+                                            e.target.value === '' ? '' : Number(e.target.value),
+                                        )
+                                    }
+                                />
+                            ) : (
+                                <RupiahInput
+                                    id="discount_value"
+                                    value={form.data.discount_value}
+                                    onChange={(value) => form.setData('discount_value', value)}
+                                    onClear={() => form.setData('discount_value', '')}
+                                />
+                            )}
                             <FieldError message={form.errors.discount_value} />
                         </div>
 
                         {isPercentage && (
-                            <div className="space-y-2">
+                            <div className="space-y-2.5">
                                 <RequiredLabel htmlFor="max_discount">
                                     Diskon Maks (Rp)
                                 </RequiredLabel>
-                                <Input
+                                <RupiahInput
                                     id="max_discount"
-                                    type="number"
-                                    min={0}
                                     placeholder="Opsional"
                                     value={form.data.max_discount}
-                                    onChange={(e) =>
-                                        form.setData(
-                                            'max_discount',
-                                            e.target.value === '' ? '' : Number(e.target.value),
-                                        )
-                                    }
+                                    onChange={(value) => form.setData('max_discount', value)}
+                                    onClear={() => form.setData('max_discount', '')}
                                 />
                                 <p className="text-[11.5px] text-slate-500">
                                     Batas potongan untuk voucher persen. Kosongkan jika tanpa batas.
@@ -215,7 +219,7 @@ export default function CouponForm({ coupon, courses }: Props) {
                         )}
                     </div>
 
-                    <div className="space-y-2">
+                    <div className="space-y-2.5">
                         <RequiredLabel required>Scope Voucher</RequiredLabel>
                         <div className="grid gap-2 sm:grid-cols-2">
                             <RadioCard
@@ -235,7 +239,7 @@ export default function CouponForm({ coupon, courses }: Props) {
                     </div>
 
                     {isSpecific && (
-                        <div className="space-y-2">
+                        <div className="space-y-2.5">
                             <RequiredLabel required>Pilih Kursus</RequiredLabel>
                             <div className="max-h-72 overflow-auto rounded-xl border border-slate-200">
                                 {courses.length === 0 ? (
@@ -279,7 +283,7 @@ export default function CouponForm({ coupon, courses }: Props) {
                         </div>
                     )}
 
-                    <div className="space-y-2">
+                    <div className="space-y-2.5">
                         <RequiredLabel htmlFor="max_uses">Total Pemakaian Maks</RequiredLabel>
                         <Input
                             id="max_uses"

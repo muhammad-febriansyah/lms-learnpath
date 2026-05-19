@@ -2,6 +2,7 @@
 
 namespace App\Services\AI;
 
+use App\Ai\Agents\AiTutorAgent;
 use App\Models\ChatMessage;
 use App\Models\ChatThread;
 use App\Models\Course;
@@ -9,25 +10,23 @@ use App\Models\Lesson;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Laravel\Ai\Responses\StreamableAgentResponse;
+use Laravel\Ai\Responses\StreamedAgentResponse;
 
 /**
- * Orchestrates AI Tutor conversations: assembles a lesson/course-aware
- * system prompt, calls OpenAI, persists user + assistant messages.
+ * Orchestrates AI Tutor conversations on top of the Laravel AI SDK.
+ *
+ * Provides both a synchronous `sendMessage` path and a streaming
+ * `streamMessage` path; both share the same persistence logic.
  */
 final class TutorService
 {
-    /**
-     * Max messages of prior history to include in the request (excluding system).
-     */
-    private const HISTORY_WINDOW = 12;
-
     public function __construct(
-        private readonly OpenAIClient $client,
         private readonly DocumentRetrievalService $retrieval,
     ) {}
 
     /**
-     * Send a user message in an existing thread, or create a new thread if null.
+     * Synchronous send — waits for full completion before returning.
      */
     public function sendMessage(
         User $user,
@@ -36,12 +35,73 @@ final class TutorService
         ?Course $course = null,
         ?Lesson $lesson = null,
     ): ChatThread {
+        [$thread, $citations] = $this->prepareTurn($user, $userMessage, $thread, $course, $lesson);
+
+        $response = $this->buildAgent($thread, $course, $lesson, $citations, $user)
+            ->prompt($userMessage);
+
+        $this->persistAssistantMessage(
+            thread: $thread,
+            content: (string) $response,
+            citations: $citations,
+            promptTokens: (int) ($response->usage->promptTokens ?? 0),
+            completionTokens: (int) ($response->usage->completionTokens ?? 0),
+            model: $response->meta->model ?? null,
+        );
+
+        return $thread->fresh(['messages']);
+    }
+
+    /**
+     * Streaming send — returns the SDK streamable response that the controller
+     * can return as SSE. Persists the assistant message via the `then()` hook
+     * once the stream has fully drained.
+     *
+     * @return array{thread: ChatThread, stream: StreamableAgentResponse}
+     */
+    public function streamMessage(
+        User $user,
+        string $userMessage,
+        ?ChatThread $thread = null,
+        ?Course $course = null,
+        ?Lesson $lesson = null,
+    ): array {
+        [$thread, $citations] = $this->prepareTurn($user, $userMessage, $thread, $course, $lesson);
+
+        $stream = $this->buildAgent($thread, $course, $lesson, $citations, $user)
+            ->stream($userMessage)
+            ->then(function (StreamedAgentResponse $response) use ($thread, $citations) {
+                $this->persistAssistantMessage(
+                    thread: $thread,
+                    content: (string) $response,
+                    citations: $citations,
+                    promptTokens: (int) ($response->usage->promptTokens ?? 0),
+                    completionTokens: (int) ($response->usage->completionTokens ?? 0),
+                    model: $response->meta->model ?? null,
+                );
+            });
+
+        return ['thread' => $thread, 'stream' => $stream];
+    }
+
+    /**
+     * Create/load the thread, persist the user message, and gather citations.
+     *
+     * @return array{0: ChatThread, 1: list<array{title: string, content: string, document_id?: int}>}
+     */
+    private function prepareTurn(
+        User $user,
+        string $userMessage,
+        ?ChatThread $thread,
+        ?Course $course,
+        ?Lesson $lesson,
+    ): array {
         $userMessage = trim($userMessage);
         if ($userMessage === '') {
             throw new \InvalidArgumentException('Pesan tidak boleh kosong.');
         }
 
-        return DB::transaction(function () use ($user, $userMessage, $thread, $course, $lesson) {
+        $thread = DB::transaction(function () use ($user, $userMessage, $thread, $course, $lesson) {
             if (! $thread) {
                 $thread = ChatThread::create([
                     'user_id' => $user->id,
@@ -60,60 +120,58 @@ final class TutorService
                 'content' => $userMessage,
             ]);
 
-            $citations = $this->retrieveCitations($userMessage, $course, $lesson);
-
-            $messages = $this->buildMessages($thread, $course, $lesson, $citations);
-
-            $result = $this->client->chat($messages);
-
-            ChatMessage::create([
-                'chat_thread_id' => $thread->id,
-                'role' => ChatMessage::ROLE_ASSISTANT,
-                'content' => $result['content'],
-                'tokens' => $result['total_tokens'],
-                'model' => $result['model'],
-            ]);
-
-            $thread->forceFill(['last_message_at' => now()])->save();
-
-            return $thread->fresh(['messages']);
+            return $thread;
         });
+
+        return [$thread, $this->retrieveCitations($userMessage, $course, $lesson)];
+    }
+
+    private function buildAgent(
+        ChatThread $thread,
+        ?Course $course,
+        ?Lesson $lesson,
+        array $citations,
+        User $user,
+    ): AiTutorAgent {
+        return new AiTutorAgent(
+            thread: $thread,
+            course: $course ?? $thread->course,
+            lesson: $lesson ?? $thread->lesson,
+            citations: $citations,
+            user: $user,
+        );
     }
 
     /**
-     * @param  list<array{title: string, content: string}>  $citations
-     * @return array<int, array{role: string, content: string}>
+     * @param  list<array{title: string, content: string, document_id?: int}>  $citations
      */
-    private function buildMessages(ChatThread $thread, ?Course $course, ?Lesson $lesson, array $citations = []): array
-    {
-        // Resolve context — prefer relations on the thread when not explicitly passed.
-        $course ??= $thread->course;
-        $lesson ??= $thread->lesson;
-
-        $messages = [[
-            'role' => ChatMessage::ROLE_SYSTEM,
-            'content' => $this->systemPrompt($course, $lesson, $citations),
-        ]];
-
-        $history = $thread->messages()
-            ->orderByDesc('id')
-            ->limit(self::HISTORY_WINDOW)
-            ->get()
-            ->reverse()
-            ->values();
-
-        foreach ($history as $msg) {
-            $messages[] = [
-                'role' => $msg->role,
-                'content' => $msg->content,
-            ];
+    private function persistAssistantMessage(
+        ChatThread $thread,
+        string $content,
+        array $citations,
+        int $promptTokens,
+        int $completionTokens,
+        ?string $model,
+    ): void {
+        $content = trim($content);
+        if ($content === '') {
+            return;
         }
 
-        return $messages;
+        ChatMessage::create([
+            'chat_thread_id' => $thread->id,
+            'role' => ChatMessage::ROLE_ASSISTANT,
+            'content' => $content,
+            'tokens' => $promptTokens + $completionTokens,
+            'model' => $model,
+            'citations' => $citations !== [] ? $citations : null,
+        ]);
+
+        $thread->forceFill(['last_message_at' => now()])->save();
     }
 
     /**
-     * @return list<array{title: string, content: string}>
+     * @return list<array{title: string, content: string, document_id: int}>
      */
     private function retrieveCitations(string $query, ?Course $course, ?Lesson $lesson): array
     {
@@ -124,7 +182,7 @@ final class TutorService
 
         try {
             $hits = $this->retrieval->retrieveForCourse($course, $query, topK: 3);
-        } catch (\Throwable $e) {
+        } catch (\Throwable) {
             // Embedding failure must not block the chat — degrade gracefully.
             return [];
         }
@@ -133,64 +191,8 @@ final class TutorService
             ->map(fn (array $hit) => [
                 'title' => (string) $hit['document']->title,
                 'content' => (string) $hit['chunk']->content,
+                'document_id' => (int) $hit['document']->id,
             ])
             ->all();
-    }
-
-    /**
-     * @param  list<array{title: string, content: string}>  $citations
-     */
-    private function systemPrompt(?Course $course, ?Lesson $lesson, array $citations = []): string
-    {
-        $appName = (string) config('app.name', 'LearnPath');
-
-        $lines = [
-            "Anda adalah AI Tutor di platform {$appName}, sebuah LMS profesional.",
-            'Tugas Anda: membantu siswa memahami materi kursus, menjawab pertanyaan teknis, memberi contoh, dan mendorong refleksi pembelajaran.',
-            'Gunakan Bahasa Indonesia yang jelas dan ramah. Hindari jargon kecuali memang dibutuhkan oleh konteks materi.',
-            'Jawablah dengan ringkas tapi lengkap. Kalau soalnya pilihan ganda dari assessment, jangan langsung kasih jawaban — pandu siswa berpikir.',
-        ];
-
-        if ($course) {
-            $lines[] = "\nKonteks kursus saat ini:";
-            $lines[] = "- Judul: {$course->title}";
-            if ($course->subtitle) {
-                $lines[] = "- Subtitle: {$course->subtitle}";
-            }
-            if ($course->level) {
-                $lines[] = "- Level: {$course->level}";
-            }
-            if ($course->category?->name) {
-                $lines[] = "- Kategori: {$course->category->name}";
-            }
-        }
-
-        if ($lesson) {
-            $lines[] = "\nLesson yang sedang dibuka:";
-            $lines[] = "- Judul: {$lesson->title}";
-            if ($lesson->description) {
-                $lines[] = '- Deskripsi: '.Str::limit($lesson->description, 400);
-            }
-            if ($lesson->content && is_string($lesson->content)) {
-                $lines[] = '- Materi (cuplikan): '.Str::limit(strip_tags($lesson->content), 1500);
-            }
-        }
-
-        if (! $course && ! $lesson) {
-            $lines[] = "\nSiswa belum membuka course/lesson tertentu, jadi jawab pertanyaan secara umum.";
-        }
-
-        if ($citations !== []) {
-            $lines[] = "\nREFERENSI MATERI (gunakan ini sebagai sumber otoritatif; saat mengutip, sebutkan '[Sumber N]'):";
-            foreach ($citations as $i => $cite) {
-                $n = $i + 1;
-                $title = $cite['title'] !== '' ? $cite['title'] : "Dokumen #{$n}";
-                $body = Str::limit($cite['content'], 1200);
-                $lines[] = "\n[Sumber {$n}] {$title}\n{$body}";
-            }
-            $lines[] = "\nJika jawaban berasal dari referensi di atas, kutip nomor sumbernya. Jika referensi tidak relevan, jawab dari pengetahuan umum tanpa mengutip.";
-        }
-
-        return implode("\n", $lines);
     }
 }

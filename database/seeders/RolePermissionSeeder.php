@@ -28,7 +28,7 @@ class RolePermissionSeeder extends Seeder
             // User & roles
             'user.view', 'user.create', 'user.update', 'user.delete', 'role.manage',
             // Skill matrix
-            'position.manage', 'competency.manage', 'skill_matrix.view', 'skill_matrix.manage',
+            'position.manage', 'division.manage', 'competency.manage', 'skill_matrix.view', 'skill_matrix.manage',
             'ojt.create', 'ojt.review', 'supervisor_review.create', 'supervisor_review.approve',
             // Marketplace
             'order.view', 'order.manage', 'payment.view',
@@ -37,6 +37,18 @@ class RolePermissionSeeder extends Seeder
             'settings.view', 'settings.update',
             // Reports
             'report.view',
+            // Audit log (security trail)
+            'audit.view',
+            // Point redemption marketplace
+            'point_redemption.manage',
+            // Voucher (access codes)
+            'voucher.manage',
+            // B2B Subscription plans + leads (Qubisa-style)
+            'subscription.manage',
+            // FAQ
+            'faq.manage',
+            // About
+            'about.manage',
         ];
 
         foreach ($permissions as $perm) {
@@ -64,7 +76,7 @@ class RolePermissionSeeder extends Seeder
             ]),
             'hr' => [
                 'user.view', 'user.create', 'user.update',
-                'position.manage', 'competency.manage', 'skill_matrix.view', 'skill_matrix.manage',
+                'position.manage', 'division.manage', 'competency.manage', 'skill_matrix.view', 'skill_matrix.manage',
                 'enrollment.view', 'enrollment.manage', 'report.view',
             ],
             'employee' => [

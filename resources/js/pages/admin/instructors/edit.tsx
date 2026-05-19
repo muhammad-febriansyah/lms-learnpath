@@ -1,5 +1,15 @@
 import { Head, Link, useForm } from '@inertiajs/react';
-import { ArrowLeft, BadgeCheck, ImageIcon, Plus, Save, X } from 'lucide-react';
+import {
+    ArrowLeft,
+    BadgeCheck,
+    Download,
+    FileText,
+    ImageIcon,
+    Plus,
+    Save,
+    Upload,
+    X,
+} from 'lucide-react';
 import { useRef, useState } from 'react';
 
 import { FieldError } from '@/components/form/field-error';
@@ -12,6 +22,12 @@ import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 
+type InstructorCv = {
+    original_name: string | null;
+    uploaded_at: string | null;
+    download_url: string;
+};
+
 type InstructorProfile = {
     headline: string | null;
     bio: string | null;
@@ -21,6 +37,7 @@ type InstructorProfile = {
     website: string | null;
     is_verified: boolean;
     is_active: boolean;
+    cv: InstructorCv | null;
 };
 
 type Instructor = {
@@ -65,6 +82,7 @@ export default function InstructorEdit({ instructor }: Props) {
     );
     const [expertiseInput, setExpertiseInput] = useState('');
     const photoInputRef = useRef<HTMLInputElement | null>(null);
+    const cvInputRef = useRef<HTMLInputElement | null>(null);
 
     const form = useForm<{
         headline: string;
@@ -78,6 +96,7 @@ export default function InstructorEdit({ instructor }: Props) {
             twitter: string;
         };
         photo: File | null;
+        cv: File | null;
         is_verified: boolean;
         is_active: boolean;
         _method: string;
@@ -93,6 +112,7 @@ export default function InstructorEdit({ instructor }: Props) {
             twitter: profile.social_links?.twitter ?? '',
         },
         photo: null,
+        cv: null,
         is_verified: profile.is_verified,
         is_active: profile.is_active,
         _method: 'put',
@@ -117,6 +137,24 @@ export default function InstructorEdit({ instructor }: Props) {
         const reader = new FileReader();
         reader.onload = () => setPhotoPreview(reader.result as string);
         reader.readAsDataURL(file);
+    }
+
+    function handleCvChange(event: React.ChangeEvent<HTMLInputElement>) {
+        const file = event.target.files?.[0] ?? null;
+        form.setData('cv', file);
+    }
+
+    function cvUploadedLabel(iso: string | null): string {
+        if (!iso) return '';
+        try {
+            return new Date(iso).toLocaleDateString('id-ID', {
+                day: 'numeric',
+                month: 'short',
+                year: 'numeric',
+            });
+        } catch {
+            return '';
+        }
     }
 
     function addExpertise() {
@@ -401,6 +439,97 @@ export default function InstructorEdit({ instructor }: Props) {
                                 </div>
                             ))}
                         </div>
+                    </div>
+
+                    <div className="rounded-2xl bg-card p-5 shadow-[0_1px_2px_rgba(15,23,42,0.04)] ring-1 ring-slate-200/70">
+                        <h2 className="mb-1 text-[15px] font-bold text-slate-900">CV / Resume</h2>
+                        <p className="mb-4 text-[12px] text-slate-500">
+                            File CV hanya dapat diakses oleh admin (private storage).
+                        </p>
+
+                        <input
+                            ref={cvInputRef}
+                            type="file"
+                            accept="application/pdf"
+                            onChange={handleCvChange}
+                            className="hidden"
+                        />
+
+                        {profile.cv && !form.data.cv ? (
+                            <div className="flex flex-col gap-3 rounded-xl bg-slate-50/60 p-4 sm:flex-row sm:items-center">
+                                <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-rose-50 text-rose-600">
+                                    <FileText className="size-5" />
+                                </div>
+                                <div className="min-w-0 flex-1">
+                                    <div className="truncate text-[13.5px] font-semibold text-slate-900">
+                                        {profile.cv.original_name ?? 'cv.pdf'}
+                                    </div>
+                                    <div className="text-[11.5px] text-slate-500">
+                                        Diunggah {cvUploadedLabel(profile.cv.uploaded_at)}
+                                    </div>
+                                </div>
+                                <div className="flex gap-2">
+                                    <Button asChild variant="outline" size="sm" className="rounded-xl">
+                                        <a
+                                            href={profile.cv.download_url}
+                                            target="_blank"
+                                            rel="noreferrer"
+                                        >
+                                            <Download className="mr-1 size-3.5" />
+                                            Unduh
+                                        </a>
+                                    </Button>
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        size="sm"
+                                        className="rounded-xl"
+                                        onClick={() => cvInputRef.current?.click()}
+                                    >
+                                        <Upload className="mr-1 size-3.5" />
+                                        Ganti
+                                    </Button>
+                                </div>
+                            </div>
+                        ) : (
+                            <button
+                                type="button"
+                                onClick={() => cvInputRef.current?.click()}
+                                className={
+                                    'flex w-full items-center gap-3 rounded-xl px-3.5 py-3 ring-1 transition ' +
+                                    (form.errors.cv
+                                        ? 'bg-rose-50/40 ring-rose-300'
+                                        : form.data.cv
+                                          ? 'bg-emerald-50/40 ring-emerald-300'
+                                          : 'bg-surface ring-slate-200 hover:bg-white hover:ring-emerald-300')
+                                }
+                            >
+                                <span className={form.data.cv ? 'text-emerald-600' : 'text-slate-400'}>
+                                    {form.data.cv ? (
+                                        <FileText className="size-[18px]" />
+                                    ) : (
+                                        <Upload className="size-[18px]" />
+                                    )}
+                                </span>
+                                <span className="flex-1 truncate text-left text-[13.5px]">
+                                    {form.data.cv ? (
+                                        <span className="font-semibold text-slate-900">
+                                            {form.data.cv.name}
+                                        </span>
+                                    ) : (
+                                        <span className="text-slate-500">
+                                            {profile.cv ? 'Pilih file CV baru (PDF)' : 'Unggah CV (PDF)'}
+                                        </span>
+                                    )}
+                                </span>
+                                {form.data.cv && (
+                                    <span className="text-[11.5px] font-medium text-emerald-700">
+                                        {(form.data.cv.size / 1024 / 1024).toFixed(2)} MB
+                                    </span>
+                                )}
+                            </button>
+                        )}
+                        <FieldError message={form.errors.cv} />
                     </div>
 
                     <div className="rounded-2xl bg-card p-5 shadow-[0_1px_2px_rgba(15,23,42,0.04)] ring-1 ring-slate-200/70">

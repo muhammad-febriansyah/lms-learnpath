@@ -7,62 +7,157 @@ use App\Models\User;
 use App\Notifications\NewMessageReceived;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
+use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
 
 class MessageController extends Controller
 {
+    /**
+     * Chat-style inbox: list conversations grouped by counterpart user.
+     * Optional ?with={user_id} loads the active conversation thread.
+     */
     public function index(Request $request): Response
     {
         $user = $request->user();
-        $folder = $request->string('folder', 'inbox')->toString();
+        $search = $request->string('search')->toString();
+        $partnerId = $request->integer('with') ?: null;
 
-        $query = Message::query()
-            ->with(['sender:id,name,email,avatar_path', 'recipient:id,name,email,avatar_path'])
-            ->when($request->string('search')->toString(), function ($q, $search) {
-                $q->where(function ($qq) use ($search) {
-                    $qq->where('subject', 'like', "%{$search}%")
-                        ->orWhere('body', 'like', "%{$search}%");
-                });
-            });
+        $conversations = $this->buildConversationList($user, $search);
+        $activePartner = null;
+        $thread = [];
 
-        if ($folder === 'sent') {
-            $query->where('sender_id', $user->id)->where('sender_deleted', false);
-        } else {
-            $folder = 'inbox';
-            $query->where('recipient_id', $user->id)->where('recipient_deleted', false);
+        if ($partnerId) {
+            $partner = User::query()->find($partnerId, ['id', 'name', 'email', 'avatar_path']);
+
+            if ($partner) {
+                $messages = $this->fetchConversation($user, $partner);
+                $this->markIncomingAsRead($user, $partner);
+
+                $activePartner = [
+                    'id' => $partner->id,
+                    'name' => $partner->name,
+                    'email' => $partner->email,
+                    'avatar_url' => $partner->avatar_url,
+                ];
+
+                $thread = $messages->map(fn (Message $m) => [
+                    'id' => $m->id,
+                    'body' => $m->body,
+                    'subject' => $m->subject,
+                    'created_at' => $m->created_at?->toIso8601String(),
+                    'is_self' => $m->sender_id === $user->id,
+                ])->all();
+            }
         }
 
-        $messages = $query->latest('id')->paginate(15)->withQueryString();
-
-        $messages->getCollection()->transform(function (Message $m) use ($user, $folder) {
-            $counterpart = $folder === 'sent' ? $m->recipient : $m->sender;
-
-            return [
-                'id' => $m->id,
-                'subject' => $m->subject,
-                'preview' => str($m->body)->limit(100)->toString(),
-                'is_unread' => $folder === 'inbox' && $m->read_at === null,
-                'created_at' => $m->created_at?->toIso8601String(),
-                'counterpart' => $counterpart ? [
-                    'id' => $counterpart->id,
-                    'name' => $counterpart->name,
-                    'email' => $counterpart->email,
-                    'avatar_url' => $counterpart->avatar_url,
-                ] : null,
-            ];
-        });
-
         return Inertia::render('messages/index', [
-            'messages' => $messages,
-            'folder' => $folder,
-            'filters' => $request->only('search'),
-            'stats' => [
-                'inbox' => Message::where('recipient_id', $user->id)->where('recipient_deleted', false)->count(),
-                'unread' => Message::where('recipient_id', $user->id)->where('recipient_deleted', false)->whereNull('read_at')->count(),
-                'sent' => Message::where('sender_id', $user->id)->where('sender_deleted', false)->count(),
-            ],
+            'conversations' => $conversations,
+            'activePartner' => $activePartner,
+            'thread' => $thread,
+            'filters' => ['search' => $search],
         ]);
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    private function buildConversationList(User $user, string $search = ''): array
+    {
+        // Pair messages by (least(sender,recipient), greatest(sender,recipient)) so both directions live in one row.
+        $partnerExpr = DB::raw("CASE WHEN sender_id = {$user->id} THEN recipient_id ELSE sender_id END AS partner_id");
+
+        $latestMessages = Message::query()
+            ->select(['id', 'sender_id', 'recipient_id', 'subject', 'body', 'created_at', 'read_at'])
+            ->where(function ($q) use ($user) {
+                $q->where(function ($q1) use ($user) {
+                    $q1->where('sender_id', $user->id)->where('sender_deleted', false);
+                })->orWhere(function ($q1) use ($user) {
+                    $q1->where('recipient_id', $user->id)->where('recipient_deleted', false);
+                });
+            })
+            ->orderByDesc('id')
+            ->get()
+            ->groupBy(fn (Message $m) => $m->sender_id === $user->id ? $m->recipient_id : $m->sender_id);
+
+        if ($latestMessages->isEmpty()) {
+            return [];
+        }
+
+        $partnerIds = $latestMessages->keys()->all();
+        $partners = User::query()
+            ->whereIn('id', $partnerIds)
+            ->when($search !== '', function ($q) use ($search) {
+                $q->where(function ($qq) use ($search) {
+                    $qq->where('name', 'like', "%{$search}%")
+                        ->orWhere('email', 'like', "%{$search}%");
+                });
+            })
+            ->get(['id', 'name', 'email', 'avatar_path'])
+            ->keyBy('id');
+
+        return collect($partnerIds)
+            ->map(function ($partnerId) use ($latestMessages, $partners, $user) {
+                $partner = $partners->get($partnerId);
+                if (! $partner) {
+                    return null;
+                }
+
+                $messages = $latestMessages[$partnerId];
+                $last = $messages->first();
+                $unread = $messages
+                    ->where('recipient_id', $user->id)
+                    ->whereNull('read_at')
+                    ->count();
+
+                return [
+                    'partner' => [
+                        'id' => $partner->id,
+                        'name' => $partner->name,
+                        'email' => $partner->email,
+                        'avatar_url' => $partner->avatar_url,
+                    ],
+                    'last_message' => [
+                        'id' => $last->id,
+                        'preview' => str($last->body)->limit(80)->toString(),
+                        'is_self' => $last->sender_id === $user->id,
+                        'created_at' => $last->created_at?->toIso8601String(),
+                    ],
+                    'unread_count' => $unread,
+                ];
+            })
+            ->filter()
+            ->sortByDesc(fn ($c) => $c['last_message']['created_at'])
+            ->values()
+            ->all();
+    }
+
+    private function fetchConversation(User $user, User $partner)
+    {
+        return Message::query()
+            ->where(function ($q) use ($user, $partner) {
+                $q->where(function ($q1) use ($user, $partner) {
+                    $q1->where('sender_id', $user->id)
+                        ->where('recipient_id', $partner->id)
+                        ->where('sender_deleted', false);
+                })->orWhere(function ($q1) use ($user, $partner) {
+                    $q1->where('sender_id', $partner->id)
+                        ->where('recipient_id', $user->id)
+                        ->where('recipient_deleted', false);
+                });
+            })
+            ->orderBy('created_at')
+            ->get();
+    }
+
+    private function markIncomingAsRead(User $user, User $partner): void
+    {
+        Message::query()
+            ->where('recipient_id', $user->id)
+            ->where('sender_id', $partner->id)
+            ->whereNull('read_at')
+            ->update(['read_at' => now()]);
     }
 
     public function create(Request $request): Response
@@ -104,8 +199,8 @@ class MessageController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $data = $request->validate([
-            'recipient_id' => ['required', 'integer', 'exists:users,id', 'different:user_id'],
-            'subject' => ['required', 'string', 'max:200'],
+            'recipient_id' => ['required', 'integer', 'exists:users,id'],
+            'subject' => ['nullable', 'string', 'max:200'],
             'body' => ['required', 'string', 'max:5000'],
             'parent_id' => ['nullable', 'integer', 'exists:messages,id'],
         ], [
@@ -113,7 +208,6 @@ class MessageController extends Controller
             'string' => ':attribute harus berupa teks.',
             'max' => ':attribute maksimal :max karakter.',
             'exists' => ':attribute tidak ditemukan.',
-            'recipient_id.different' => 'Tidak bisa mengirim pesan ke diri sendiri.',
         ], [
             'recipient_id' => 'Penerima',
             'subject' => 'Subjek',
@@ -121,7 +215,30 @@ class MessageController extends Controller
         ]);
 
         if ((int) $data['recipient_id'] === $request->user()->id) {
-            return back()->withErrors(['recipient_id' => 'Tidak bisa mengirim pesan ke diri sendiri.'])->withInput();
+            return back()
+                ->withErrors(['recipient_id' => 'Tidak bisa mengirim pesan ke diri sendiri.'])
+                ->withInput();
+        }
+
+        // Chat-style: if there's a prior message with this partner, inherit the subject
+        // so we don't force users to fill a topic for every reply.
+        if (empty($data['subject'])) {
+            $previous = Message::query()
+                ->where(function ($q) use ($data, $request) {
+                    $q->where(function ($q1) use ($data, $request) {
+                        $q1->where('sender_id', $request->user()->id)
+                            ->where('recipient_id', $data['recipient_id']);
+                    })->orWhere(function ($q1) use ($data, $request) {
+                        $q1->where('sender_id', $data['recipient_id'])
+                            ->where('recipient_id', $request->user()->id);
+                    });
+                })
+                ->latest('id')
+                ->first();
+
+            $data['subject'] = $previous
+                ? (str_starts_with($previous->subject, 'Re:') ? $previous->subject : "Re: {$previous->subject}")
+                : '(Tanpa subjek)';
         }
 
         $message = Message::create([
@@ -132,54 +249,27 @@ class MessageController extends Controller
         $recipient = User::find($data['recipient_id']);
         $recipient?->notify(new NewMessageReceived($message));
 
+        // Chat-style requests come from /messages?with=… so redirect back into the conversation.
+        if ($request->boolean('chat')) {
+            return redirect()
+                ->route('messages.index', ['with' => $data['recipient_id']])
+                ->with('success', 'Pesan terkirim.');
+        }
+
         return redirect()
-            ->route('messages.index', ['folder' => 'sent'])
+            ->route('messages.index', ['with' => $data['recipient_id']])
             ->with('success', 'Pesan terkirim.');
     }
 
-    public function show(Request $request, Message $message): Response
+    public function show(Request $request, Message $message): SymfonyResponse
     {
         $user = $request->user();
         abort_unless($message->sender_id === $user->id || $message->recipient_id === $user->id, 403);
 
-        if ($message->recipient_id === $user->id && $message->read_at === null) {
-            $message->markAsRead();
-        }
+        // Redirect single-message view into the chat thread with the counterpart.
+        $partnerId = $message->sender_id === $user->id ? $message->recipient_id : $message->sender_id;
 
-        $message->load(['sender:id,name,email,avatar_path', 'recipient:id,name,email,avatar_path']);
-
-        // Build thread: root + all replies in order.
-        $rootId = $message->parent_id ?? $message->id;
-        $thread = Message::query()
-            ->where(function ($q) use ($rootId) {
-                $q->where('id', $rootId)->orWhere('parent_id', $rootId);
-            })
-            ->where(function ($q) use ($user) {
-                $q->where('sender_id', $user->id)->orWhere('recipient_id', $user->id);
-            })
-            ->with(['sender:id,name,email,avatar_path'])
-            ->orderBy('created_at')
-            ->get();
-
-        return Inertia::render('messages/show', [
-            'thread' => $thread->map(fn (Message $m) => [
-                'id' => $m->id,
-                'subject' => $m->subject,
-                'body' => $m->body,
-                'created_at' => $m->created_at?->toIso8601String(),
-                'is_self' => $m->sender_id === $user->id,
-                'sender' => $m->sender ? [
-                    'id' => $m->sender->id,
-                    'name' => $m->sender->name,
-                    'email' => $m->sender->email,
-                    'avatar_url' => $m->sender->avatar_url,
-                ] : null,
-            ]),
-            'message' => [
-                'id' => $message->id,
-                'subject' => $message->subject,
-            ],
-        ]);
+        return Inertia::location(route('messages.index', ['with' => $partnerId]));
     }
 
     public function destroy(Request $request, Message $message): RedirectResponse

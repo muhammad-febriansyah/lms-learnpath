@@ -22,6 +22,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
     'started_at',
     'completed_at',
     'expired_at',
+    'due_at',
+    'assigned_by_user_id',
+    'reminders_sent',
 ])]
 #[ObservedBy([EnrollmentObserver::class])]
 class Enrollment extends Model
@@ -37,6 +40,8 @@ class Enrollment extends Model
             'started_at' => 'datetime',
             'completed_at' => 'datetime',
             'expired_at' => 'datetime',
+            'due_at' => 'datetime',
+            'reminders_sent' => 'array',
         ];
     }
 
@@ -48,5 +53,10 @@ class Enrollment extends Model
     public function course(): BelongsTo
     {
         return $this->belongsTo(Course::class);
+    }
+
+    public function assignedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'assigned_by_user_id');
     }
 }

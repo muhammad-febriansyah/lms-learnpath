@@ -3,6 +3,7 @@ import { Award, Ban, Calendar, ShieldCheck } from 'lucide-react';
 
 import { IconChevR } from '@/components/learnpath-icons';
 import { DateRangeFilter } from '@/components/reports/date-range-filter';
+import { ExportCsvButton } from '@/components/reports/export-csv-button';
 import { cn } from '@/lib/utils';
 
 type Range = { from: string; to: string; from_iso: string; to_iso: string };
@@ -60,12 +61,20 @@ export default function CertificateReport({ range, totals, perCourse, byMonth }:
                         <IconChevR size={12} className="text-slate-300" />
                         <span className="font-semibold text-slate-900">Certificate</span>
                     </nav>
-                    <h1 className="mt-1.5 text-2xl font-extrabold tracking-tight text-slate-900">
-                        Certificate Report
-                    </h1>
-                    <p className="mt-1 text-[13.5px] text-slate-500">
-                        Statistik penerbitan sertifikat lulus course.
-                    </p>
+                    <div className="mt-1.5 flex items-start justify-between gap-3">
+                        <div>
+                            <h1 className="text-2xl font-extrabold tracking-tight text-slate-900">
+                                Certificate Report
+                            </h1>
+                            <p className="mt-1 text-[13.5px] text-slate-500">
+                                Statistik penerbitan sertifikat lulus course.
+                            </p>
+                        </div>
+                        <ExportCsvButton
+                            href="/admin/reports/certificate/export.csv"
+                            params={{ from: range.from, to: range.to }}
+                        />
+                    </div>
                 </div>
 
                 <DateRangeFilter from={range.from} to={range.to} basePath="/admin/reports/certificate" />

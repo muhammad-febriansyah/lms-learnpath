@@ -40,7 +40,9 @@ class CourseRequest extends FormRequest
                 Rule::unique('courses', 'slug')->ignore($courseId),
             ],
             'description' => ['nullable', 'string'],
-            'thumbnail' => ['nullable', 'string', 'max:255'],
+            'thumbnail' => ['nullable', 'image', 'mimes:png,jpg,jpeg,webp', 'max:2048'],
+            'thumbnail_existing' => ['nullable', 'string', 'max:255'],
+            'thumbnail_remove' => ['nullable', 'boolean'],
             'preview_video_url' => ['nullable', 'string', 'max:500'],
             'price' => ['required', 'integer', 'min:0'],
             'compare_at_price' => ['nullable', 'integer', 'min:0', 'gte:price'],
@@ -71,6 +73,23 @@ class CourseRequest extends FormRequest
             'target_audience.*' => ['string', 'max:500'],
             'tag_ids' => ['nullable', 'array'],
             'tag_ids.*' => ['integer', 'exists:tags,id'],
+
+            'sections' => ['nullable', 'array'],
+            'sections.*.id' => ['nullable', 'integer'],
+            'sections.*.title' => ['required_with:sections', 'string', 'max:255'],
+            'sections.*.description' => ['nullable', 'string'],
+            'sections.*.lessons' => ['nullable', 'array'],
+            'sections.*.lessons.*.id' => ['nullable', 'integer'],
+            'sections.*.lessons.*.title' => ['required_with:sections.*.lessons', 'string', 'max:255'],
+            'sections.*.lessons.*.description' => ['nullable', 'string'],
+            'sections.*.lessons.*.duration_minutes' => ['nullable', 'integer', 'min:0'],
+            'sections.*.lessons.*.is_preview' => ['nullable', 'boolean'],
+            'sections.*.lessons.*.is_required' => ['nullable', 'boolean'],
+            'sections.*.lessons.*.video_file' => ['nullable', 'file', 'mimes:mp4', 'max:51200'],
+            'sections.*.lessons.*.video_path_existing' => ['nullable', 'string', 'max:500'],
+            'sections.*.lessons.*.video_remove' => ['nullable', 'boolean'],
+            'sections.*.lessons.*.embed_url' => ['nullable', 'string', 'max:500'],
+            'sections.*.lessons.*.youtube_url' => ['nullable', 'string', 'max:500'],
         ];
     }
 
@@ -93,6 +112,9 @@ class CourseRequest extends FormRequest
             'after_or_equal' => ':attribute harus setelah atau sama dengan tanggal mulai.',
             'in' => ':attribute tidak valid.',
             'date' => ':attribute harus berupa tanggal valid.',
+            'mimes' => ':attribute harus berformat: :values.',
+            'sections.*.lessons.*.video_file.max' => 'Video lesson maksimal 50 MB. Untuk video lebih besar, gunakan embed YouTube.',
+            'sections.*.lessons.*.video_file.mimes' => 'Video lesson harus berformat MP4.',
         ];
     }
 
@@ -128,6 +150,12 @@ class CourseRequest extends FormRequest
             'requirements' => 'Prasyarat',
             'target_audience' => 'Target peserta',
             'tag_ids' => 'Tag',
+            'sections.*.title' => 'Judul section',
+            'sections.*.lessons.*.title' => 'Judul lesson',
+            'sections.*.lessons.*.duration_minutes' => 'Durasi lesson',
+            'sections.*.lessons.*.video_file' => 'Video lesson',
+            'sections.*.lessons.*.embed_url' => 'URL embed',
+            'sections.*.lessons.*.youtube_url' => 'URL YouTube',
         ];
     }
 }

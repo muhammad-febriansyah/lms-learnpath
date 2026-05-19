@@ -47,6 +47,20 @@ class CoursePolicy
         return in_array($course->review_status, [Course::REVIEW_DRAFT, Course::REVIEW_REJECTED], true);
     }
 
+    /**
+     * Quick action — toggle is_preview on a lesson within this course.
+     * Allowed for superadmin (cross-tenant) or the course's instructor,
+     * regardless of review status (preview can be set on published courses too).
+     */
+    public function togglePreview(User $user, Course $course): bool
+    {
+        if ($user->hasRole('superadmin')) {
+            return true;
+        }
+
+        return $user->hasRole('instructor') && $course->instructor_id === $user->id;
+    }
+
     public function delete(User $user, Course $course): bool
     {
         if (! $user->hasPermissionTo('course.delete')) {

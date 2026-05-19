@@ -171,11 +171,11 @@ export default function PositionsIndex({ positions, filters, divisionOptions, st
                             Dashboard
                         </Link>
                         <IconChevR size={12} className="text-slate-300" />
-                        <span className="font-semibold text-slate-900">Master Jabatan</span>
+                        <span className="font-semibold text-slate-900">Posisi / Jabatan</span>
                     </nav>
                     <div className="mt-1.5 flex flex-wrap items-center justify-between gap-3">
                         <h1 className="text-2xl font-extrabold tracking-tight text-slate-900">
-                            Master Jabatan
+                            Posisi / Jabatan
                         </h1>
                         <Button asChild className="rounded-xl bg-brand-600 hover:bg-brand-700">
                             <Link href="/admin/positions/create">

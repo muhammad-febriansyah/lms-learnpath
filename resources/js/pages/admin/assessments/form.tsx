@@ -99,7 +99,7 @@ export default function AssessmentForm({ assessment, courses, preselectedCourseI
 
                 <form
                     onSubmit={submit}
-                    className="space-y-5 rounded-2xl bg-card p-6 shadow-[0_1px_2px_rgba(15,23,42,0.04)] ring-1 ring-slate-200/70"
+                    className="space-y-7 rounded-2xl bg-card p-6 shadow-[0_1px_2px_rgba(15,23,42,0.04)] ring-1 ring-slate-200/70 sm:p-7"
                 >
                     <div className="grid gap-4 sm:grid-cols-2">
                         <div className="sm:col-span-2">

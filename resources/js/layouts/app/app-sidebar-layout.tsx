@@ -1,4 +1,5 @@
 import { LearnpathSidebar, LearnpathTopbar, useSidebarState } from '@/components/learnpath-sidebar';
+import { TenantBrandStyle } from '@/components/tenant-brand-style';
 import type { AppLayoutProps } from '@/types';
 
 export default function AppSidebarLayout({ children, breadcrumbs = [] }: AppLayoutProps) {
@@ -6,6 +7,7 @@ export default function AppSidebarLayout({ children, breadcrumbs = [] }: AppLayo
 
     return (
         <div className="flex min-h-screen bg-surface text-slate-800">
+            <TenantBrandStyle />
             <LearnpathSidebar
                 collapsed={collapsed}
                 onToggleCollapse={toggleCollapse}

@@ -2,9 +2,12 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\AboutSetting;
+use App\Models\Category;
 use App\Services\Security\RecaptchaVerifier;
 use App\Support\Setting;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Inertia\Middleware;
 
 class HandleInertiaRequests extends Middleware
@@ -84,6 +87,19 @@ class HandleInertiaRequests extends Middleware
             ];
         }
 
+        $gamification = null;
+        if ($user) {
+            $point = $user->userPoint;
+            $streak = $user->learningStreak;
+            $gamification = [
+                'total_points' => (int) ($point?->total_points ?? 0),
+                'lifetime_points' => (int) ($point?->lifetime_points ?? 0),
+                'level' => $point?->level ?? 'bronze',
+                'current_streak' => (int) ($streak?->current_streak ?? 0),
+                'longest_streak' => (int) ($streak?->longest_streak ?? 0),
+            ];
+        }
+
         return [
             ...parent::share($request),
             'name' => config('app.name'),
@@ -93,20 +109,39 @@ class HandleInertiaRequests extends Middleware
                 'permissions' => $user ? $user->getAllPermissions()->pluck('name')->values()->all() : [],
             ],
             'notifications' => $notifications,
+            'gamification' => $gamification,
             'tenant' => $this->resolveTenantPayload(),
-            'site' => fn () => Setting::publicForFrontend()->all(),
+            'site' => fn () => $this->resolveSitePayload(),
+            'about' => fn () => $this->resolveAboutPayload(),
+            'navCategories' => fn () => $this->resolveNavCategoriesPayload(),
             'flash' => [
                 'toast' => $toast,
                 'success' => $session->get('success'),
                 'error' => $session->get('error'),
                 'info' => $session->get('info'),
                 'bulk_preview' => $session->get('bulk_preview'),
+                'assign_preview' => $session->get('assign_preview'),
+                'new_scorm_package_id' => $session->get('new_scorm_package_id'),
             ],
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
             'recaptcha' => [
                 'enabled' => app(RecaptchaVerifier::class)->isEnabled(),
             ],
         ];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function resolveSitePayload(): array
+    {
+        $site = Setting::publicForFrontend()->all();
+
+        $site['site_logo_url'] = Setting::imageUrl('site_logo');
+        $site['site_favicon_url'] = Setting::imageUrl('site_favicon');
+        $site['seo_og_image_url'] = Setting::imageUrl('seo_og_image');
+
+        return $site;
     }
 
     /**
@@ -122,14 +157,69 @@ class HandleInertiaRequests extends Middleware
         return [
             'id' => $tenant->id,
             'name' => $tenant->name,
+            'display_name' => $tenant->display_name,
+            'tagline' => $tenant->tagline,
             'slug' => $tenant->slug,
             'logo_url' => $tenant->logo_path
                 ? asset('storage/'.$tenant->logo_path)
                 : null,
+            'brand_primary_color' => $tenant->brand_primary_color,
             'industry' => $tenant->industry,
             'seat_quota' => $tenant->seat_quota,
             'seats_used' => $tenant->seats_used,
             'seats_available' => $tenant->seatsAvailable(),
+        ];
+    }
+
+    /**
+     * Top categories used by the public navbar mega-menu.
+     * Cached for 15 minutes to keep page loads cheap.
+     *
+     * @return array<int, array{name: string, slug: string, courses_count: int}>
+     */
+    private function resolveNavCategoriesPayload(): array
+    {
+        return Cache::remember('nav:public-categories:v1', now()->addMinutes(15), function () {
+            return Category::query()
+                ->select(['id', 'name', 'slug'])
+                ->where('is_active', true)
+                ->whereHas('courses', fn ($q) => $q->where('is_published', true))
+                ->withCount(['courses' => fn ($q) => $q->where('is_published', true)])
+                ->orderByDesc('courses_count')
+                ->orderBy('name')
+                ->limit(8)
+                ->get()
+                ->map(fn (Category $c) => [
+                    'name' => $c->name,
+                    'slug' => $c->slug,
+                    'courses_count' => $c->courses_count,
+                ])
+                ->toArray();
+        });
+    }
+
+    /**
+     * @return array<string, mixed>|null
+     */
+    private function resolveAboutPayload(): ?array
+    {
+        $about = AboutSetting::query()->find(1);
+
+        if (! $about) {
+            return null;
+        }
+
+        return [
+            'title' => $about->title,
+            'tagline' => $about->tagline,
+            'contact_email' => $about->contact_email,
+            'contact_phone' => $about->contact_phone,
+            'contact_address' => $about->contact_address,
+            'social_facebook' => $about->social_facebook,
+            'social_instagram' => $about->social_instagram,
+            'social_twitter' => $about->social_twitter,
+            'social_linkedin' => $about->social_linkedin,
+            'social_youtube' => $about->social_youtube,
         ];
     }
 }

@@ -240,7 +240,7 @@ class DashboardController extends Controller
             'mentor' => [
                 'name' => $mentor->name,
                 'email' => $mentor->email,
-                'avatar' => $mentor->avatar,
+                'avatar' => $mentor->avatar_url,
             ],
             'stats' => [
                 'total_courses' => $totalCourses,

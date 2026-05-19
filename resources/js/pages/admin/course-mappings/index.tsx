@@ -154,7 +154,7 @@ export default function CourseMappingsIndex({ courses, course, mappings }: Props
                                                 href="/admin/competencies"
                                                 className="text-brand-600 hover:underline"
                                             >
-                                                Master Kompetensi
+                                                Kompetensi
                                             </Link>
                                             .
                                         </p>

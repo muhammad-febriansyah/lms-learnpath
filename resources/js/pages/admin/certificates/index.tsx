@@ -1,18 +1,28 @@
 import { Head, Link, router } from '@inertiajs/react';
 import type { ColumnDef } from '@tanstack/react-table';
-import { Award, Ban, Copy, ExternalLink, LayoutTemplate, Plus, Sparkles } from 'lucide-react';
+import {
+    Award,
+    Ban,
+    Copy,
+    Download,
+    ExternalLink,
+    Plus,
+    RotateCcw,
+    X,
+} from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 
 import { DataTable } from '@/components/data-table/data-table';
 import {
     DataTablePagination
-    
+
 } from '@/components/data-table/data-table-pagination';
 import type {Paginator} from '@/components/data-table/data-table-pagination';
 import { IconChevR } from '@/components/learnpath-icons';
 import { StatusBadge } from '@/components/status/status-badge';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
     Dialog,
     DialogContent,
@@ -43,30 +53,10 @@ type Certificate = {
 
 type Props = {
     certificates: Paginator<Certificate>;
-    builderTemplates: Array<{
-        id: number;
-        name: string;
-        scope: string;
-        orientation: string;
-        status: string;
-        title: string;
-        subtitle: string | null;
-        body_text: string | null;
-        show_qr: boolean;
-        show_signature: boolean;
-        sort_order: number;
-        background_url: string | null;
-    }>;
     filters: {
         search?: string;
         status?: string;
     };
-};
-
-const builderStatusStyles: Record<string, string> = {
-    active: 'bg-emerald-50 text-emerald-700 ring-emerald-200',
-    draft: 'bg-amber-50 text-amber-700 ring-amber-200',
-    archived: 'bg-slate-100 text-slate-700 ring-slate-200',
 };
 
 function formatDate(value: string | null): string {
@@ -83,12 +73,56 @@ return '-';
 
 export default function CertificatesIndex({
     certificates,
-    builderTemplates,
     filters,
 }: Props) {
     const [revokeId, setRevokeId] = useState<number | null>(null);
     const [revokeNumber, setRevokeNumber] = useState<string>('');
     const [processing, setProcessing] = useState(false);
+
+    const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
+    const [bulkRevokeOpen, setBulkRevokeOpen] = useState(false);
+    const [bulkReissueOpen, setBulkReissueOpen] = useState(false);
+    const [bulkProcessing, setBulkProcessing] = useState(false);
+
+    const selectedCertificates = certificates.data.filter((c) =>
+        selectedIds.has(c.id),
+    );
+    const selectedRevocable = selectedCertificates.filter(
+        (c) => c.status === 'issued',
+    );
+    const selectedReissuable = selectedCertificates.filter(
+        (c) => c.status === 'revoked' || c.status === 'expired',
+    );
+
+    const toggleSelect = (id: number) => {
+        setSelectedIds((prev) => {
+            const next = new Set(prev);
+            if (next.has(id)) {
+                next.delete(id);
+            } else {
+                next.add(id);
+            }
+            return next;
+        });
+    };
+
+    const allSelected =
+        certificates.data.length > 0 &&
+        certificates.data.every((c) => selectedIds.has(c.id));
+
+    const toggleSelectAll = () => {
+        setSelectedIds((prev) => {
+            const next = new Set(prev);
+            if (allSelected) {
+                certificates.data.forEach((c) => next.delete(c.id));
+            } else {
+                certificates.data.forEach((c) => next.add(c.id));
+            }
+            return next;
+        });
+    };
+
+    const clearSelection = () => setSelectedIds(new Set());
 
     const handleFilter = (next: Record<string, string | undefined>) => {
         router.get(
@@ -109,8 +143,8 @@ export default function CertificatesIndex({
 
     const performRevoke = () => {
         if (!revokeId) {
-return;
-}
+            return;
+        }
 
         setProcessing(true);
         router.post(
@@ -126,7 +160,106 @@ return;
         );
     };
 
+    const performBulkRevoke = () => {
+        const ids = selectedRevocable.map((c) => c.id);
+        if (ids.length === 0) {
+            return;
+        }
+
+        setBulkProcessing(true);
+        router.post(
+            '/admin/certificates/bulk/revoke',
+            { ids },
+            {
+                preserveScroll: true,
+                onFinish: () => {
+                    setBulkProcessing(false);
+                    setBulkRevokeOpen(false);
+                    clearSelection();
+                },
+            },
+        );
+    };
+
+    const performBulkReissue = () => {
+        const ids = selectedReissuable.map((c) => c.id);
+        if (ids.length === 0) {
+            return;
+        }
+
+        setBulkProcessing(true);
+        router.post(
+            '/admin/certificates/bulk/reissue',
+            { ids },
+            {
+                preserveScroll: true,
+                onFinish: () => {
+                    setBulkProcessing(false);
+                    setBulkReissueOpen(false);
+                    clearSelection();
+                },
+            },
+        );
+    };
+
+    const performBulkExport = () => {
+        const ids = selectedCertificates.map((c) => c.id);
+        if (ids.length === 0) {
+            return;
+        }
+
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '/admin/certificates/bulk/export';
+        form.style.display = 'none';
+
+        const csrf = document
+            .querySelector<HTMLMetaElement>('meta[name="csrf-token"]')
+            ?.getAttribute('content');
+        if (csrf) {
+            const token = document.createElement('input');
+            token.type = 'hidden';
+            token.name = '_token';
+            token.value = csrf;
+            form.appendChild(token);
+        }
+
+        ids.forEach((id) => {
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'ids[]';
+            input.value = String(id);
+            form.appendChild(input);
+        });
+
+        document.body.appendChild(form);
+        form.submit();
+        document.body.removeChild(form);
+        toast.success(`Mengunduh ${ids.length} sertifikat...`);
+    };
+
     const columns: ColumnDef<Certificate>[] = [
+        {
+            id: 'select',
+            header: () => (
+                <Checkbox
+                    checked={allSelected}
+                    onCheckedChange={toggleSelectAll}
+                    aria-label="Pilih semua sertifikat di halaman ini"
+                    disabled={certificates.data.length === 0}
+                />
+            ),
+            cell: ({ row }) => (
+                <Checkbox
+                    checked={selectedIds.has(row.original.id)}
+                    onCheckedChange={() => toggleSelect(row.original.id)}
+                    aria-label={`Pilih sertifikat ${row.original.certificate_number}`}
+                />
+            ),
+            meta: { label: 'Pilih', className: 'w-[40px]' },
+            enableSorting: false,
+            enableHiding: false,
+        },
         {
             id: 'certificate_number',
             accessorKey: 'certificate_number',
@@ -221,183 +354,32 @@ return;
         <>
             <Head title="Sertifikat" />
             <div className="space-y-5">
-                <div>
-                    <nav className="flex items-center gap-1.5 text-[12.5px] text-slate-500">
-                        <Link href="/admin/dashboard" className="hover:text-slate-700">
-                            Dashboard
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+                    <div>
+                        <nav className="flex items-center gap-1.5 text-[12.5px] text-slate-500">
+                            <Link href="/admin/dashboard" className="hover:text-slate-700">
+                                Dashboard
+                            </Link>
+                            <IconChevR size={12} className="text-slate-300" />
+                            <span className="font-semibold text-slate-900">Sertifikat</span>
+                        </nav>
+                        <h1 className="mt-1.5 text-2xl font-extrabold tracking-tight text-slate-900">
+                            Sertifikat
+                        </h1>
+                        <p className="mt-1 text-[13.5px] text-slate-500">
+                            Sertifikat yang sudah diterbitkan untuk peserta yang lulus.
+                        </p>
+                    </div>
+                    <Button
+                        asChild
+                        className="rounded-xl bg-brand-600 hover:bg-brand-700"
+                    >
+                        <Link href={admin.certificates.templates.create().url}>
+                            <Plus className="mr-1.5 size-4" />
+                            Buat Template
                         </Link>
-                        <IconChevR size={12} className="text-slate-300" />
-                        <span className="font-semibold text-slate-900">Sertifikat</span>
-                    </nav>
-                    <h1 className="mt-1.5 text-2xl font-extrabold tracking-tight text-slate-900">
-                        Sertifikat
-                    </h1>
-                    <p className="mt-1 text-[13.5px] text-slate-500">
-                        Sertifikat yang sudah diterbitkan untuk peserta yang lulus.
-                    </p>
+                    </Button>
                 </div>
-
-                <section className="overflow-hidden rounded-[28px] border border-slate-200/70 bg-white shadow-[0_18px_50px_rgba(15,23,42,0.07)]">
-                    <div className="border-b border-slate-200/80 bg-[linear-gradient(135deg,#f8fafc_0%,#eef2ff_58%,#fdf2f8_100%)] p-5">
-                        <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-                            <div className="max-w-2xl">
-                                <div className="inline-flex items-center gap-2 rounded-full bg-white/85 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-500 ring-1 ring-slate-200">
-                                    <LayoutTemplate className="size-3.5 text-indigo-500" />
-                                    Certificate Builder
-                                </div>
-                                <h2 className="mt-4 text-xl font-bold tracking-tight text-slate-900">
-                                    Builder tetap berada di menu Sertifikat
-                                </h2>
-                                <p className="mt-2 text-sm leading-6 text-slate-600">
-                                    Satu menu ini dipakai untuk dua kebutuhan sekaligus:
-                                    melihat sertifikat yang sudah terbit dan mengelola
-                                    banyak template sertifikat untuk course, learning
-                                    path, atau kebutuhan corporate.
-                                </p>
-                            </div>
-
-                            <div className="flex flex-col items-stretch gap-3 sm:items-end">
-                                <div className="grid gap-3 sm:grid-cols-3">
-                                    <BuilderMetric
-                                        label="Total template"
-                                        value={String(builderTemplates.length)}
-                                    />
-                                    <BuilderMetric
-                                        label="Template aktif"
-                                        value={String(
-                                            builderTemplates.filter(
-                                                (template) => template.status === 'active',
-                                            ).length,
-                                        )}
-                                    />
-                                    <BuilderMetric
-                                        label="Mode"
-                                        value="Multiple"
-                                    />
-                                </div>
-
-                                <Button
-                                    asChild
-                                    className="rounded-xl bg-brand-600 hover:bg-brand-700"
-                                >
-                                    <Link href={admin.certificates.templates.create().url}>
-                                        <Plus className="mr-1.5 size-4" />
-                                        Buat Template
-                                    </Link>
-                                </Button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="grid gap-4 p-5 lg:grid-cols-[minmax(0,1.25fr)_minmax(360px,0.75fr)]">
-                        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-                            {builderTemplates.map((template) => (
-                                <article
-                                    key={template.id}
-                                    className="rounded-3xl border border-slate-200 bg-slate-50/80 p-4"
-                                >
-                                    <div className="flex items-start justify-between gap-3">
-                                        <div>
-                                            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-400">
-                                                {template.scope}
-                                            </p>
-                                            <h3 className="mt-2 text-[15px] font-bold text-slate-900">
-                                                {template.name}
-                                            </h3>
-                                        </div>
-                                        <span
-                                            className={`inline-flex rounded-full px-2.5 py-1 text-[11px] font-semibold ring-1 ${
-                                                builderStatusStyles[template.status] ??
-                                                builderStatusStyles.archived
-                                            }`}
-                                        >
-                                            {template.status}
-                                        </span>
-                                    </div>
-
-                                    <div className="mt-4 rounded-2xl border border-dashed border-slate-200 bg-white p-4">
-                                        <div
-                                            className={`rounded-xl bg-[radial-gradient(circle_at_top_left,#eef2ff_0,#ffffff_48%),linear-gradient(135deg,#ffffff_0%,#f8fafc_100%)] p-4 shadow-[inset_0_0_0_1px_rgba(226,232,240,0.7)] ${
-                                                template.orientation === 'portrait'
-                                                    ? 'mx-auto aspect-[1/1.414] max-w-[180px]'
-                                                    : 'aspect-[1.414/1]'
-                                            }`}
-                                            style={
-                                                template.background_url
-                                                    ? {
-                                                          backgroundImage: `linear-gradient(135deg,rgba(255,255,255,0.88),rgba(248,250,252,0.93)), url(${template.background_url})`,
-                                                          backgroundSize: 'cover',
-                                                          backgroundPosition: 'center',
-                                                      }
-                                                    : undefined
-                                            }
-                                        >
-                                            <div className="flex h-full flex-col rounded-lg border border-indigo-100 px-4 py-3">
-                                                <div className="flex items-center justify-between">
-                                                    <span className="text-[9px] font-bold uppercase tracking-[0.28em] text-indigo-500">
-                                                        Preview
-                                                    </span>
-                                                    <Award className="size-4 text-indigo-500" />
-                                                </div>
-                                                <div className="flex flex-1 flex-col items-center justify-center text-center">
-                                                    <p className="text-[9px] text-slate-400">
-                                                        {template.subtitle || 'Nama Peserta'}
-                                                    </p>
-                                                    <p className="mt-1 text-sm font-black text-slate-900">
-                                                        {template.title}
-                                                    </p>
-                                                    <p className="mt-1 text-[10px] text-slate-500">
-                                                        {template.scope}
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <p className="mt-4 text-sm leading-6 text-slate-600">
-                                        {template.body_text || 'Belum ada deskripsi template.'}
-                                    </p>
-                                </article>
-                            ))}
-                        </div>
-
-                        <aside className="space-y-4">
-                            <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-[0_8px_30px_rgba(15,23,42,0.05)]">
-                                <div className="flex items-center gap-3">
-                                    <div className="grid size-11 place-items-center rounded-2xl bg-emerald-50 text-emerald-600">
-                                        <Sparkles className="size-5" />
-                                    </div>
-                                    <div>
-                                        <h3 className="font-bold text-slate-900">Builder Page</h3>
-                                        <p className="text-sm text-slate-500">
-                                            Form builder sekarang dibuka di page khusus supaya
-                                            proses setup template lebih fokus.
-                                        </p>
-                                    </div>
-                                </div>
-
-                                <div className="mt-5 space-y-3 text-sm leading-6 text-slate-600">
-                                    <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
-                                        1. Klik tombol <strong>Buat Template</strong>.
-                                    </div>
-                                    <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
-                                        2. Isi metadata sertifikat, upload background, dan atur QR atau signature.
-                                    </div>
-                                    <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
-                                        3. Simpan lalu template akan muncul di daftar ini.
-                                    </div>
-                                </div>
-
-                                <Button asChild className="mt-5 w-full rounded-xl">
-                                    <Link href={admin.certificates.templates.create().url}>
-                                        <Plus className="mr-1.5 size-4" />
-                                        Buka Form Builder
-                                    </Link>
-                                </Button>
-                            </div>
-                        </aside>
-                    </div>
-                </section>
 
                 <div className="rounded-2xl bg-card p-5 shadow-[0_1px_2px_rgba(15,23,42,0.04)] ring-1 ring-slate-200/70">
                     <div className="mb-4">
@@ -408,6 +390,64 @@ return;
                             Total {certificates.total} sertifikat terbit
                         </p>
                     </div>
+
+                    {selectedIds.size > 0 && (
+                        <div className="mb-3 flex flex-col gap-2 rounded-xl border border-brand-200 bg-brand-50 px-4 py-3 text-[13px] sm:flex-row sm:items-center sm:justify-between">
+                            <div className="font-semibold text-brand-800">
+                                {selectedIds.size} sertifikat dipilih
+                                {selectedRevocable.length > 0 && (
+                                    <span className="ml-2 text-[12px] font-normal text-brand-700">
+                                        · {selectedRevocable.length} aktif
+                                    </span>
+                                )}
+                                {selectedReissuable.length > 0 && (
+                                    <span className="ml-2 text-[12px] font-normal text-brand-700">
+                                        · {selectedReissuable.length} dapat diaktifkan
+                                    </span>
+                                )}
+                            </div>
+                            <div className="flex flex-wrap items-center gap-1.5">
+                                {selectedRevocable.length > 0 && (
+                                    <Button
+                                        size="sm"
+                                        className="h-8 rounded-xl bg-rose-600 text-white hover:bg-rose-700"
+                                        onClick={() => setBulkRevokeOpen(true)}
+                                    >
+                                        <Ban className="mr-1 size-3.5" />
+                                        Cabut ({selectedRevocable.length})
+                                    </Button>
+                                )}
+                                {selectedReissuable.length > 0 && (
+                                    <Button
+                                        size="sm"
+                                        className="h-8 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700"
+                                        onClick={() => setBulkReissueOpen(true)}
+                                    >
+                                        <RotateCcw className="mr-1 size-3.5" />
+                                        Aktifkan ({selectedReissuable.length})
+                                    </Button>
+                                )}
+                                <Button
+                                    size="sm"
+                                    variant="outline"
+                                    className="h-8 rounded-xl"
+                                    onClick={performBulkExport}
+                                >
+                                    <Download className="mr-1 size-3.5" />
+                                    Export CSV
+                                </Button>
+                                <Button
+                                    size="sm"
+                                    variant="outline"
+                                    className="h-8 rounded-xl"
+                                    onClick={clearSelection}
+                                >
+                                    <X className="mr-1 size-3.5" />
+                                    Batal
+                                </Button>
+                            </div>
+                        </div>
+                    )}
 
                     <DataTable
                         columns={columns}
@@ -483,19 +523,79 @@ return;
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
+
+            <Dialog
+                open={bulkRevokeOpen}
+                onOpenChange={(open) => !open && setBulkRevokeOpen(false)}
+            >
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>
+                            Cabut {selectedRevocable.length} sertifikat sekaligus?
+                        </DialogTitle>
+                        <DialogDescription>
+                            Sertifikat yang statusnya bukan "Terbit" akan otomatis
+                            dilewati. Sertifikat dicabut tidak valid lagi untuk verifikasi
+                            publik, namun bisa diaktifkan kembali oleh super admin.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter>
+                        <Button
+                            variant="outline"
+                            onClick={() => setBulkRevokeOpen(false)}
+                            disabled={bulkProcessing}
+                        >
+                            Batal
+                        </Button>
+                        <Button
+                            variant="destructive"
+                            onClick={performBulkRevoke}
+                            disabled={bulkProcessing || selectedRevocable.length === 0}
+                        >
+                            {bulkProcessing
+                                ? 'Memproses...'
+                                : `Cabut (${selectedRevocable.length})`}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
+            <Dialog
+                open={bulkReissueOpen}
+                onOpenChange={(open) => !open && setBulkReissueOpen(false)}
+            >
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>
+                            Aktifkan kembali {selectedReissuable.length} sertifikat?
+                        </DialogTitle>
+                        <DialogDescription>
+                            Sertifikat berstatus dicabut atau kedaluwarsa akan dikembalikan
+                            ke status "Terbit" dengan tanggal terbit baru. Hanya berlaku
+                            untuk sertifikat yang dipilih.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter>
+                        <Button
+                            variant="outline"
+                            onClick={() => setBulkReissueOpen(false)}
+                            disabled={bulkProcessing}
+                        >
+                            Batal
+                        </Button>
+                        <Button
+                            className="bg-emerald-600 text-white hover:bg-emerald-700"
+                            onClick={performBulkReissue}
+                            disabled={bulkProcessing || selectedReissuable.length === 0}
+                        >
+                            {bulkProcessing
+                                ? 'Memproses...'
+                                : `Aktifkan (${selectedReissuable.length})`}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </>
     );
 }
 
-function BuilderMetric({ label, value }: { label: string; value: string }) {
-    return (
-        <div className="min-w-[120px] rounded-2xl border border-white/80 bg-white/80 px-4 py-3 text-right shadow-sm">
-            <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
-                {label}
-            </div>
-            <div className="mt-2 text-2xl font-black tracking-tight text-slate-900">
-                {value}
-            </div>
-        </div>
-    );
-}

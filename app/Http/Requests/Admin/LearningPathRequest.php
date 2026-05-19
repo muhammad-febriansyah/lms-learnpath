@@ -36,6 +36,8 @@ class LearningPathRequest extends FormRequest
             'target_audience.*' => ['string', 'max:255'],
             'outcomes' => ['nullable', 'array'],
             'outcomes.*' => ['string', 'max:500'],
+            'price' => ['nullable', 'integer', 'min:0', 'max:100000000'],
+            'compare_at_price' => ['nullable', 'integer', 'min:0', 'max:100000000', 'gte:price'],
             'is_published' => ['boolean'],
         ];
     }
@@ -53,6 +55,8 @@ class LearningPathRequest extends FormRequest
             'level' => 'Level',
             'duration_weeks' => 'Durasi (minggu)',
             'position_id' => 'Jabatan',
+            'price' => 'Harga jual',
+            'compare_at_price' => 'Harga coret',
         ];
     }
 }

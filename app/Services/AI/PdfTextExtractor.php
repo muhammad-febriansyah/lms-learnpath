@@ -13,7 +13,7 @@ use Throwable;
  * Scanned/image-only PDFs require OCR — we report them empty so the
  * caller can show a helpful error.
  */
-final class PdfTextExtractor
+class PdfTextExtractor
 {
     /**
      * @throws RuntimeException when the PDF cannot be parsed.

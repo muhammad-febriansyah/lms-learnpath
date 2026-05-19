@@ -1,12 +1,13 @@
 import { Head, Link, router } from '@inertiajs/react';
-import { ArrowRight, BookOpen, Calendar, Compass, Search, Sparkles, Users } from 'lucide-react';
+import { ArrowRight, BookOpen, Calendar, Compass, Search, Sparkles, Users, X } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
 
 import {
     DataTablePagination,
     type Paginator,
 } from '@/components/data-table/data-table-pagination';
+import { PageHeader } from '@/components/front/page-header';
 import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
 import {
     Select,
     SelectContent,
@@ -57,6 +58,9 @@ function levelBadgeClass(level: string | null): string {
 }
 
 export default function PathsIndex({ paths, filters }: Props) {
+    const [search, setSearch] = useState(filters.search ?? '');
+    const initial = useRef(true);
+
     const handleFilter = (next: Record<string, string | undefined>) => {
         router.get(
             '/paths',
@@ -65,49 +69,57 @@ export default function PathsIndex({ paths, filters }: Props) {
         );
     };
 
+    // Debounce search: kirim request 350ms setelah user berhenti mengetik.
+    useEffect(() => {
+        if (initial.current) {
+            initial.current = false;
+
+            return;
+        }
+        const timer = setTimeout(() => {
+            handleFilter({ search: search || undefined });
+        }, 350);
+
+        return () => clearTimeout(timer);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [search]);
+
     return (
         <>
             <Head title="Learning Path — Roadmap Karir" />
-            <div className="space-y-6">
-                <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-violet-700 via-indigo-700 to-brand-700 p-6 text-white sm:p-10">
-                    <div
-                        className="absolute -top-20 -right-16 size-72 rounded-full bg-white/10 blur-3xl"
-                        aria-hidden="true"
-                    />
-                    <div
-                        className="absolute -right-32 -bottom-24 size-80 rounded-full bg-violet-300/30 blur-3xl"
-                        aria-hidden="true"
-                    />
-                    <div className="relative">
-                        <div className="inline-flex items-center gap-2 rounded-full bg-white/15 px-2.5 py-1 text-[11px] font-bold tracking-[0.16em] ring-1 ring-white/20 uppercase backdrop-blur">
-                            <Compass className="size-3" />
-                            Learning Path
-                        </div>
-                        <h1 className="mt-3 text-[28px] leading-tight font-extrabold tracking-tight sm:text-[36px]">
-                            Roadmap karir, bukan cuma katalog
-                        </h1>
-                        <p className="mt-2 max-w-2xl text-[14.5px] text-white/85 sm:text-[15px]">
-                            Kurikulum berurutan yang menuntun Anda dari nol sampai siap kerja di
-                            jabatan target. Setiap path dirancang oleh praktisi industri.
-                        </p>
 
-                        <div className="mt-6 max-w-2xl">
-                            <div className="flex items-center gap-2 rounded-2xl bg-white p-2 ring-1 ring-white/30">
-                                <Search className="ml-2 size-5 text-slate-400" />
-                                <Input
-                                    type="search"
-                                    placeholder="Cari path, posisi, atau topik..."
-                                    defaultValue={filters.search ?? ''}
-                                    onChange={(e) =>
-                                        handleFilter({ search: e.target.value || undefined })
-                                    }
-                                    className="flex-1 border-0 bg-transparent text-slate-900 shadow-none focus-visible:ring-0"
-                                />
-                            </div>
-                        </div>
-                    </div>
-                </section>
+            <PageHeader
+                eyebrow="Learning Path"
+                title="Roadmap karir, bukan cuma katalog"
+                description="Kurikulum berurutan yang menuntun Anda dari nol sampai siap kerja di jabatan target. Setiap path dirancang oleh praktisi industri."
+                breadcrumbs={[
+                    { label: 'Beranda', href: '/' },
+                    { label: 'Learning Path' },
+                ]}
+            >
+                <div className="relative max-w-2xl">
+                    <Search className="absolute top-1/2 left-4 size-4 -translate-y-1/2 text-white/60" />
+                    <input
+                        type="search"
+                        placeholder="Cari path, posisi, atau topik..."
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                        className="block w-full rounded-full border border-white/15 bg-white/10 px-12 py-3.5 text-[14px] text-white placeholder:text-white/60 backdrop-blur focus:border-white/40 focus:outline-none focus:ring-2 focus:ring-white/30"
+                    />
+                    {search && (
+                        <button
+                            type="button"
+                            onClick={() => setSearch('')}
+                            aria-label="Hapus pencarian"
+                            className="absolute top-1/2 right-3 grid size-7 -translate-y-1/2 place-items-center rounded-full text-white/70 transition hover:bg-white/10 hover:text-white"
+                        >
+                            <X className="size-3.5" />
+                        </button>
+                    )}
+                </div>
+            </PageHeader>
 
+            <div className="mx-auto max-w-7xl px-5 py-12 lg:px-8 lg:py-16">
                 <div className="flex flex-wrap items-center gap-3">
                     <Select
                         value={filters.level ?? 'all'}
@@ -115,7 +127,7 @@ export default function PathsIndex({ paths, filters }: Props) {
                             handleFilter({ level: v === 'all' ? undefined : v })
                         }
                     >
-                        <SelectTrigger className="h-9 w-[160px]">
+                        <SelectTrigger className="h-10 w-[180px] rounded-full bg-white">
                             <SelectValue placeholder="Level" />
                         </SelectTrigger>
                         <SelectContent>
@@ -126,11 +138,13 @@ export default function PathsIndex({ paths, filters }: Props) {
                         </SelectContent>
                     </Select>
 
-                    <p className="ml-auto text-[12.5px] text-slate-500">{paths.total} path</p>
+                    <p className="ml-auto text-[12.5px] text-slate-500">
+                        <strong className="text-slate-900">{paths.total}</strong> path
+                    </p>
                 </div>
 
                 {paths.data.length === 0 ? (
-                    <div className="rounded-2xl bg-card p-12 text-center ring-1 ring-slate-200/70">
+                    <div className="mt-8 rounded-2xl border border-dashed border-slate-200 bg-white p-12 text-center">
                         <Compass className="mx-auto mb-3 size-8 text-slate-400" />
                         <p className="text-sm font-semibold text-slate-900">
                             Belum ada path tersedia
@@ -140,14 +154,16 @@ export default function PathsIndex({ paths, filters }: Props) {
                         </p>
                     </div>
                 ) : (
-                    <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                    <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
                         {paths.data.map((path) => (
                             <PathCard key={path.id} path={path} />
                         ))}
                     </div>
                 )}
 
-                <DataTablePagination paginator={paths} />
+                <div className="mt-8">
+                    <DataTablePagination paginator={paths} />
+                </div>
             </div>
         </>
     );
@@ -157,30 +173,68 @@ function PathCard({ path }: { path: Path }) {
     return (
         <Link
             href={`/paths/${path.slug}`}
-            className="group flex flex-col overflow-hidden rounded-2xl bg-card shadow-[0_1px_2px_rgba(15,23,42,0.04)] ring-1 ring-slate-200/70 transition-all duration-200 hover:-translate-y-0.5 hover:ring-slate-300"
+            className="group flex flex-col overflow-hidden rounded-2xl bg-white ring-1 ring-slate-200 transition duration-200 hover:-translate-y-1 hover:shadow-[0_18px_40px_-20px_rgba(18,35,125,0.35)] hover:ring-brand-300"
         >
-            <div className="relative aspect-[16/9] overflow-hidden bg-gradient-to-br from-violet-500 via-indigo-600 to-brand-700">
+            {/* Cover */}
+            <div className="relative aspect-[16/9] overflow-hidden bg-gradient-to-br from-brand-600 via-brand-700 to-brand-900">
+                {/* Decorative dot pattern */}
+                <div
+                    aria-hidden
+                    className="absolute inset-0 opacity-30"
+                    style={{
+                        backgroundImage:
+                            'radial-gradient(circle, rgba(255,255,255,0.25) 1px, transparent 1px)',
+                        backgroundSize: '18px 18px',
+                        maskImage:
+                            'radial-gradient(ellipse at center, black 30%, transparent 75%)',
+                    }}
+                />
+                {/* Glow */}
+                <div
+                    aria-hidden
+                    className="absolute -top-12 -right-6 size-44 rounded-full bg-brand-300/30 blur-3xl"
+                />
+                <div
+                    aria-hidden
+                    className="absolute -bottom-10 -left-6 size-36 rounded-full bg-brand-500/30 blur-3xl"
+                />
+
                 {path.thumbnail ? (
                     <img
                         src={path.thumbnail}
                         alt={path.title}
-                        className="size-full object-cover"
+                        className="relative size-full object-cover transition duration-700 group-hover:scale-[1.05]"
                     />
                 ) : (
-                    <div className="grid size-full place-items-center text-white/40">
-                        <Compass className="size-14" />
+                    <div className="relative grid size-full place-items-center">
+                        <span className="grid size-20 place-items-center rounded-2xl bg-white/15 text-white ring-1 ring-white/25 backdrop-blur">
+                            <Compass className="size-9" />
+                        </span>
                     </div>
                 )}
-                {path.position && (
-                    <Badge className="absolute top-3 left-3 border-transparent bg-white/90 text-indigo-700 backdrop-blur">
-                        <Sparkles className="mr-1 size-3" />
-                        {path.position.name}
-                    </Badge>
-                )}
+
+                {/* Top badges */}
+                <div className="absolute inset-x-3 top-3 flex items-start justify-between gap-2">
+                    {path.position ? (
+                        <Badge className="border-transparent bg-white/95 text-brand-700 backdrop-blur">
+                            <Sparkles className="mr-1 size-3" />
+                            {path.position.name}
+                        </Badge>
+                    ) : (
+                        <span />
+                    )}
+                    {path.duration_weeks && (
+                        <span className="inline-flex items-center gap-1 rounded-full bg-black/30 px-2.5 py-1 text-[10.5px] font-bold text-white ring-1 ring-white/15 backdrop-blur">
+                            <Calendar className="size-3" />
+                            {path.duration_weeks}w
+                        </span>
+                    )}
+                </div>
             </div>
 
+            {/* Body */}
             <div className="flex flex-1 flex-col gap-3 p-5">
-                <div className="flex flex-wrap gap-1.5">
+                <div className="flex flex-wrap items-center gap-1.5">
                     <Badge
                         className={
                             'border-transparent text-[10.5px] font-bold hover:opacity-90 ' +
@@ -189,16 +243,14 @@ function PathCard({ path }: { path: Path }) {
                     >
                         {levelLabel(path.level)}
                     </Badge>
-                    {path.duration_weeks && (
-                        <Badge className="border-transparent bg-slate-100 text-slate-700 text-[10.5px] font-bold hover:bg-slate-100">
-                            <Calendar className="mr-1 size-3" />
-                            {path.duration_weeks} minggu
-                        </Badge>
-                    )}
+                    <span className="inline-flex items-center gap-1 rounded-full bg-brand-50 px-2 py-0.5 text-[10.5px] font-bold text-brand-700">
+                        <BookOpen className="size-3" />
+                        {path.courses_count} course
+                    </span>
                 </div>
 
                 <div>
-                    <h3 className="line-clamp-2 text-[16px] leading-snug font-bold text-slate-900 transition group-hover:text-indigo-700">
+                    <h3 className="line-clamp-2 text-[16px] leading-snug font-bold text-slate-900 transition group-hover:text-brand-700">
                         {path.title}
                     </h3>
                     {path.subtitle && (
@@ -209,17 +261,17 @@ function PathCard({ path }: { path: Path }) {
                 </div>
 
                 <div className="mt-auto flex items-center justify-between border-t border-slate-100 pt-3">
-                    <div className="flex items-center gap-3 text-[11.5px] text-slate-500">
-                        <span className="inline-flex items-center gap-1">
-                            <BookOpen className="size-3.5" />
-                            {path.courses_count} course
-                        </span>
-                        <span className="inline-flex items-center gap-1">
-                            <Users className="size-3.5" />
+                    <span className="inline-flex items-center gap-1.5 text-[11.5px] text-slate-500">
+                        <Users className="size-3.5" />
+                        <strong className="text-slate-700">
                             {path.enrollments_count.toLocaleString('id-ID')}
-                        </span>
-                    </div>
-                    <ArrowRight className="size-4 text-indigo-500 opacity-0 transition group-hover:opacity-100" />
+                        </strong>{' '}
+                        peserta
+                    </span>
+                    <span className="inline-flex items-center gap-1 text-[12px] font-semibold text-brand-700 opacity-0 transition group-hover:opacity-100">
+                        Lihat path
+                        <ArrowRight className="size-3.5 transition group-hover:translate-x-0.5" />
+                    </span>
                 </div>
             </div>
         </Link>

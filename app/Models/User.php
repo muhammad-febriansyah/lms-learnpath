@@ -3,11 +3,13 @@
 namespace App\Models;
 
 use Database\Factories\UserFactory;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Attributes\Appends;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -50,10 +52,28 @@ use Spatie\Permission\Traits\HasRoles;
     'remember_token',
 ])]
 #[Appends(['avatar_url'])]
-class User extends Authenticatable
+class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory, HasRoles, Notifiable, SoftDeletes, TwoFactorAuthenticatable;
+
+    public const STATUS_ACTIVE = 'active';
+
+    public const STATUS_PENDING_APPROVAL = 'pending_approval';
+
+    public const STATUS_SUSPENDED = 'suspended';
+
+    public const STATUS_REJECTED = 'rejected';
+
+    public function isPendingApproval(): bool
+    {
+        return $this->status === self::STATUS_PENDING_APPROVAL;
+    }
+
+    public function isActive(): bool
+    {
+        return $this->status === self::STATUS_ACTIVE;
+    }
 
     /**
      * @return array<string, string>
@@ -143,7 +163,27 @@ class User extends Authenticatable
         return $this->hasOne(LearningStreak::class);
     }
 
-    public function badges(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    public function pointTransactions(): HasMany
+    {
+        return $this->hasMany(PointTransaction::class);
+    }
+
+    public function userPoint(): HasOne
+    {
+        return $this->hasOne(UserPoint::class);
+    }
+
+    public function pointRedemptions(): HasMany
+    {
+        return $this->hasMany(PointRedemption::class);
+    }
+
+    public function voucherRedemptions(): HasMany
+    {
+        return $this->hasMany(VoucherRedemption::class);
+    }
+
+    public function badges(): BelongsToMany
     {
         return $this->belongsToMany(Badge::class, 'user_badges')
             ->withPivot('earned_at')

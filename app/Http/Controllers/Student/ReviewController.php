@@ -7,6 +7,7 @@ use App\Models\Course;
 use App\Models\Enrollment;
 use App\Models\Review;
 use App\Services\Course\RatingAggregator;
+use App\Services\Gamification\PointService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -16,6 +17,7 @@ class ReviewController extends Controller
 {
     public function __construct(
         private readonly RatingAggregator $aggregator,
+        private readonly PointService $points,
     ) {}
 
     public function store(Request $request, Course $course): RedirectResponse
@@ -35,7 +37,7 @@ class ReviewController extends Controller
             ]);
         }
 
-        Review::query()->updateOrCreate(
+        $review = Review::query()->updateOrCreate(
             [
                 'user_id' => $user->id,
                 'course_id' => $course->id,
@@ -49,6 +51,7 @@ class ReviewController extends Controller
         );
 
         $this->aggregator->recompute($course);
+        $this->points->award($user, 'review_course', $review);
 
         return back()->with('success', 'Terima kasih atas ulasannya!');
     }

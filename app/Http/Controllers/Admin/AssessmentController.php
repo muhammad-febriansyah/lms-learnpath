@@ -7,14 +7,18 @@ use App\Http\Requests\Admin\AssessmentQuestionRequest;
 use App\Http\Requests\Admin\AssessmentRequest;
 use App\Models\Assessment;
 use App\Models\Course;
+use App\Models\Lesson;
 use App\Models\Question;
 use App\Models\QuestionOption;
+use App\Services\AI\QuizGenerator;
 use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
+use Throwable;
 
 class AssessmentController extends Controller
 {
@@ -76,12 +80,21 @@ class AssessmentController extends Controller
 
         $assessment->load([
             'course:id,title,slug',
+            'course.lessons:id,course_id,title,sort_order',
             'questions' => fn ($q) => $q->orderBy('sort_order')->orderBy('id'),
             'questions.options' => fn ($q) => $q->orderBy('sort_order')->orderBy('id'),
         ]);
         $assessment->loadCount('attempts');
 
+        $lessons = $assessment->course
+            ? $assessment->course->lessons->sortBy('sort_order')->values()->map(fn ($l) => [
+                'id' => $l->id,
+                'title' => $l->title,
+            ])->all()
+            : [];
+
         return Inertia::render('admin/assessments/show', [
+            'lessons' => $lessons,
             'assessment' => [
                 'id' => $assessment->id,
                 'title' => $assessment->title,
@@ -228,6 +241,83 @@ class AssessmentController extends Controller
         $question->delete();
 
         return back()->with('success', 'Soal dihapus.');
+    }
+
+    public function generateQuestions(Request $request, Assessment $assessment, QuizGenerator $generator): JsonResponse
+    {
+        $this->ensureCanManage();
+
+        $data = $request->validate([
+            'lesson_id' => ['nullable', 'integer', 'exists:lessons,id'],
+            'extra_context' => ['nullable', 'string', 'max:5000'],
+            'count' => ['nullable', 'integer', 'min:1', 'max:10'],
+            'difficulty' => ['nullable', 'in:easy,medium,hard'],
+        ]);
+
+        $course = $assessment->course;
+        $lesson = ! empty($data['lesson_id']) ? Lesson::find($data['lesson_id']) : null;
+        if ($lesson && $lesson->course_id !== $course->id) {
+            return response()->json(['message' => 'Lesson tidak ada di course ini.'], 422);
+        }
+
+        try {
+            $questions = $generator->generate(
+                course: $course,
+                lesson: $lesson,
+                extraContext: (string) ($data['extra_context'] ?? ''),
+                count: (int) ($data['count'] ?? 5),
+                difficulty: (string) ($data['difficulty'] ?? 'medium'),
+            );
+        } catch (Throwable $e) {
+            return response()->json(['message' => $e->getMessage()], 422);
+        }
+
+        return response()->json(['questions' => $questions]);
+    }
+
+    public function bulkStoreQuestions(Request $request, Assessment $assessment): RedirectResponse
+    {
+        $this->ensureCanManage();
+
+        $data = $request->validate([
+            'questions' => ['required', 'array', 'min:1'],
+            'questions.*.question_text' => ['required', 'string', 'max:1000'],
+            'questions.*.points' => ['nullable', 'integer', 'min:1', 'max:100'],
+            'questions.*.options' => ['required', 'array', 'size:4'],
+            'questions.*.options.*.option_text' => ['required', 'string', 'max:500'],
+            'questions.*.options.*.is_correct' => ['required', 'boolean'],
+        ]);
+
+        DB::transaction(function () use ($assessment, $data) {
+            $nextSort = (int) ($assessment->questions()->max('sort_order') ?? 0);
+
+            foreach ($data['questions'] as $q) {
+                $hasCorrect = collect($q['options'])->contains('is_correct', true);
+                if (! $hasCorrect) {
+                    continue;
+                }
+
+                $nextSort++;
+                $question = Question::create([
+                    'assessment_id' => $assessment->id,
+                    'question_text' => $q['question_text'],
+                    'type' => 'multiple_choice',
+                    'points' => $q['points'] ?? 1,
+                    'sort_order' => $nextSort,
+                ]);
+
+                foreach ($q['options'] as $idx => $opt) {
+                    QuestionOption::create([
+                        'question_id' => $question->id,
+                        'option_text' => $opt['option_text'],
+                        'is_correct' => (bool) $opt['is_correct'],
+                        'sort_order' => $idx + 1,
+                    ]);
+                }
+            }
+        });
+
+        return back()->with('success', count($data['questions']).' soal AI ditambahkan ke assessment.');
     }
 
     private function ensureCanManage(): void
