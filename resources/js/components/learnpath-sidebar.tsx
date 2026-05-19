@@ -230,7 +230,7 @@ export function LearnpathSidebar({
                         if (section.type === 'item') {
                             return (
                                 <SingleLink
-                                    key={section.title}
+                                    key={section.href}
                                     href={section.href}
                                     title={section.title}
                                     Icon={section.icon}
