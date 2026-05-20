@@ -72,19 +72,19 @@ export const InfiniteMovingCards = ({
                     ) : (
                         <li
                             key={`${item.name}-${idx}`}
-                            className="relative w-[300px] max-w-full shrink-0 rounded-2xl border border-slate-200 bg-white px-7 py-5 md:w-[380px] dark:border-neutral-700 dark:bg-neutral-900"
+                            className="relative w-[300px] max-w-full shrink-0 rounded-2xl border border-slate-200 bg-white px-7 py-5 md:w-[380px] "
                         >
                             {item.quote && (
-                                <p className="text-[14px] leading-[1.6] text-slate-800 dark:text-neutral-100">
+                                <p className="text-[14px] leading-[1.6] text-slate-800 ">
                                     {item.quote}
                                 </p>
                             )}
                             <div className="mt-5 flex flex-col gap-0.5">
-                                <span className="text-[13px] font-semibold text-slate-900 dark:text-neutral-100">
+                                <span className="text-[13px] font-semibold text-slate-900 ">
                                     {item.name}
                                 </span>
                                 {item.title && (
-                                    <span className="text-[12px] text-slate-500 dark:text-neutral-400">
+                                    <span className="text-[12px] text-slate-500 ">
                                         {item.title}
                                     </span>
                                 )}

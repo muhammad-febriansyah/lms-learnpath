@@ -105,22 +105,22 @@ const STATUS_META: Record<
 > = {
     active: {
         label: 'Aktif',
-        tone: 'bg-emerald-50 text-emerald-700 ring-emerald-200 dark:bg-emerald-500/15 dark:text-emerald-300 dark:ring-emerald-500/30',
+        tone: 'bg-emerald-50 text-emerald-700 ring-emerald-200 ',
         icon: CheckCircle2,
     },
     pending_approval: {
         label: 'Menunggu Approval',
-        tone: 'bg-amber-50 text-amber-700 ring-amber-200 dark:bg-amber-500/15 dark:text-amber-300 dark:ring-amber-500/30',
+        tone: 'bg-amber-50 text-amber-700 ring-amber-200 ',
         icon: Clock,
     },
     rejected: {
         label: 'Ditolak',
-        tone: 'bg-rose-50 text-rose-700 ring-rose-200 dark:bg-rose-500/15 dark:text-rose-300 dark:ring-rose-500/30',
+        tone: 'bg-rose-50 text-rose-700 ring-rose-200 ',
         icon: XCircle,
     },
     suspended: {
         label: 'Disuspend',
-        tone: 'bg-slate-100 text-slate-700 ring-slate-200 dark:bg-slate-500/15 dark:text-slate-300 dark:ring-slate-500/30',
+        tone: 'bg-slate-100 text-slate-700 ring-slate-200 ',
         icon: ShieldOff,
     },
 };
@@ -249,28 +249,28 @@ export default function InstructorShow({
 
             <div className="space-y-6">
                 {/* Breadcrumb */}
-                <nav className="flex items-center gap-1.5 text-[12.5px] text-slate-500 dark:text-neutral-400">
+                <nav className="flex items-center gap-1.5 text-[12.5px] text-slate-500 ">
                     <Link
                         href="/admin/dashboard"
-                        className="transition hover:text-slate-700 dark:hover:text-neutral-200"
+                        className="transition hover:text-slate-700 "
                     >
                         Dashboard
                     </Link>
                     <IconChevR size={12} className="text-slate-300" />
                     <Link
                         href="/admin/instructors"
-                        className="transition hover:text-slate-700 dark:hover:text-neutral-200"
+                        className="transition hover:text-slate-700 "
                     >
                         Instruktur
                     </Link>
                     <IconChevR size={12} className="text-slate-300" />
-                    <span className="font-semibold text-slate-900 dark:text-neutral-100">
+                    <span className="font-semibold text-slate-900 ">
                         {instructor.name}
                     </span>
                 </nav>
 
                 {/* Hero */}
-                <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 via-slate-900 to-brand-950 p-6 text-white shadow-[0_10px_40px_-20px_rgba(15,23,42,0.5)] sm:p-8 dark:from-neutral-950 dark:via-neutral-950 dark:to-brand-950">
+                <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 via-slate-900 to-brand-950 p-6 text-white shadow-[0_10px_40px_-20px_rgba(15,23,42,0.5)] sm:p-8 ">
                     <div className="pointer-events-none absolute -top-24 -right-24 size-72 rounded-full bg-brand-500/20 blur-3xl" />
                     <div className="pointer-events-none absolute -bottom-24 -left-32 size-72 rounded-full bg-brand-500/10 blur-3xl" />
 
@@ -445,7 +445,7 @@ export default function InstructorShow({
                             icon={<UserIcon className="size-4" />}
                         >
                             {profile?.bio ? (
-                                <p className="text-[13.5px] leading-relaxed whitespace-pre-wrap text-slate-700 dark:text-neutral-300">
+                                <p className="text-[13.5px] leading-relaxed whitespace-pre-wrap text-slate-700 ">
                                     {profile.bio}
                                 </p>
                             ) : (
@@ -467,7 +467,7 @@ export default function InstructorShow({
                                     {profile.expertise.map((tag) => (
                                         <Badge
                                             key={tag}
-                                            className="border-transparent bg-gradient-to-br from-brand-50 to-brand-50 px-3 py-1 text-[12px] font-semibold text-brand-700 ring-1 ring-brand-100 dark:from-brand-500/15 dark:to-brand-500/15 dark:text-brand-200 dark:ring-brand-500/20"
+                                            className="border-transparent bg-gradient-to-br from-brand-50 to-brand-50 px-3 py-1 text-[12px] font-semibold text-brand-700 ring-1 ring-brand-100 "
                                         >
                                             {tag}
                                         </Badge>
@@ -490,7 +490,7 @@ export default function InstructorShow({
                             {courses.length === 0 ? (
                                 <EmptyHint text="Instruktur ini belum membuat course." />
                             ) : (
-                                <ul className="divide-y divide-slate-100 dark:divide-neutral-800">
+                                <ul className="divide-y divide-slate-100 ">
                                     {courses.map((c) => (
                                         <li
                                             key={c.id}
@@ -503,22 +503,22 @@ export default function InstructorShow({
                                                             c.thumbnail,
                                                         )}
                                                         alt={c.title}
-                                                        className="size-14 shrink-0 rounded-lg object-cover ring-1 ring-slate-200 dark:ring-neutral-800"
+                                                        className="size-14 shrink-0 rounded-lg object-cover ring-1 ring-slate-200 "
                                                     />
                                                 ) : (
-                                                    <span className="grid size-14 shrink-0 place-items-center rounded-lg bg-gradient-to-br from-brand-50 to-brand-50 text-brand-600 ring-1 ring-brand-100 dark:from-brand-500/15 dark:to-brand-500/15 dark:text-brand-300 dark:ring-brand-500/20">
+                                                    <span className="grid size-14 shrink-0 place-items-center rounded-lg bg-gradient-to-br from-brand-50 to-brand-50 text-brand-600 ring-1 ring-brand-100 ">
                                                         <BookOpen className="size-5" />
                                                     </span>
                                                 )}
                                                 <div className="min-w-0">
                                                     <Link
                                                         href={`/admin/courses/${c.id}`}
-                                                        className="text-[13.5px] font-bold break-words text-slate-900 transition hover:text-brand-700 dark:text-neutral-100 dark:hover:text-brand-300"
+                                                        className="text-[13.5px] font-bold break-words text-slate-900 transition hover:text-brand-700 "
                                                     >
                                                         {c.title}
                                                     </Link>
                                                     {c.subtitle && (
-                                                        <p className="mt-0.5 line-clamp-1 text-[11.5px] text-slate-500 dark:text-neutral-400">
+                                                        <p className="mt-0.5 line-clamp-1 text-[11.5px] text-slate-500 ">
                                                             {c.subtitle}
                                                         </p>
                                                     )}
@@ -527,8 +527,8 @@ export default function InstructorShow({
                                                             className={cn(
                                                                 'px-1.5 py-0 text-[10.5px] font-semibold',
                                                                 c.is_published
-                                                                    ? 'border-transparent bg-emerald-50 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300'
-                                                                    : 'border-transparent bg-slate-100 text-slate-600 dark:bg-neutral-800 dark:text-neutral-300',
+                                                                    ? 'border-transparent bg-emerald-50 text-emerald-700 '
+                                                                    : 'border-transparent bg-slate-100 text-slate-600 ',
                                                             )}
                                                         >
                                                             {c.is_published
@@ -536,11 +536,11 @@ export default function InstructorShow({
                                                                 : 'Draft'}
                                                         </Badge>
                                                         {c.level && (
-                                                            <Badge className="border-transparent bg-sky-50 px-1.5 py-0 text-[10.5px] font-semibold text-sky-700 dark:bg-sky-500/15 dark:text-sky-300">
+                                                            <Badge className="border-transparent bg-sky-50 px-1.5 py-0 text-[10.5px] font-semibold text-sky-700 ">
                                                                 {c.level}
                                                             </Badge>
                                                         )}
-                                                        <span className="inline-flex items-center gap-1 text-[10.5px] text-slate-500 dark:text-neutral-400">
+                                                        <span className="inline-flex items-center gap-1 text-[10.5px] text-slate-500 ">
                                                             <Users className="size-3" />
                                                             {c.enrollments_count.toLocaleString(
                                                                 'id-ID',
@@ -550,7 +550,7 @@ export default function InstructorShow({
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div className="shrink-0 text-right text-[11px] text-slate-400 dark:text-neutral-500">
+                                            <div className="shrink-0 text-right text-[11px] text-slate-400 ">
                                                 {formatDate(c.created_at)}
                                             </div>
                                         </li>
@@ -587,7 +587,7 @@ export default function InstructorShow({
 
                             {socials.length > 0 && (
                                 <>
-                                    <div className="my-4 border-t border-slate-100 dark:border-neutral-800" />
+                                    <div className="my-4 border-t border-slate-100 " />
                                     <div className="flex flex-wrap gap-2">
                                         {socials.map(([key, value]) => {
                                             const meta =
@@ -602,7 +602,7 @@ export default function InstructorShow({
                                                     href={socialUrl(key, value)}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
-                                                    className="inline-flex items-center gap-1.5 rounded-full bg-slate-50 px-3 py-1.5 text-[11.5px] font-semibold text-slate-700 ring-1 ring-slate-200 transition hover:bg-brand-50 hover:text-brand-700 hover:ring-brand-200 dark:bg-neutral-900 dark:text-neutral-300 dark:ring-neutral-700 dark:hover:bg-brand-950/30"
+                                                    className="inline-flex items-center gap-1.5 rounded-full bg-slate-50 px-3 py-1.5 text-[11.5px] font-semibold text-slate-700 ring-1 ring-slate-200 transition hover:bg-brand-50 hover:text-brand-700 hover:ring-brand-200 "
                                                 >
                                                     <Icn className="size-3.5" />
                                                     {meta.label}
@@ -620,16 +620,16 @@ export default function InstructorShow({
                         >
                             {profile?.cv ? (
                                 <div className="space-y-3">
-                                    <div className="flex items-center gap-3 rounded-xl bg-slate-50/70 p-3 ring-1 ring-slate-100 dark:bg-neutral-900/40 dark:ring-neutral-800">
-                                        <div className="grid size-10 shrink-0 place-items-center rounded-lg bg-gradient-to-br from-rose-50 to-orange-50 text-rose-600 ring-1 ring-rose-100 dark:from-rose-500/15 dark:to-orange-500/15 dark:text-rose-300 dark:ring-rose-500/20">
+                                    <div className="flex items-center gap-3 rounded-xl bg-slate-50/70 p-3 ring-1 ring-slate-100 ">
+                                        <div className="grid size-10 shrink-0 place-items-center rounded-lg bg-gradient-to-br from-rose-50 to-orange-50 text-rose-600 ring-1 ring-rose-100 ">
                                             <FileText className="size-4" />
                                         </div>
                                         <div className="min-w-0 flex-1">
-                                            <div className="truncate text-[12.5px] font-bold text-slate-900 dark:text-neutral-100">
+                                            <div className="truncate text-[12.5px] font-bold text-slate-900 ">
                                                 {profile.cv.original_name ??
                                                     'CV.pdf'}
                                             </div>
-                                            <div className="text-[10.5px] text-slate-500 dark:text-neutral-400">
+                                            <div className="text-[10.5px] text-slate-500 ">
                                                 Diunggah{' '}
                                                 {formatDate(
                                                     profile.cv.uploaded_at,
@@ -661,7 +661,7 @@ export default function InstructorShow({
                             title="Aktivitas Akun"
                             icon={<Clock className="size-4" />}
                         >
-                            <ol className="relative space-y-3.5 before:absolute before:top-2 before:bottom-2 before:left-[7px] before:w-px before:bg-slate-200 dark:before:bg-neutral-800">
+                            <ol className="relative space-y-3.5 before:absolute before:top-2 before:bottom-2 before:left-[7px] before:w-px before:bg-slate-200 ">
                                 <Timeline
                                     label="Bergabung"
                                     value={formatDateTime(instructor.created_at)}
@@ -740,18 +740,18 @@ function Card({
     children: React.ReactNode;
 }) {
     return (
-        <div className="rounded-2xl bg-card p-5 shadow-[0_1px_2px_rgba(15,23,42,0.04),0_8px_24px_-12px_rgba(15,23,42,0.08)] ring-1 ring-slate-200/70 dark:ring-neutral-800">
+        <div className="rounded-2xl bg-card p-5 shadow-[0_1px_2px_rgba(15,23,42,0.04),0_8px_24px_-12px_rgba(15,23,42,0.08)] ring-1 ring-slate-200/70 ">
             <div className="mb-4 flex items-center justify-between gap-3">
-                <h2 className="inline-flex items-center gap-2 text-[14.5px] font-bold text-slate-900 dark:text-neutral-100">
+                <h2 className="inline-flex items-center gap-2 text-[14.5px] font-bold text-slate-900 ">
                     {icon && (
-                        <span className="grid size-7 place-items-center rounded-lg bg-brand-50 text-brand-600 dark:bg-brand-500/15 dark:text-brand-300">
+                        <span className="grid size-7 place-items-center rounded-lg bg-brand-50 text-brand-600 ">
                             {icon}
                         </span>
                     )}
                     {title}
                 </h2>
                 {badge && (
-                    <span className="rounded-full bg-slate-100 px-2.5 py-1 text-[10.5px] font-semibold tracking-wider text-slate-600 uppercase dark:bg-neutral-800 dark:text-neutral-300">
+                    <span className="rounded-full bg-slate-100 px-2.5 py-1 text-[10.5px] font-semibold tracking-wider text-slate-600 uppercase ">
                         {badge}
                     </span>
                 )}
@@ -808,21 +808,21 @@ function ContactRow({
 }) {
     return (
         <div className="flex items-start gap-2.5">
-            <span className="mt-0.5 grid size-6 shrink-0 place-items-center rounded-md bg-slate-100 text-slate-500 dark:bg-neutral-800 dark:text-neutral-400">
+            <span className="mt-0.5 grid size-6 shrink-0 place-items-center rounded-md bg-slate-100 text-slate-500 ">
                 {icon}
             </span>
             <div className="min-w-0 flex-1">
-                <dt className="text-[10.5px] font-semibold tracking-wider text-slate-400 uppercase dark:text-neutral-500">
+                <dt className="text-[10.5px] font-semibold tracking-wider text-slate-400 uppercase ">
                     {label}
                 </dt>
-                <dd className="font-medium break-words text-slate-900 dark:text-neutral-100">
+                <dd className="font-medium break-words text-slate-900 ">
                     {value ? (
                         href ? (
                             <a
                                 href={href}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="inline-flex items-center gap-1 transition hover:text-brand-700 dark:hover:text-brand-300"
+                                className="inline-flex items-center gap-1 transition hover:text-brand-700 "
                             >
                                 {value}
                                 <ExternalLink className="size-3" />
@@ -831,7 +831,7 @@ function ContactRow({
                             value
                         )
                     ) : (
-                        <span className="text-slate-400 italic dark:text-neutral-500">
+                        <span className="text-slate-400 italic ">
                             -
                         </span>
                     )}
@@ -852,10 +852,10 @@ function Timeline({
 }) {
     const toneClass =
         tone === 'emerald'
-            ? 'bg-emerald-500 ring-emerald-100 dark:ring-emerald-500/20'
+            ? 'bg-emerald-500 ring-emerald-100 '
             : tone === 'amber'
-              ? 'bg-amber-500 ring-amber-100 dark:ring-amber-500/20'
-              : 'bg-slate-300 ring-slate-100 dark:bg-neutral-700 dark:ring-neutral-800';
+              ? 'bg-amber-500 ring-amber-100 '
+              : 'bg-slate-300 ring-slate-100 ';
     return (
         <li className="relative pl-6">
             <span
@@ -864,10 +864,10 @@ function Timeline({
                     toneClass,
                 )}
             />
-            <dt className="text-[10.5px] font-semibold tracking-wider text-slate-400 uppercase dark:text-neutral-500">
+            <dt className="text-[10.5px] font-semibold tracking-wider text-slate-400 uppercase ">
                 {label}
             </dt>
-            <dd className="text-[12.5px] font-medium text-slate-900 dark:text-neutral-100">
+            <dd className="text-[12.5px] font-medium text-slate-900 ">
                 {value}
             </dd>
         </li>
@@ -876,7 +876,7 @@ function Timeline({
 
 function EmptyHint({ text }: { text: string }) {
     return (
-        <div className="rounded-xl border border-dashed border-slate-200 bg-slate-50/60 px-4 py-6 text-center text-[12.5px] text-slate-500 dark:border-neutral-800 dark:bg-neutral-900/40 dark:text-neutral-400">
+        <div className="rounded-xl border border-dashed border-slate-200 bg-slate-50/60 px-4 py-6 text-center text-[12.5px] text-slate-500 ">
             {text}
         </div>
     );

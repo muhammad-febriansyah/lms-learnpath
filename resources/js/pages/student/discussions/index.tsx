@@ -175,14 +175,14 @@ export default function DiscussionsIndex({
             <div className="space-y-5">
                 <Link
                     href={`/learn/${course.slug}`}
-                    className="inline-flex items-center gap-1.5 text-[12.5px] font-semibold text-slate-600 transition hover:text-slate-900 dark:text-neutral-400 dark:hover:text-neutral-100"
+                    className="inline-flex items-center gap-1.5 text-[12.5px] font-semibold text-slate-600 transition hover:text-slate-900 "
                 >
                     <ArrowLeft className="size-3.5" />
                     Kembali ke course
                 </Link>
 
                 {/* Hero */}
-                <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 via-slate-900 to-brand-950 p-6 text-white shadow-[0_10px_40px_-20px_rgba(15,23,42,0.5)] sm:p-8 dark:from-neutral-950 dark:via-neutral-950 dark:to-brand-950">
+                <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 via-slate-900 to-brand-950 p-6 text-white shadow-[0_10px_40px_-20px_rgba(15,23,42,0.5)] sm:p-8 ">
                     <div className="pointer-events-none absolute -top-24 -right-24 size-72 rounded-full bg-brand-500/20 blur-3xl" />
                     <div className="pointer-events-none absolute -bottom-24 -left-24 size-72 rounded-full bg-brand-500/10 blur-3xl" />
 
@@ -238,7 +238,7 @@ export default function DiscussionsIndex({
                 </div>
 
                 {/* Toolbar */}
-                <div className="rounded-2xl bg-card p-3 shadow-[0_1px_2px_rgba(15,23,42,0.04)] ring-1 ring-slate-200/70 dark:ring-neutral-800">
+                <div className="rounded-2xl bg-card p-3 shadow-[0_1px_2px_rgba(15,23,42,0.04)] ring-1 ring-slate-200/70 ">
                     <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
                         <div className="relative flex-1">
                             <Search className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-slate-400" />
@@ -246,10 +246,10 @@ export default function DiscussionsIndex({
                                 value={query}
                                 onChange={(e) => setQuery(e.target.value)}
                                 placeholder="Cari pertanyaan, topik, atau penanya..."
-                                className="h-10 rounded-xl border-slate-200 bg-slate-50/60 pl-9 dark:border-neutral-800 dark:bg-neutral-900/60"
+                                className="h-10 rounded-xl border-slate-200 bg-slate-50/60 pl-9 "
                             />
                         </div>
-                        <div className="flex items-center gap-1.5 rounded-xl bg-slate-50/60 p-1 ring-1 ring-slate-200 dark:bg-neutral-900/60 dark:ring-neutral-800">
+                        <div className="flex items-center gap-1.5 rounded-xl bg-slate-50/60 p-1 ring-1 ring-slate-200 ">
                             <SortChip
                                 active={sort === 'recent'}
                                 onClick={() => setSort('recent')}
@@ -300,7 +300,7 @@ export default function DiscussionsIndex({
                 )}
 
                 {threads.data.length > 0 && (
-                    <div className="rounded-2xl bg-card p-3 shadow-[0_1px_2px_rgba(15,23,42,0.04)] ring-1 ring-slate-200/70 dark:ring-neutral-800">
+                    <div className="rounded-2xl bg-card p-3 shadow-[0_1px_2px_rgba(15,23,42,0.04)] ring-1 ring-slate-200/70 ">
                         <DataTablePagination paginator={threads} />
                     </div>
                 )}
@@ -355,8 +355,8 @@ function SortChip({
             className={cn(
                 'inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-[12px] font-semibold transition',
                 active
-                    ? 'bg-white text-slate-900 shadow-sm dark:bg-neutral-100 dark:text-neutral-900'
-                    : 'text-slate-600 hover:bg-white/80 dark:text-neutral-400 dark:hover:bg-neutral-800/80',
+                    ? 'bg-white text-slate-900 shadow-sm '
+                    : 'text-slate-600 hover:bg-white/80 ',
             )}
         >
             {icon}
@@ -387,7 +387,7 @@ function ThreadCard({
     return (
         <Link
             href={`/learn/${courseSlug}/discussions/${thread.id}`}
-            className="group block rounded-2xl bg-card p-4 shadow-[0_1px_2px_rgba(15,23,42,0.04)] ring-1 ring-slate-200/70 transition hover:-translate-y-0.5 hover:shadow-[0_8px_24px_-12px_rgba(15,23,42,0.15)] hover:ring-brand-200 sm:p-5 dark:ring-neutral-800 dark:hover:ring-brand-500/40"
+            className="group block rounded-2xl bg-card p-4 shadow-[0_1px_2px_rgba(15,23,42,0.04)] ring-1 ring-slate-200/70 transition hover:-translate-y-0.5 hover:shadow-[0_8px_24px_-12px_rgba(15,23,42,0.15)] hover:ring-brand-200 sm:p-5 "
         >
             <div className="flex gap-4">
                 {/* Upvote */}
@@ -397,8 +397,8 @@ function ThreadCard({
                     className={cn(
                         'flex shrink-0 flex-col items-center justify-center gap-0.5 rounded-xl px-2.5 py-2 text-[11px] font-bold ring-1 transition',
                         thread.has_upvoted
-                            ? 'bg-brand-50 text-brand-700 ring-brand-300 dark:bg-brand-500/15 dark:text-brand-300 dark:ring-brand-500/40'
-                            : 'bg-slate-50 text-slate-600 ring-slate-200 hover:bg-slate-100 hover:text-slate-800 dark:bg-neutral-900 dark:text-neutral-300 dark:ring-neutral-700 dark:hover:bg-neutral-800',
+                            ? 'bg-brand-50 text-brand-700 ring-brand-300 '
+                            : 'bg-slate-50 text-slate-600 ring-slate-200 hover:bg-slate-100 hover:text-slate-800 ',
                     )}
                     aria-label="Upvote"
                 >
@@ -411,43 +411,43 @@ function ThreadCard({
                 {/* Body */}
                 <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-start gap-2">
-                        <h3 className="line-clamp-2 flex-1 text-[14.5px] font-bold text-slate-900 transition group-hover:text-brand-700 dark:text-neutral-100 dark:group-hover:text-brand-300">
+                        <h3 className="line-clamp-2 flex-1 text-[14.5px] font-bold text-slate-900 transition group-hover:text-brand-700 ">
                             {thread.title}
                         </h3>
                         {noReply ? (
-                            <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-amber-50 px-2 py-0.5 text-[10.5px] font-semibold text-amber-700 dark:bg-amber-500/15 dark:text-amber-300">
+                            <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-amber-50 px-2 py-0.5 text-[10.5px] font-semibold text-amber-700 ">
                                 <MessageCircleQuestion className="size-3" />
                                 Belum dibalas
                             </span>
                         ) : (
-                            <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[10.5px] font-semibold text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300">
+                            <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[10.5px] font-semibold text-emerald-700 ">
                                 <CheckCircle2 className="size-3" />
                                 Aktif
                             </span>
                         )}
                     </div>
 
-                    <p className="mt-1 line-clamp-2 text-[12.5px] leading-relaxed text-slate-600 dark:text-neutral-400">
+                    <p className="mt-1 line-clamp-2 text-[12.5px] leading-relaxed text-slate-600 ">
                         {thread.body_excerpt}
                     </p>
 
-                    <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-[11.5px] text-slate-500 dark:text-neutral-400">
+                    <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-[11.5px] text-slate-500 ">
                         <span className="inline-flex items-center gap-1.5">
                             <span className="grid size-5 place-items-center rounded-full bg-gradient-to-br from-brand-500 to-brand-600 text-[9px] font-bold text-white">
                                 {getInitials(thread.user?.name)}
                             </span>
-                            <span className="font-semibold text-slate-700 dark:text-neutral-300">
+                            <span className="font-semibold text-slate-700 ">
                                 {thread.user?.name ?? 'Anonim'}
                             </span>
                         </span>
-                        <span className="text-slate-300 dark:text-neutral-600">
+                        <span className="text-slate-300 ">
                             ·
                         </span>
                         <span className="inline-flex items-center gap-1">
                             <Clock className="size-3" />
                             {formatTimeAgo(thread.created_at)}
                         </span>
-                        <span className="text-slate-300 dark:text-neutral-600">
+                        <span className="text-slate-300 ">
                             ·
                         </span>
                         <span className="inline-flex items-center gap-1">
@@ -456,7 +456,7 @@ function ThreadCard({
                         </span>
                         {thread.last_reply_at && (
                             <>
-                                <span className="text-slate-300 dark:text-neutral-600">
+                                <span className="text-slate-300 ">
                                     ·
                                 </span>
                                 <span>
@@ -482,16 +482,16 @@ function EmptyState({
     onCompose: () => void;
 }) {
     return (
-        <div className="rounded-2xl bg-card px-6 py-16 text-center shadow-[0_1px_2px_rgba(15,23,42,0.04)] ring-1 ring-slate-200/70 dark:ring-neutral-800">
+        <div className="rounded-2xl bg-card px-6 py-16 text-center shadow-[0_1px_2px_rgba(15,23,42,0.04)] ring-1 ring-slate-200/70 ">
             <div className="mx-auto grid size-14 place-items-center rounded-2xl bg-gradient-to-br from-brand-500 to-brand-600 text-white shadow-lg">
                 <MessagesSquare className="size-6" />
             </div>
-            <h3 className="mt-4 text-[15px] font-extrabold text-slate-900 dark:text-neutral-100">
+            <h3 className="mt-4 text-[15px] font-extrabold text-slate-900 ">
                 {hasQuery
                     ? 'Tidak ada hasil yang cocok'
                     : 'Belum ada diskusi'}
             </h3>
-            <p className="mx-auto mt-1.5 max-w-md text-[12.5px] text-slate-500 dark:text-neutral-400">
+            <p className="mx-auto mt-1.5 max-w-md text-[12.5px] text-slate-500 ">
                 {hasQuery
                     ? 'Coba ubah kata kunci atau filter — bisa juga jadi yang pertama membuka diskusi baru.'
                     : 'Belum ada yang bertanya. Jadi yang pertama memulai diskusi & dapatkan insight dari teman sekelas.'}

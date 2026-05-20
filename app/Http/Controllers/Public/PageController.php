@@ -370,12 +370,12 @@ class PageController extends Controller
     /**
      * Testimoni siswa terbaik untuk section Testimonials.
      *
-     * @return array<int, array{name: string, role: string, text: string}>
+     * @return array<int, array{name: string, role: string, text: string, avatar: string|null}>
      */
     private function homeTestimonials(): array
     {
         return Review::query()
-            ->with(['user:id,name', 'course:id,title'])
+            ->with(['user:id,name,avatar_path', 'course:id,title'])
             ->where('is_public', true)
             ->where('rating', '>=', 4)
             ->whereNotNull('content')
@@ -391,6 +391,7 @@ class PageController extends Controller
                 'name' => (string) ($review->user->name ?? 'Alumni Learnpath'),
                 'role' => (string) ('Lulusan '.($review->course->title ?? 'kursus Learnpath')),
                 'text' => (string) $review->content,
+                'avatar' => $review->user?->avatar_url,
             ])
             ->all();
     }

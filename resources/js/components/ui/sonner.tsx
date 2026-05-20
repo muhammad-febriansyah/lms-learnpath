@@ -1,12 +1,9 @@
-import { useAppearance } from '@/hooks/use-appearance';
 import { Toaster as Sonner, type ToasterProps } from 'sonner';
 
 function Toaster({ ...props }: ToasterProps) {
-    const { appearance } = useAppearance();
-
     return (
         <Sonner
-            theme={appearance}
+            theme="light"
             richColors
             closeButton
             className="toaster group"
@@ -19,7 +16,7 @@ function Toaster({ ...props }: ToasterProps) {
                     actionButton: 'rounded-lg',
                     cancelButton: 'rounded-lg',
                     closeButton:
-                        'absolute right-2 top-2 size-5 rounded-md border-0 bg-transparent hover:bg-black/10 dark:hover:bg-white/10',
+                        'absolute right-2 top-2 size-5 rounded-md border-0 bg-transparent hover:bg-black/10',
                 },
             }}
             style={

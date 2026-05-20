@@ -41,9 +41,9 @@ export function NavUserMenu({ user }: { user: User }) {
                 <button
                     type="button"
                     aria-label="Menu pengguna"
-                    className="group inline-flex items-center gap-1.5 rounded-full p-0.5 pr-2 transition-colors hover:bg-slate-100 dark:hover:bg-neutral-800"
+                    className="group inline-flex items-center gap-1.5 rounded-full p-0.5 pr-2 transition-colors hover:bg-slate-100 "
                 >
-                    <Avatar className="size-8 overflow-hidden rounded-full ring-2 ring-white dark:ring-neutral-950">
+                    <Avatar className="size-8 overflow-hidden rounded-full ring-2 ring-white ">
                         {(user.avatar_url || user.avatar) && (
                             <AvatarImage src={user.avatar_url ?? user.avatar} alt={user.name} />
                         )}
@@ -51,14 +51,14 @@ export function NavUserMenu({ user }: { user: User }) {
                             {getInitials(user.name)}
                         </AvatarFallback>
                     </Avatar>
-                    <ChevronDown className="size-3.5 text-slate-400 transition group-hover:text-slate-700 dark:group-hover:text-neutral-200" />
+                    <ChevronDown className="size-3.5 text-slate-400 transition group-hover:text-slate-700 " />
                 </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-64">
                 <DropdownMenuLabel className="p-0 font-normal">
                     <Link
                         href={dashboard()}
-                        className="flex items-center gap-3 rounded-md px-2 py-2.5 transition hover:bg-slate-50 dark:hover:bg-neutral-900"
+                        className="flex items-center gap-3 rounded-md px-2 py-2.5 transition hover:bg-slate-50 "
                     >
                         <Avatar className="size-10 overflow-hidden rounded-full">
                             {(user.avatar_url || user.avatar) && (
@@ -69,7 +69,7 @@ export function NavUserMenu({ user }: { user: User }) {
                             </AvatarFallback>
                         </Avatar>
                         <div className="min-w-0 flex-1">
-                            <div className="truncate text-[13.5px] font-bold text-slate-900 dark:text-neutral-100">
+                            <div className="truncate text-[13.5px] font-bold text-slate-900 ">
                                 {user.name}
                             </div>
                             <div className="truncate text-[11.5px] text-slate-500">

@@ -99,7 +99,7 @@ return false;
     return (
         <nav
             aria-label="Navigasi utama"
-            className="fixed inset-x-0 bottom-0 z-40 border-t border-slate-200 bg-white/95 pb-[max(env(safe-area-inset-bottom),0.25rem)] backdrop-blur lg:hidden dark:border-neutral-800 dark:bg-neutral-950/95"
+            className="fixed inset-x-0 bottom-0 z-40 border-t border-slate-200 bg-white/95 pb-[max(env(safe-area-inset-bottom),0.25rem)] backdrop-blur lg:hidden "
         >
             <ul className="mx-auto flex max-w-md items-stretch justify-around px-2 pt-1.5">
                 {items.map((item) => {
@@ -111,13 +111,13 @@ return false;
                                 'flex w-full flex-col items-center gap-0.5 rounded-xl px-1 py-1.5 transition-colors',
                                 active
                                     ? 'text-brand-600'
-                                    : 'text-slate-500 hover:text-slate-700 dark:text-neutral-400 dark:hover:text-neutral-100',
+                                    : 'text-slate-500 hover:text-slate-700 ',
                             )}
                         >
                             <span
                                 className={cn(
                                     'grid size-9 place-items-center rounded-full transition-colors',
-                                    active && 'bg-brand-50 text-brand-600 dark:bg-brand-950/40',
+                                    active && 'bg-brand-50 text-brand-600 ',
                                 )}
                             >
                                 <Icn className="size-[18px]" strokeWidth={active ? 2.4 : 2} />

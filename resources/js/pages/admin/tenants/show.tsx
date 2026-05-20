@@ -150,22 +150,22 @@ export default function TenantShow({
             <Head title={`Tenant · ${tenant.name}`} />
 
             <div className="space-y-6">
-                <nav className="flex items-center gap-1.5 text-[12.5px] text-slate-500 dark:text-neutral-400">
+                <nav className="flex items-center gap-1.5 text-[12.5px] text-slate-500 ">
                     <Link
                         href="/admin/dashboard"
-                        className="transition hover:text-slate-700 dark:hover:text-neutral-200"
+                        className="transition hover:text-slate-700 "
                     >
                         Dashboard
                     </Link>
                     <IconChevR size={12} className="text-slate-300" />
                     <Link
                         href="/admin/tenants"
-                        className="transition hover:text-slate-700 dark:hover:text-neutral-200"
+                        className="transition hover:text-slate-700 "
                     >
                         Tenant
                     </Link>
                     <IconChevR size={12} className="text-slate-300" />
-                    <span className="font-semibold text-slate-900 dark:text-neutral-100">
+                    <span className="font-semibold text-slate-900 ">
                         {tenant.name}
                     </span>
                 </nav>
@@ -312,18 +312,18 @@ export default function TenantShow({
 
                 {/* Contract warning */}
                 {tenant.contract_expired && (
-                    <div className="flex items-start gap-3 rounded-2xl bg-rose-50 p-4 ring-1 ring-rose-200 dark:bg-rose-500/10 dark:ring-rose-500/30">
+                    <div className="flex items-start gap-3 rounded-2xl bg-rose-50 p-4 ring-1 ring-rose-200 ">
                         <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-rose-500 text-white shadow-sm">
                             <AlertTriangle className="size-4" />
                         </span>
                         <div className="min-w-0 flex-1">
-                            <div className="text-[10.5px] font-bold tracking-wider text-rose-700 uppercase dark:text-rose-300">
+                            <div className="text-[10.5px] font-bold tracking-wider text-rose-700 uppercase ">
                                 Kontrak Berakhir
                             </div>
-                            <div className="text-[14.5px] font-extrabold text-slate-900 dark:text-neutral-100">
+                            <div className="text-[14.5px] font-extrabold text-slate-900 ">
                                 Kontrak tenant sudah berakhir
                             </div>
-                            <p className="mt-0.5 text-[12px] text-slate-600 dark:text-neutral-400">
+                            <p className="mt-0.5 text-[12px] text-slate-600 ">
                                 Berakhir pada{' '}
                                 {formatDate(tenant.contract_ends_at)}. Tenant
                                 mungkin perlu di-suspend atau diperpanjang.
@@ -332,19 +332,19 @@ export default function TenantShow({
                     </div>
                 )}
                 {tenant.contract_expiring_soon && !tenant.contract_expired && (
-                    <div className="flex items-start gap-3 rounded-2xl bg-amber-50 p-4 ring-1 ring-amber-200 dark:bg-amber-500/10 dark:ring-amber-500/30">
+                    <div className="flex items-start gap-3 rounded-2xl bg-amber-50 p-4 ring-1 ring-amber-200 ">
                         <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-amber-500 text-white shadow-sm">
                             <AlertTriangle className="size-4" />
                         </span>
                         <div className="min-w-0 flex-1">
-                            <div className="text-[10.5px] font-bold tracking-wider text-amber-700 uppercase dark:text-amber-300">
+                            <div className="text-[10.5px] font-bold tracking-wider text-amber-700 uppercase ">
                                 Kontrak Hampir Habis
                             </div>
-                            <div className="text-[14.5px] font-extrabold text-slate-900 dark:text-neutral-100">
+                            <div className="text-[14.5px] font-extrabold text-slate-900 ">
                                 {tenant.contract_days_remaining} hari lagi
                                 kontrak berakhir
                             </div>
-                            <p className="mt-0.5 text-[12px] text-slate-600 dark:text-neutral-400">
+                            <p className="mt-0.5 text-[12px] text-slate-600 ">
                                 Berakhir{' '}
                                 {formatDate(tenant.contract_ends_at)} —
                                 pertimbangkan untuk follow up perpanjangan.
@@ -363,10 +363,10 @@ export default function TenantShow({
                         >
                             <div className="space-y-3">
                                 <div className="flex items-baseline justify-between">
-                                    <span className="text-[13px] text-slate-600 dark:text-neutral-400">
+                                    <span className="text-[13px] text-slate-600 ">
                                         Terpakai
                                     </span>
-                                    <span className="text-[20px] font-extrabold text-slate-900 tabular-nums dark:text-neutral-100">
+                                    <span className="text-[20px] font-extrabold text-slate-900 tabular-nums ">
                                         {tenant.seats_used.toLocaleString(
                                             'id-ID',
                                         )}
@@ -378,7 +378,7 @@ export default function TenantShow({
                                         </span>
                                     </span>
                                 </div>
-                                <div className="h-3 overflow-hidden rounded-full bg-slate-100 dark:bg-neutral-800">
+                                <div className="h-3 overflow-hidden rounded-full bg-slate-100 ">
                                     <div
                                         className={cn(
                                             'h-full rounded-full transition-all',
@@ -388,9 +388,9 @@ export default function TenantShow({
                                     />
                                 </div>
                                 <div className="flex flex-wrap items-center justify-between gap-2 text-[11.5px]">
-                                    <span className="text-slate-500 dark:text-neutral-400">
+                                    <span className="text-slate-500 ">
                                         {seatPct}% terpakai · Tersedia{' '}
-                                        <strong className="text-slate-900 dark:text-neutral-100">
+                                        <strong className="text-slate-900 ">
                                             {tenant.seats_available.toLocaleString(
                                                 'id-ID',
                                             )}
@@ -398,7 +398,7 @@ export default function TenantShow({
                                         seat
                                     </span>
                                     {seatPct >= 90 && (
-                                        <span className="inline-flex items-center gap-1 rounded-full bg-rose-50 px-2 py-0.5 font-semibold text-rose-700 dark:bg-rose-500/15 dark:text-rose-300">
+                                        <span className="inline-flex items-center gap-1 rounded-full bg-rose-50 px-2 py-0.5 font-semibold text-rose-700 ">
                                             <AlertTriangle className="size-3" />
                                             Hampir penuh
                                         </span>
@@ -419,13 +419,13 @@ export default function TenantShow({
                             {admins.length === 0 ? (
                                 <EmptyHint text="Tenant ini belum punya admin." />
                             ) : (
-                                <ul className="divide-y divide-slate-100 dark:divide-neutral-800">
+                                <ul className="divide-y divide-slate-100 ">
                                     {admins.map((a) => (
                                         <li
                                             key={a.id}
                                             className="flex items-center gap-3 py-3 first:pt-0 last:pb-0"
                                         >
-                                            <Avatar className="size-10 shrink-0 ring-1 ring-slate-200 dark:ring-neutral-800">
+                                            <Avatar className="size-10 shrink-0 ring-1 ring-slate-200 ">
                                                 {a.avatar && (
                                                     <AvatarImage
                                                         src={a.avatar}
@@ -437,10 +437,10 @@ export default function TenantShow({
                                                 </AvatarFallback>
                                             </Avatar>
                                             <div className="min-w-0 flex-1">
-                                                <div className="truncate text-[13px] font-bold text-slate-900 dark:text-neutral-100">
+                                                <div className="truncate text-[13px] font-bold text-slate-900 ">
                                                     {a.name}
                                                 </div>
-                                                <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 text-[11px] text-slate-500 dark:text-neutral-400">
+                                                <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 text-[11px] text-slate-500 ">
                                                     <span className="inline-flex items-center gap-1">
                                                         <Mail className="size-3" />
                                                         {a.email}
@@ -453,7 +453,7 @@ export default function TenantShow({
                                                     )}
                                                 </div>
                                             </div>
-                                            <div className="shrink-0 text-right text-[10.5px] text-slate-400 dark:text-neutral-500">
+                                            <div className="shrink-0 text-right text-[10.5px] text-slate-400 ">
                                                 Sejak {formatDate(a.joined_at)}
                                             </div>
                                         </li>
@@ -474,27 +474,27 @@ export default function TenantShow({
                             {recent_members.length === 0 ? (
                                 <EmptyHint text="Belum ada anggota." />
                             ) : (
-                                <ul className="divide-y divide-slate-100 dark:divide-neutral-800">
+                                <ul className="divide-y divide-slate-100 ">
                                     {recent_members.map((m) => (
                                         <li
                                             key={m.id}
                                             className="flex items-center gap-3 py-2.5 first:pt-0 last:pb-0"
                                         >
-                                            <span className="grid size-8 shrink-0 place-items-center rounded-full bg-gradient-to-br from-slate-200 to-slate-300 text-[10.5px] font-bold text-slate-600 dark:from-neutral-700 dark:to-neutral-800 dark:text-neutral-300">
+                                            <span className="grid size-8 shrink-0 place-items-center rounded-full bg-gradient-to-br from-slate-200 to-slate-300 text-[10.5px] font-bold text-slate-600 ">
                                                 {initials(m.name)}
                                             </span>
                                             <div className="min-w-0 flex-1">
-                                                <div className="truncate text-[12.5px] font-semibold text-slate-900 dark:text-neutral-100">
+                                                <div className="truncate text-[12.5px] font-semibold text-slate-900 ">
                                                     {m.name}
                                                 </div>
-                                                <div className="truncate text-[11px] text-slate-500 dark:text-neutral-400">
+                                                <div className="truncate text-[11px] text-slate-500 ">
                                                     {m.email}
                                                 </div>
                                             </div>
-                                            <Badge className="shrink-0 border-transparent bg-slate-100 px-2 py-0 text-[10.5px] font-semibold text-slate-600 dark:bg-neutral-800 dark:text-neutral-300">
+                                            <Badge className="shrink-0 border-transparent bg-slate-100 px-2 py-0 text-[10.5px] font-semibold text-slate-600 ">
                                                 {m.role}
                                             </Badge>
-                                            <span className="hidden shrink-0 text-[10.5px] text-slate-400 sm:inline dark:text-neutral-500">
+                                            <span className="hidden shrink-0 text-[10.5px] text-slate-400 sm:inline ">
                                                 {formatDate(m.joined_at)}
                                             </span>
                                         </li>
@@ -539,14 +539,14 @@ export default function TenantShow({
                             icon={<Crown className="size-4" />}
                         >
                             {tenant.plan ? (
-                                <div className="rounded-xl bg-gradient-to-br from-brand-50 to-brand-50 p-3 ring-1 ring-brand-100 dark:from-brand-500/10 dark:to-brand-500/10 dark:ring-brand-500/20">
-                                    <div className="text-[10.5px] font-bold tracking-wider text-brand-700 uppercase dark:text-brand-300">
+                                <div className="rounded-xl bg-gradient-to-br from-brand-50 to-brand-50 p-3 ring-1 ring-brand-100 ">
+                                    <div className="text-[10.5px] font-bold tracking-wider text-brand-700 uppercase ">
                                         Plan Aktif
                                     </div>
-                                    <div className="mt-0.5 text-[15px] font-extrabold text-slate-900 dark:text-neutral-100">
+                                    <div className="mt-0.5 text-[15px] font-extrabold text-slate-900 ">
                                         {tenant.plan.name}
                                     </div>
-                                    <div className="text-[11px] text-slate-500 dark:text-neutral-400">
+                                    <div className="text-[11px] text-slate-500 ">
                                         Code: {tenant.plan.code}
                                     </div>
                                 </div>
@@ -561,26 +561,26 @@ export default function TenantShow({
                         >
                             <div className="space-y-2 text-[12.5px]">
                                 <div className="flex items-center justify-between">
-                                    <span className="text-slate-500 dark:text-neutral-400">
+                                    <span className="text-slate-500 ">
                                         Berakhir
                                     </span>
-                                    <span className="font-bold text-slate-900 dark:text-neutral-100">
+                                    <span className="font-bold text-slate-900 ">
                                         {formatDate(tenant.contract_ends_at)}
                                     </span>
                                 </div>
                                 {tenant.contract_days_remaining !== null && (
                                     <div className="flex items-center justify-between">
-                                        <span className="text-slate-500 dark:text-neutral-400">
+                                        <span className="text-slate-500 ">
                                             Sisa
                                         </span>
                                         <span
                                             className={cn(
                                                 'font-bold tabular-nums',
                                                 tenant.contract_expired
-                                                    ? 'text-rose-600 dark:text-rose-400'
+                                                    ? 'text-rose-600 '
                                                     : tenant.contract_expiring_soon
-                                                      ? 'text-amber-600 dark:text-amber-400'
-                                                      : 'text-emerald-600 dark:text-emerald-400',
+                                                      ? 'text-amber-600 '
+                                                      : 'text-emerald-600 ',
                                             )}
                                         >
                                             {tenant.contract_expired
@@ -654,18 +654,18 @@ function Card({
     children: React.ReactNode;
 }) {
     return (
-        <div className="rounded-2xl bg-card p-5 shadow-[0_1px_2px_rgba(15,23,42,0.04),0_8px_24px_-12px_rgba(15,23,42,0.08)] ring-1 ring-slate-200/70 dark:ring-neutral-800">
+        <div className="rounded-2xl bg-card p-5 shadow-[0_1px_2px_rgba(15,23,42,0.04),0_8px_24px_-12px_rgba(15,23,42,0.08)] ring-1 ring-slate-200/70 ">
             <div className="mb-4 flex items-center justify-between gap-3">
-                <h2 className="inline-flex items-center gap-2 text-[14.5px] font-bold text-slate-900 dark:text-neutral-100">
+                <h2 className="inline-flex items-center gap-2 text-[14.5px] font-bold text-slate-900 ">
                     {icon && (
-                        <span className="grid size-7 place-items-center rounded-lg bg-brand-50 text-brand-600 dark:bg-brand-500/15 dark:text-brand-300">
+                        <span className="grid size-7 place-items-center rounded-lg bg-brand-50 text-brand-600 ">
                             {icon}
                         </span>
                     )}
                     {title}
                 </h2>
                 {badge && (
-                    <span className="rounded-full bg-slate-100 px-2.5 py-1 text-[10.5px] font-semibold tracking-wider text-slate-600 uppercase dark:bg-neutral-800 dark:text-neutral-300">
+                    <span className="rounded-full bg-slate-100 px-2.5 py-1 text-[10.5px] font-semibold tracking-wider text-slate-600 uppercase ">
                         {badge}
                     </span>
                 )}
@@ -708,16 +708,16 @@ function ContactRow({
 }) {
     return (
         <div className="flex items-start gap-2.5">
-            <span className="mt-0.5 grid size-6 shrink-0 place-items-center rounded-md bg-slate-100 text-slate-500 dark:bg-neutral-800 dark:text-neutral-400">
+            <span className="mt-0.5 grid size-6 shrink-0 place-items-center rounded-md bg-slate-100 text-slate-500 ">
                 {icon}
             </span>
             <div className="min-w-0 flex-1">
-                <dt className="text-[10.5px] font-semibold tracking-wider text-slate-400 uppercase dark:text-neutral-500">
+                <dt className="text-[10.5px] font-semibold tracking-wider text-slate-400 uppercase ">
                     {label}
                 </dt>
-                <dd className="font-medium break-words text-slate-900 dark:text-neutral-100">
+                <dd className="font-medium break-words text-slate-900 ">
                     {value ?? (
-                        <span className="text-slate-400 italic dark:text-neutral-500">
+                        <span className="text-slate-400 italic ">
                             -
                         </span>
                     )}
@@ -729,7 +729,7 @@ function ContactRow({
 
 function EmptyHint({ text }: { text: string }) {
     return (
-        <div className="rounded-xl border border-dashed border-slate-200 bg-slate-50/60 px-4 py-6 text-center text-[12.5px] text-slate-500 dark:border-neutral-800 dark:bg-neutral-900/40 dark:text-neutral-400">
+        <div className="rounded-xl border border-dashed border-slate-200 bg-slate-50/60 px-4 py-6 text-center text-[12.5px] text-slate-500 ">
             {text}
         </div>
     );

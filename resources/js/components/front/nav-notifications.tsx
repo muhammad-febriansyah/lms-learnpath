@@ -76,11 +76,11 @@ export function NavNotifications() {
                 <button
                     type="button"
                     aria-label={`Notifikasi${unread > 0 ? ` (${unread} belum dibaca)` : ''}`}
-                    className="relative grid size-9 place-items-center rounded-full text-slate-600 transition-colors hover:bg-slate-100 hover:text-brand-600 dark:text-neutral-300 dark:hover:bg-neutral-800 dark:hover:text-brand-300"
+                    className="relative grid size-9 place-items-center rounded-full text-slate-600 transition-colors hover:bg-slate-100 hover:text-brand-600 "
                 >
                     <Bell className="size-[18px]" />
                     {unread > 0 && (
-                        <span className="absolute -top-0.5 -right-0.5 grid min-w-[18px] place-items-center rounded-full bg-rose-500 px-1 text-[10px] font-bold text-white tabular-nums ring-2 ring-white dark:ring-neutral-950">
+                        <span className="absolute -top-0.5 -right-0.5 grid min-w-[18px] place-items-center rounded-full bg-rose-500 px-1 text-[10px] font-bold text-white tabular-nums ring-2 ring-white ">
                             {unread > 9 ? '9+' : unread}
                         </span>
                     )}
@@ -88,21 +88,21 @@ export function NavNotifications() {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-[360px] p-0">
                 <DropdownMenuLabel className="flex items-center justify-between px-4 py-3">
-                    <span className="text-[14px] font-bold text-slate-900 dark:text-neutral-100">
+                    <span className="text-[14px] font-bold text-slate-900 ">
                         Notifikasi
                     </span>
                     {unread > 0 && (
-                        <span className="dark:bg-brand-950/40 rounded-full bg-brand-50 px-2 py-0.5 text-[10.5px] font-bold text-brand-700 dark:text-brand-300">
+                        <span className=" rounded-full bg-brand-50 px-2 py-0.5 text-[10.5px] font-bold text-brand-700 ">
                             {unread} baru
                         </span>
                     )}
                 </DropdownMenuLabel>
 
-                <div className="max-h-[60vh] overflow-y-auto border-t border-slate-100 dark:border-neutral-800">
+                <div className="max-h-[60vh] overflow-y-auto border-t border-slate-100 ">
                     {items.length === 0 ? (
                         <div className="px-4 py-12 text-center">
                             <BellOff className="mx-auto size-7 text-slate-300" />
-                            <div className="mt-3 text-[13.5px] font-semibold text-slate-700 dark:text-neutral-200">
+                            <div className="mt-3 text-[13.5px] font-semibold text-slate-700 ">
                                 Belum ada notifikasi
                             </div>
                             <div className="mt-1 text-[12px] text-slate-500">
@@ -110,10 +110,10 @@ export function NavNotifications() {
                             </div>
                         </div>
                     ) : (
-                        <ul className="divide-y divide-slate-100 dark:divide-neutral-800">
+                        <ul className="divide-y divide-slate-100 ">
                             {items.map((n) => {
                                 const inner = (
-                                    <div className="flex gap-3 px-4 py-3 transition hover:bg-slate-50/60 dark:hover:bg-neutral-900/40">
+                                    <div className="flex gap-3 px-4 py-3 transition hover:bg-slate-50/60 ">
                                         <span
                                             className={
                                                 'mt-1 size-2 shrink-0 rounded-full ' +
@@ -124,11 +124,11 @@ export function NavNotifications() {
                                             aria-hidden="true"
                                         />
                                         <div className="min-w-0 flex-1">
-                                            <div className="text-[13px] font-semibold text-slate-900 dark:text-neutral-100">
+                                            <div className="text-[13px] font-semibold text-slate-900 ">
                                                 {n.title}
                                             </div>
                                             {n.description && (
-                                                <div className="mt-0.5 line-clamp-2 text-[12px] leading-relaxed text-slate-600 dark:text-neutral-400">
+                                                <div className="mt-0.5 line-clamp-2 text-[12px] leading-relaxed text-slate-600 ">
                                                     {n.description}
                                                 </div>
                                             )}
@@ -158,10 +158,10 @@ export function NavNotifications() {
                     )}
                 </div>
 
-                <div className="border-t border-slate-100 px-4 py-2.5 dark:border-neutral-800">
+                <div className="border-t border-slate-100 px-4 py-2.5 ">
                     <Link
                         href="/notifications"
-                        className="dark:hover:bg-brand-950/30 block w-full rounded-lg py-2 text-center text-[12.5px] font-semibold text-brand-600 transition hover:bg-brand-50"
+                        className=" block w-full rounded-lg py-2 text-center text-[12.5px] font-semibold text-brand-600 transition hover:bg-brand-50"
                     >
                         Lihat semua notifikasi
                     </Link>

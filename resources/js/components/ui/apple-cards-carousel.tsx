@@ -183,7 +183,7 @@ export function CarouselCardItem({
                             initial={{ opacity: 0, scale: 0.95 }}
                             animate={{ opacity: 1, scale: 1 }}
                             exit={{ opacity: 0, scale: 0.95 }}
-                            className="relative z-[60] my-10 h-fit max-w-5xl rounded-3xl bg-white p-6 font-sans md:p-10 dark:bg-neutral-900"
+                            className="relative z-[60] my-10 h-fit max-w-5xl rounded-3xl bg-white p-6 font-sans md:p-10 "
                         >
                             <button
                                 type="button"
@@ -196,12 +196,12 @@ export function CarouselCardItem({
                             <p className="text-[12px] font-bold tracking-[0.14em] text-brand-600 uppercase">
                                 {card.category}
                             </p>
-                            <h2 className="mt-2 text-[28px] leading-tight font-extrabold text-slate-900 dark:text-white md:text-[36px]">
+                            <h2 className="mt-2 text-[28px] leading-tight font-extrabold text-slate-900 md:text-[36px]">
                                 {card.title}
                             </h2>
                             <div className="mt-6">
                                 {card.content ?? (
-                                    <div className="text-[14px] leading-relaxed text-slate-600 dark:text-neutral-300">
+                                    <div className="text-[14px] leading-relaxed text-slate-600 ">
                                         Konten kategori akan tampil di sini.
                                     </div>
                                 )}

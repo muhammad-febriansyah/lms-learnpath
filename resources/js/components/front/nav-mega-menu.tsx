@@ -66,8 +66,8 @@ export function NavMegaMenu({
                 className={cn(
                     'inline-flex shrink-0 items-center gap-1 rounded-full px-3 py-2 text-sm font-medium whitespace-nowrap transition 2xl:px-4',
                     active
-                        ? 'bg-brand-50 text-brand-700 dark:bg-brand-950/40 dark:text-brand-300'
-                        : 'text-neutral-600 hover:text-neutral-900 dark:text-neutral-300 dark:hover:text-white',
+                        ? 'bg-brand-50 text-brand-700 '
+                        : 'text-neutral-600 hover:text-neutral-900 ',
                 )}
             >
                 {label}
@@ -92,7 +92,7 @@ export function NavMegaMenu({
                             WIDTH_CLASS[width],
                         )}
                     >
-                        <div className="overflow-hidden rounded-2xl bg-white shadow-[0_24px_60px_-24px_rgba(15,23,42,0.25),0_0_0_1px_rgba(15,23,42,0.06)] ring-1 ring-slate-200/70 dark:bg-neutral-950 dark:ring-neutral-800">
+                        <div className="overflow-hidden rounded-2xl bg-white shadow-[0_24px_60px_-24px_rgba(15,23,42,0.25),0_0_0_1px_rgba(15,23,42,0.06)] ring-1 ring-slate-200/70 ">
                             <div
                                 className={cn(
                                     'grid gap-2 p-4',
@@ -114,7 +114,7 @@ export function NavMegaMenu({
                                                     <li key={item.label}>
                                                         <a
                                                             href={item.href}
-                                                            className="group dark:hover:bg-brand-950/30 flex items-start gap-3 rounded-xl px-3 py-2.5 transition hover:bg-brand-50"
+                                                            className="group flex items-start gap-3 rounded-xl px-3 py-2.5 transition hover:bg-brand-50"
                                                         >
                                                             {Icn && (
                                                                 <span
@@ -128,11 +128,11 @@ export function NavMegaMenu({
                                                                 </span>
                                                             )}
                                                             <span className="min-w-0 flex-1">
-                                                                <span className="block text-[13.5px] font-semibold text-slate-900 transition group-hover:text-brand-700 dark:text-neutral-100">
+                                                                <span className="block text-[13.5px] font-semibold text-slate-900 transition group-hover:text-brand-700 ">
                                                                     {item.label}
                                                                 </span>
                                                                 {item.desc && (
-                                                                    <span className="mt-0.5 block text-[11.5px] leading-snug text-slate-500 dark:text-neutral-400">
+                                                                    <span className="mt-0.5 block text-[11.5px] leading-snug text-slate-500 ">
                                                                         {
                                                                             item.desc
                                                                         }
@@ -148,7 +148,7 @@ export function NavMegaMenu({
                                 ))}
                             </div>
                             {footer && (
-                                <div className="border-t border-slate-100 bg-slate-50/60 px-5 py-3 dark:border-neutral-800 dark:bg-neutral-900/40">
+                                <div className="border-t border-slate-100 bg-slate-50/60 px-5 py-3 ">
                                     {footer}
                                 </div>
                             )}

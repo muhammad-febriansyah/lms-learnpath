@@ -277,21 +277,21 @@ export function NavSearch() {
                     type="button"
                     aria-label="Cari kursus, path, atau topik"
                     title="Cari (⌘K)"
-                    className="grid size-9 place-items-center rounded-full text-slate-600 transition-colors hover:bg-slate-100 hover:text-brand-600 dark:text-neutral-300 dark:hover:bg-neutral-800 dark:hover:text-brand-300"
+                    className="grid size-9 place-items-center rounded-full text-slate-600 transition-colors hover:bg-slate-100 hover:text-brand-600 "
                 >
                     <Search className="size-[18px]" />
                 </button>
             </DialogTrigger>
             <DialogContent
                 onKeyDown={onKeyDownPalette}
-                className="overflow-hidden border-slate-200/60 p-0 shadow-2xl ring-1 ring-slate-200/40 sm:max-w-2xl dark:border-neutral-800 dark:ring-neutral-800/40 [&>button.absolute]:hidden"
+                className="overflow-hidden border-slate-200/60 p-0 shadow-2xl ring-1 ring-slate-200/40 sm:max-w-2xl [&>button.absolute]:hidden"
             >
                 <DialogHeader className="sr-only">
                     <DialogTitle>Cari kursus, learning path, atau topik</DialogTitle>
                 </DialogHeader>
 
                 {/* ===== Search input header ===== */}
-                <div className="flex items-center gap-3 border-b border-slate-200 px-5 py-4 dark:border-neutral-800">
+                <div className="flex items-center gap-3 border-b border-slate-200 px-5 py-4 ">
                     <Search className="size-5 shrink-0 text-slate-400" />
                     <input
                         autoFocus
@@ -299,7 +299,7 @@ export function NavSearch() {
                         value={query}
                         onChange={(e) => setQuery(e.target.value)}
                         placeholder="Cari kursus, learning path, atau topik..."
-                        className="flex-1 bg-transparent text-[15px] text-slate-900 placeholder:text-slate-400 focus:outline-none dark:text-neutral-100"
+                        className="flex-1 bg-transparent text-[15px] text-slate-900 placeholder:text-slate-400 focus:outline-none "
                     />
                     {loading && (
                         <Loader2 className="size-4 shrink-0 animate-spin text-slate-400" />
@@ -307,7 +307,7 @@ export function NavSearch() {
                     <button
                         type="button"
                         onClick={() => handleOpenChange(false)}
-                        className="shrink-0 rounded-md border border-slate-200 bg-slate-50 px-2 py-1 text-[10.5px] font-semibold text-slate-500 transition hover:border-slate-300 hover:bg-slate-100 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-400"
+                        className="shrink-0 rounded-md border border-slate-200 bg-slate-50 px-2 py-1 text-[10.5px] font-semibold text-slate-500 transition hover:border-slate-300 hover:bg-slate-100 "
                         aria-label="Tutup pencarian"
                     >
                         ESC
@@ -327,10 +327,10 @@ export function NavSearch() {
                                     key={i}
                                     className="flex animate-pulse items-center gap-3 rounded-xl px-3 py-2.5"
                                 >
-                                    <div className="size-9 shrink-0 rounded-lg bg-slate-200/70 dark:bg-neutral-800" />
+                                    <div className="size-9 shrink-0 rounded-lg bg-slate-200/70 " />
                                     <div className="flex-1 space-y-1.5">
-                                        <div className="h-3 w-2/3 rounded bg-slate-200/80 dark:bg-neutral-800" />
-                                        <div className="h-2.5 w-1/3 rounded bg-slate-200/60 dark:bg-neutral-800/70" />
+                                        <div className="h-3 w-2/3 rounded bg-slate-200/80 " />
+                                        <div className="h-2.5 w-1/3 rounded bg-slate-200/60 " />
                                     </div>
                                 </div>
                             ))}
@@ -340,10 +340,10 @@ export function NavSearch() {
                     {/* Empty state */}
                     {data && flat.length === 0 && (
                         <div className="px-4 py-12 text-center">
-                            <div className="mx-auto mb-3 grid size-12 place-items-center rounded-full bg-slate-100 dark:bg-neutral-800">
+                            <div className="mx-auto mb-3 grid size-12 place-items-center rounded-full bg-slate-100 ">
                                 <SearchX className="size-5 text-slate-400" />
                             </div>
-                            <div className="text-[14px] font-semibold text-slate-700 dark:text-neutral-200">
+                            <div className="text-[14px] font-semibold text-slate-700 ">
                                 {debounced
                                     ? `Tidak ada hasil untuk "${debounced}"`
                                     : 'Belum ada data tersedia'}
@@ -396,8 +396,8 @@ export function NavSearch() {
                                                                 className={
                                                                     'group flex items-center gap-3 rounded-xl px-3 py-2.5 transition ' +
                                                                     (isActive
-                                                                        ? 'bg-brand-50 dark:bg-brand-950/40'
-                                                                        : 'hover:bg-slate-50 dark:hover:bg-neutral-900/60')
+                                                                        ? 'bg-brand-50 '
+                                                                        : 'hover:bg-slate-50 ')
                                                                 }
                                                             >
                                                                 <span
@@ -409,10 +409,10 @@ export function NavSearch() {
                                                                     <Icn className="size-4" />
                                                                 </span>
                                                                 <span className="min-w-0 flex-1">
-                                                                    <span className="block truncate text-[13.5px] font-semibold text-slate-900 dark:text-neutral-100">
+                                                                    <span className="block truncate text-[13.5px] font-semibold text-slate-900 ">
                                                                         {item.label}
                                                                     </span>
-                                                                    <span className="block truncate text-[11.5px] text-slate-500 dark:text-neutral-400">
+                                                                    <span className="block truncate text-[11.5px] text-slate-500 ">
                                                                         {item.sub}
                                                                     </span>
                                                                 </span>
@@ -437,7 +437,7 @@ export function NavSearch() {
                 </div>
 
                 {/* ===== Footer hints ===== */}
-                <div className="flex items-center justify-between border-t border-slate-200 bg-slate-50/60 px-4 py-2.5 text-[11px] text-slate-500 dark:border-neutral-800 dark:bg-neutral-900/40">
+                <div className="flex items-center justify-between border-t border-slate-200 bg-slate-50/60 px-4 py-2.5 text-[11px] text-slate-500 ">
                     <div className="flex items-center gap-3">
                         <span className="inline-flex items-center gap-1">
                             <Kbd>↑</Kbd>
@@ -461,7 +461,7 @@ export function NavSearch() {
 
 function Kbd({ children }: { children: React.ReactNode }) {
     return (
-        <kbd className="rounded border border-slate-200 bg-white px-1.5 py-0.5 font-semibold dark:border-neutral-700 dark:bg-neutral-800">
+        <kbd className="rounded border border-slate-200 bg-white px-1.5 py-0.5 font-semibold ">
             {children}
         </kbd>
     );

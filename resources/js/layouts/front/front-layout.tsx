@@ -411,7 +411,7 @@ function FrontNav({
                             <span className="grid size-9 place-items-center rounded-xl bg-brand-600 text-white">
                                 <AppLogoIcon className="size-5" />
                             </span>
-                            <span className="text-[17px] font-extrabold tracking-tight text-slate-900 dark:text-white">
+                            <span className="text-[17px] font-extrabold tracking-tight text-slate-900 ">
                                 {brand.name}
                             </span>
                         </>
@@ -425,8 +425,8 @@ function FrontNav({
                         className={
                             'shrink-0 rounded-full px-3 py-2 text-sm font-medium transition 2xl:px-4 ' +
                             (isHomeActive
-                                ? 'dark:bg-brand-950/40 bg-brand-50 text-brand-700 dark:text-brand-300'
-                                : 'text-neutral-600 hover:text-neutral-900 dark:text-neutral-300 dark:hover:text-white')
+                                ? ' bg-brand-50 text-brand-700 '
+                                : 'text-neutral-600 hover:text-neutral-900 ')
                         }
                     >
                         Beranda
@@ -443,8 +443,8 @@ function FrontNav({
                         className={
                             'shrink-0 rounded-full px-3 py-2 text-sm font-medium transition 2xl:px-4 ' +
                             (isPathsActive
-                                ? 'dark:bg-brand-950/40 bg-brand-50 text-brand-700 dark:text-brand-300'
-                                : 'text-neutral-600 hover:text-neutral-900 dark:text-neutral-300 dark:hover:text-white')
+                                ? ' bg-brand-50 text-brand-700 '
+                                : 'text-neutral-600 hover:text-neutral-900 ')
                         }
                     >
                         Learning Path
@@ -457,10 +457,10 @@ function FrontNav({
                         footer={
                             <div className="flex items-center justify-between gap-3">
                                 <div className="min-w-0">
-                                    <div className="text-[12.5px] font-bold text-slate-900 dark:text-neutral-100">
+                                    <div className="text-[12.5px] font-bold text-slate-900 ">
                                         Mau lihat langsung?
                                     </div>
-                                    <div className="text-[11px] text-slate-500 dark:text-neutral-400">
+                                    <div className="text-[11px] text-slate-500 ">
                                         Jadwalkan demo 30 menit dengan tim kami.
                                     </div>
                                 </div>
@@ -481,7 +481,7 @@ function FrontNav({
                     <NavHelpDropdown />
                     <span
                         aria-hidden="true"
-                        className="mx-1 h-5 w-px bg-slate-200 dark:bg-neutral-800"
+                        className="mx-1 h-5 w-px bg-slate-200 "
                     />
                     {isAuthed ? (
                         <>
@@ -493,7 +493,7 @@ function FrontNav({
                         <>
                             <a
                                 href={loginUrl}
-                                className="inline-flex shrink-0 items-center rounded-full bg-white px-4 py-2.5 text-[13.5px] font-semibold whitespace-nowrap text-slate-700 ring-1 ring-slate-200 transition-all duration-200 hover:-translate-y-0.5 hover:bg-brand-50 hover:text-brand-700 hover:ring-brand-200 2xl:px-5 dark:bg-neutral-900 dark:text-neutral-200 dark:ring-neutral-700 dark:hover:bg-neutral-800 dark:hover:text-brand-300 dark:hover:ring-neutral-600"
+                                className="inline-flex shrink-0 items-center rounded-full bg-white px-4 py-2.5 text-[13.5px] font-semibold whitespace-nowrap text-slate-700 ring-1 ring-slate-200 transition-all duration-200 hover:-translate-y-0.5 hover:bg-brand-50 hover:text-brand-700 hover:ring-brand-200 2xl:px-5 "
                             >
                                 Masuk
                             </a>
@@ -531,7 +531,7 @@ function FrontNav({
                                 <span className="grid size-9 place-items-center rounded-xl bg-brand-600 text-white">
                                     <AppLogoIcon className="size-5" />
                                 </span>
-                                <span className="text-[17px] font-extrabold tracking-tight text-slate-900 dark:text-white">
+                                <span className="text-[17px] font-extrabold tracking-tight text-slate-900 ">
                                     {brand.name}
                                 </span>
                             </>
@@ -669,7 +669,7 @@ function FrontNav({
                                 <Link
                                     href={login()}
                                     onClick={() => setOpen(false)}
-                                    className="flex-1 rounded-full py-2.5 text-center text-[13.5px] font-semibold text-slate-700 ring-1 ring-slate-200 dark:text-neutral-200 dark:ring-neutral-700"
+                                    className="flex-1 rounded-full py-2.5 text-center text-[13.5px] font-semibold text-slate-700 ring-1 ring-slate-200 "
                                 >
                                     Masuk
                                 </Link>
@@ -718,9 +718,9 @@ function MobileMenuGroup({
                         <a
                             href={item.href}
                             onClick={onItem}
-                            className="flex w-full items-center gap-3 rounded-lg px-2 py-2 text-[14px] font-medium text-slate-700 transition hover:bg-slate-50 dark:text-neutral-200 dark:hover:bg-neutral-900"
+                            className="flex w-full items-center gap-3 rounded-lg px-2 py-2 text-[14px] font-medium text-slate-700 transition hover:bg-slate-50 "
                         >
-                            <span className="grid size-8 place-items-center rounded-lg bg-slate-100 text-slate-600 dark:bg-neutral-800 dark:text-neutral-300">
+                            <span className="grid size-8 place-items-center rounded-lg bg-slate-100 text-slate-600 ">
                                 <item.icon className="size-4" />
                             </span>
                             {item.label}

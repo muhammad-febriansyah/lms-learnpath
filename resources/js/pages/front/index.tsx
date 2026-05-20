@@ -257,6 +257,7 @@ type HomeTestimonial = {
     name: string;
     role: string;
     text: string;
+    avatar?: string | null;
 };
 
 const TESTIMONIAL_GRADIENTS = [
@@ -850,7 +851,7 @@ function Courses({
                     icon: <Icn size={32} />,
                     content: (
                         <div className="space-y-4">
-                            <p className="text-[14.5px] leading-relaxed text-slate-700 dark:text-neutral-300">
+                            <p className="text-[14.5px] leading-relaxed text-slate-700 ">
                                 Kategori{' '}
                                 <span className="font-semibold">{c.name}</span>{' '}
                                 punya{' '}
@@ -868,7 +869,7 @@ function Courses({
                                 ].map((feat) => (
                                     <li
                                         key={feat}
-                                        className="flex items-center gap-2 rounded-lg bg-slate-50 px-3 py-2 text-[13px] text-slate-700 dark:bg-neutral-800 dark:text-neutral-200"
+                                        className="flex items-center gap-2 rounded-lg bg-slate-50 px-3 py-2 text-[13px] text-slate-700 "
                                     >
                                         <span className="grid size-4 place-items-center rounded-full bg-brand-600 text-[9px] font-bold text-white">
                                             ✓
@@ -1177,6 +1178,7 @@ function Testimonials({
         quote: t.text,
         name: t.name,
         designation: t.role,
+        src: t.avatar ?? undefined,
         gradient: TESTIMONIAL_GRADIENTS[idx % TESTIMONIAL_GRADIENTS.length],
         initials: t.name
             .split(' ')

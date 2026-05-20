@@ -61,7 +61,7 @@ export function ThumbnailUpload({
             />
             {displayUrl ? (
                 <div className="space-y-2">
-                    <div className="overflow-hidden rounded-xl ring-1 ring-slate-200 dark:ring-neutral-800">
+                    <div className="overflow-hidden rounded-xl ring-1 ring-slate-200 ">
                         <img
                             src={displayUrl}
                             alt="Thumbnail"
@@ -99,13 +99,13 @@ export function ThumbnailUpload({
                 <button
                     type="button"
                     onClick={() => inputRef.current?.click()}
-                    className={`${aspectClass} flex w-full flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-300 bg-slate-50 text-center transition hover:border-brand-300 hover:bg-brand-50/40 dark:border-neutral-700 dark:bg-neutral-900/40 dark:hover:border-brand-500/40 dark:hover:bg-brand-950/20`}
+                    className={`${aspectClass} flex w-full flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-300 bg-slate-50 text-center transition hover:border-brand-300 hover:bg-brand-50/40 `}
                 >
                     <Upload className="mb-2 size-6 text-slate-400" />
-                    <span className="text-[13px] font-semibold text-slate-700 dark:text-neutral-200">
+                    <span className="text-[13px] font-semibold text-slate-700 ">
                         Klik untuk upload gambar
                     </span>
-                    <span className="mt-0.5 text-[11.5px] text-slate-500 dark:text-neutral-400">
+                    <span className="mt-0.5 text-[11.5px] text-slate-500 ">
                         {hint}
                     </span>
                 </button>

@@ -14,7 +14,7 @@ import { cn } from '@/lib/utils';
 
 function HeaderRoadmap() {
     return (
-        <div className="relative flex h-full min-h-[6rem] w-full overflow-hidden rounded-xl bg-gradient-to-br from-brand-50 via-white to-brand-50 p-4 dark:from-brand-950/40 dark:via-neutral-900 dark:to-brand-950/30">
+        <div className="relative flex h-full min-h-[6rem] w-full overflow-hidden rounded-xl bg-gradient-to-br from-brand-50 via-white to-brand-50 p-4 ">
             <div className="relative z-10 flex w-full flex-col justify-center gap-1.5">
                 {[
                     { label: 'Onboarding & Mindset', done: true },
@@ -102,7 +102,7 @@ function HeaderMentor() {
     ];
 
     return (
-        <div className="relative flex h-full min-h-[6rem] w-full items-center justify-center overflow-hidden rounded-xl bg-gradient-to-br from-emerald-50 via-white to-teal-50 p-4 dark:from-emerald-950/30 dark:via-neutral-900 dark:to-teal-950/30">
+        <div className="relative flex h-full min-h-[6rem] w-full items-center justify-center overflow-hidden rounded-xl bg-gradient-to-br from-emerald-50 via-white to-teal-50 p-4 ">
             <div className="flex -space-x-3">
                 {avatars.map((a, i) => (
                     <motion.div
@@ -112,14 +112,14 @@ function HeaderMentor() {
                         transition={{ delay: i * 0.06 }}
                         viewport={{ once: true }}
                         className={cn(
-                            'grid size-11 place-items-center rounded-full bg-gradient-to-br text-[12px] font-bold text-white ring-4 ring-white dark:ring-neutral-950',
+                            'grid size-11 place-items-center rounded-full bg-gradient-to-br text-[12px] font-bold text-white ring-4 ring-white ',
                             a.color,
                         )}
                     >
                         {a.initial}
                     </motion.div>
                 ))}
-                <div className="grid size-11 place-items-center rounded-full bg-slate-900 text-[10px] font-bold text-white ring-4 ring-white dark:ring-neutral-950">
+                <div className="grid size-11 place-items-center rounded-full bg-slate-900 text-[10px] font-bold text-white ring-4 ring-white ">
                     +24
                 </div>
             </div>
@@ -129,7 +129,7 @@ function HeaderMentor() {
 
 function HeaderAdaptive() {
     return (
-        <div className="relative flex h-full min-h-[6rem] w-full overflow-hidden rounded-xl bg-gradient-to-br from-amber-50 via-white to-orange-50 p-4 dark:from-amber-950/30 dark:via-neutral-900 dark:to-orange-950/30">
+        <div className="relative flex h-full min-h-[6rem] w-full overflow-hidden rounded-xl bg-gradient-to-br from-amber-50 via-white to-orange-50 p-4 ">
             <svg
                 viewBox="0 0 200 80"
                 className="absolute inset-0 size-full opacity-60"
@@ -170,7 +170,7 @@ function HeaderAdaptive() {
 
 function HeaderSertifikat() {
     return (
-        <div className="relative flex h-full min-h-[6rem] w-full items-center justify-center overflow-hidden rounded-xl bg-gradient-to-br from-rose-50 via-white to-pink-50 p-4 dark:from-rose-950/30 dark:via-neutral-900 dark:to-pink-950/30">
+        <div className="relative flex h-full min-h-[6rem] w-full items-center justify-center overflow-hidden rounded-xl bg-gradient-to-br from-rose-50 via-white to-pink-50 p-4 ">
             <motion.div
                 initial={{ scale: 0.85, rotate: -4 }}
                 whileInView={{ scale: 1, rotate: -4 }}
@@ -203,7 +203,7 @@ function HeaderSertifikat() {
 
 function HeaderKomunitas() {
     return (
-        <div className="relative flex h-full min-h-[6rem] w-full flex-col justify-center overflow-hidden rounded-xl bg-gradient-to-br from-teal-50 via-white to-cyan-50 p-4 dark:from-teal-950/30 dark:via-neutral-900 dark:to-cyan-950/30">
+        <div className="relative flex h-full min-h-[6rem] w-full flex-col justify-center overflow-hidden rounded-xl bg-gradient-to-br from-teal-50 via-white to-cyan-50 p-4 ">
             <div className="space-y-1.5">
                 <motion.div
                     initial={{ opacity: 0, x: -10 }}
@@ -257,7 +257,7 @@ function HeaderKomunitas() {
 
 function HeaderPenilaian() {
     return (
-        <div className="relative flex h-full min-h-[6rem] w-full overflow-hidden rounded-xl bg-gradient-to-br from-brand-50 via-white to-sky-50 p-4 dark:from-brand-950/30 dark:via-neutral-900 dark:to-sky-950/30">
+        <div className="relative flex h-full min-h-[6rem] w-full overflow-hidden rounded-xl bg-gradient-to-br from-brand-50 via-white to-sky-50 p-4 ">
             <div className="relative z-10 flex w-full flex-col justify-center gap-1.5">
                 <div className="text-[10px] font-bold tracking-[0.14em] text-slate-500 uppercase">
                     Quiz · Performance Review

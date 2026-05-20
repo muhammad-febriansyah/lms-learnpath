@@ -113,13 +113,13 @@ export const AnimatedTestimonials = ({
                         exit={{ y: -20, opacity: 0 }}
                         transition={{ duration: 0.2, ease: 'easeInOut' }}
                     >
-                        <h3 className="text-[20px] font-bold text-slate-900 dark:text-white sm:text-[22px]">
+                        <h3 className="text-[20px] font-bold text-slate-900 sm:text-[22px]">
                             {testimonials[active].name}
                         </h3>
-                        <p className="text-[13px] text-slate-500 dark:text-neutral-400">
+                        <p className="text-[13px] text-slate-500 ">
                             {testimonials[active].designation}
                         </p>
-                        <motion.p className="mt-6 text-[16px] leading-[1.6] text-slate-700 dark:text-neutral-300 sm:text-[17px]">
+                        <motion.p className="mt-6 text-[16px] leading-[1.6] text-slate-700 sm:text-[17px]">
                             {testimonials[active].quote
                                 .split(' ')
                                 .map((word, index) => (
@@ -152,7 +152,7 @@ export const AnimatedTestimonials = ({
                             type="button"
                             onClick={handlePrev}
                             aria-label="Sebelumnya"
-                            className="group/btn grid size-9 place-items-center rounded-full bg-slate-100 text-slate-700 transition hover:bg-brand-50 hover:text-brand-700 dark:bg-neutral-800 dark:text-neutral-300"
+                            className="group/btn grid size-9 place-items-center rounded-full bg-slate-100 text-slate-700 transition hover:bg-brand-50 hover:text-brand-700 "
                         >
                             <ArrowLeft className="size-4 transition-transform group-hover/btn:-translate-x-0.5" />
                         </button>
@@ -160,7 +160,7 @@ export const AnimatedTestimonials = ({
                             type="button"
                             onClick={handleNext}
                             aria-label="Selanjutnya"
-                            className="group/btn grid size-9 place-items-center rounded-full bg-slate-100 text-slate-700 transition hover:bg-brand-50 hover:text-brand-700 dark:bg-neutral-800 dark:text-neutral-300"
+                            className="group/btn grid size-9 place-items-center rounded-full bg-slate-100 text-slate-700 transition hover:bg-brand-50 hover:text-brand-700 "
                         >
                             <ArrowRight className="size-4 transition-transform group-hover/btn:translate-x-0.5" />
                         </button>

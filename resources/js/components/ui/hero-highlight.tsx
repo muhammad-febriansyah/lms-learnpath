@@ -3,14 +3,8 @@ import React from 'react';
 import { cn } from '@/lib/utils';
 
 const dotPatterns = {
-    light: {
-        default: `url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' width='16' height='16' fill='none'%3E%3Ccircle fill='%23d4d4d4' id='pattern-circle' cx='10' cy='10' r='2.5'%3E%3C/circle%3E%3C/svg%3E")`,
-        hover: `url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' width='16' height='16' fill='none'%3E%3Ccircle fill='%236366f1' id='pattern-circle' cx='10' cy='10' r='2.5'%3E%3C/circle%3E%3C/svg%3E")`,
-    },
-    dark: {
-        default: `url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' width='16' height='16' fill='none'%3E%3Ccircle fill='%23404040' id='pattern-circle' cx='10' cy='10' r='2.5'%3E%3C/circle%3E%3C/svg%3E")`,
-        hover: `url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' width='16' height='16' fill='none'%3E%3Ccircle fill='%238183f4' id='pattern-circle' cx='10' cy='10' r='2.5'%3E%3C/circle%3E%3C/svg%3E")`,
-    },
+    default: `url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' width='16' height='16' fill='none'%3E%3Ccircle fill='%23d4d4d4' id='pattern-circle' cx='10' cy='10' r='2.5'%3E%3C/circle%3E%3C/svg%3E")`,
+    hover: `url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' width='16' height='16' fill='none'%3E%3Ccircle fill='%236366f1' id='pattern-circle' cx='10' cy='10' r='2.5'%3E%3C/circle%3E%3C/svg%3E")`,
 };
 
 export const HeroHighlight = ({
@@ -36,39 +30,26 @@ export const HeroHighlight = ({
         mouseY.set(clientY - top);
     };
 
-    const lightMask = useMotionTemplate`radial-gradient(200px circle at ${mouseX}px ${mouseY}px, black 0%, transparent 100%)`;
-    const darkMask = useMotionTemplate`radial-gradient(200px circle at ${mouseX}px ${mouseY}px, black 0%, transparent 100%)`;
+    const mask = useMotionTemplate`radial-gradient(200px circle at ${mouseX}px ${mouseY}px, black 0%, transparent 100%)`;
 
     return (
         <div
             className={cn(
-                'group relative flex w-full items-center justify-center bg-white dark:bg-black',
+                'group relative flex w-full items-center justify-center bg-white ',
                 containerClassName,
             )}
             onMouseMove={handleMouseMove}
         >
             <div
-                className="pointer-events-none absolute inset-0 dark:hidden"
-                style={{ backgroundImage: dotPatterns.light.default }}
-            />
-            <div
-                className="pointer-events-none absolute inset-0 hidden dark:block"
-                style={{ backgroundImage: dotPatterns.dark.default }}
+                className="pointer-events-none absolute inset-0 "
+                style={{ backgroundImage: dotPatterns.default }}
             />
             <motion.div
-                className="pointer-events-none absolute inset-0 opacity-0 transition duration-300 group-hover:opacity-100 dark:hidden"
+                className="pointer-events-none absolute inset-0 opacity-0 transition duration-300 group-hover:opacity-100 "
                 style={{
-                    backgroundImage: dotPatterns.light.hover,
-                    WebkitMaskImage: lightMask,
-                    maskImage: lightMask,
-                }}
-            />
-            <motion.div
-                className="pointer-events-none absolute inset-0 hidden opacity-0 transition duration-300 group-hover:opacity-100 dark:block"
-                style={{
-                    backgroundImage: dotPatterns.dark.hover,
-                    WebkitMaskImage: darkMask,
-                    maskImage: darkMask,
+                    backgroundImage: dotPatterns.hover,
+                    WebkitMaskImage: mask,
+                    maskImage: mask,
                 }}
             />
 
@@ -95,7 +76,7 @@ export const Highlight = ({
                 display: 'inline',
             }}
             className={cn(
-                'relative inline-block rounded-lg bg-gradient-to-r from-brand-200 to-brand-200 px-1 pb-1 dark:from-brand-500 dark:to-brand-500',
+                'relative inline-block rounded-lg bg-gradient-to-r from-brand-200 to-brand-200 px-1 pb-1 ',
                 className,
             )}
         >

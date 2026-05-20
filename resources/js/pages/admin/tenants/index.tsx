@@ -136,24 +136,24 @@ export default function TenantsIndex({ tenants, filters, stats }: Props) {
             <Head title="Tenant Management" />
 
             <div className="space-y-5">
-                <nav className="flex items-center gap-1.5 text-[12.5px] text-slate-500 dark:text-neutral-400">
+                <nav className="flex items-center gap-1.5 text-[12.5px] text-slate-500 ">
                     <Link
                         href="/admin/dashboard"
-                        className="transition hover:text-slate-700 dark:hover:text-neutral-200"
+                        className="transition hover:text-slate-700 "
                     >
                         Dashboard
                     </Link>
                     <IconChevR size={12} className="text-slate-300" />
-                    <span className="font-semibold text-slate-900 dark:text-neutral-100">
+                    <span className="font-semibold text-slate-900 ">
                         Tenant
                     </span>
                 </nav>
 
                 <div>
-                    <h1 className="text-2xl font-extrabold tracking-tight text-slate-900 dark:text-neutral-100">
+                    <h1 className="text-2xl font-extrabold tracking-tight text-slate-900 ">
                         Tenant Management
                     </h1>
-                    <p className="mt-1 text-[13.5px] text-slate-500 dark:text-neutral-400">
+                    <p className="mt-1 text-[13.5px] text-slate-500 ">
                         Kelola seluruh perusahaan klien yang berlangganan
                         platform.
                     </p>
@@ -185,15 +185,15 @@ export default function TenantsIndex({ tenants, filters, stats }: Props) {
                         value={stats.expiring_soon}
                         tone="amber"
                     />
-                    <div className="col-span-2 rounded-2xl bg-card p-4 shadow-[0_1px_2px_rgba(15,23,42,0.04)] ring-1 ring-slate-200/70 sm:col-span-4 lg:col-span-1 dark:ring-neutral-800">
-                        <div className="flex items-center justify-between text-[10.5px] font-semibold tracking-wider text-slate-500 uppercase dark:text-neutral-400">
+                    <div className="col-span-2 rounded-2xl bg-card p-4 shadow-[0_1px_2px_rgba(15,23,42,0.04)] ring-1 ring-slate-200/70 sm:col-span-4 lg:col-span-1 ">
+                        <div className="flex items-center justify-between text-[10.5px] font-semibold tracking-wider text-slate-500 uppercase ">
                             <span>Seat Usage</span>
                             <span className="tabular-nums">
                                 {stats.used_seats.toLocaleString('id-ID')}/
                                 {stats.total_seats.toLocaleString('id-ID')}
                             </span>
                         </div>
-                        <div className="mt-2 h-2 overflow-hidden rounded-full bg-slate-100 dark:bg-neutral-800">
+                        <div className="mt-2 h-2 overflow-hidden rounded-full bg-slate-100 ">
                             <div
                                 className={cn(
                                     'h-full rounded-full transition-all',
@@ -206,14 +206,14 @@ export default function TenantsIndex({ tenants, filters, stats }: Props) {
                                 style={{ width: `${seatPct}%` }}
                             />
                         </div>
-                        <div className="mt-1.5 text-[11px] text-slate-500 dark:text-neutral-400">
+                        <div className="mt-1.5 text-[11px] text-slate-500 ">
                             {seatPct}% terpakai
                         </div>
                     </div>
                 </div>
 
                 {/* Toolbar */}
-                <div className="rounded-2xl bg-card p-3 shadow-[0_1px_2px_rgba(15,23,42,0.04)] ring-1 ring-slate-200/70 dark:ring-neutral-800">
+                <div className="rounded-2xl bg-card p-3 shadow-[0_1px_2px_rgba(15,23,42,0.04)] ring-1 ring-slate-200/70 ">
                     <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
                         <div className="relative flex-1">
                             <Search className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-slate-400" />
@@ -221,7 +221,7 @@ export default function TenantsIndex({ tenants, filters, stats }: Props) {
                                 value={search}
                                 onChange={(e) => setSearch(e.target.value)}
                                 placeholder="Cari nama tenant, slug, atau email kontak..."
-                                className="h-10 rounded-xl border-slate-200 bg-slate-50/60 pl-9 dark:border-neutral-800 dark:bg-neutral-900/60"
+                                className="h-10 rounded-xl border-slate-200 bg-slate-50/60 pl-9 "
                             />
                         </div>
                         <Select
@@ -246,14 +246,14 @@ export default function TenantsIndex({ tenants, filters, stats }: Props) {
 
                 {/* List */}
                 {tenants.data.length === 0 ? (
-                    <div className="rounded-2xl bg-card px-6 py-16 text-center shadow-[0_1px_2px_rgba(15,23,42,0.04)] ring-1 ring-slate-200/70 dark:ring-neutral-800">
+                    <div className="rounded-2xl bg-card px-6 py-16 text-center shadow-[0_1px_2px_rgba(15,23,42,0.04)] ring-1 ring-slate-200/70 ">
                         <div className="mx-auto grid size-14 place-items-center rounded-2xl bg-gradient-to-br from-brand-500 to-brand-600 text-white shadow-lg">
                             <Building2 className="size-6" />
                         </div>
-                        <h3 className="mt-4 text-[15px] font-extrabold text-slate-900 dark:text-neutral-100">
+                        <h3 className="mt-4 text-[15px] font-extrabold text-slate-900 ">
                             Belum ada tenant
                         </h3>
-                        <p className="mt-1 text-[12.5px] text-slate-500 dark:text-neutral-400">
+                        <p className="mt-1 text-[12.5px] text-slate-500 ">
                             Tidak ada tenant yang cocok dengan filter ini.
                         </p>
                     </div>
@@ -266,7 +266,7 @@ export default function TenantsIndex({ tenants, filters, stats }: Props) {
                 )}
 
                 {tenants.data.length > 0 && (
-                    <div className="rounded-2xl bg-card p-3 shadow-[0_1px_2px_rgba(15,23,42,0.04)] ring-1 ring-slate-200/70 dark:ring-neutral-800">
+                    <div className="rounded-2xl bg-card p-3 shadow-[0_1px_2px_rgba(15,23,42,0.04)] ring-1 ring-slate-200/70 ">
                         <DataTablePagination paginator={tenants} />
                     </div>
                 )}
@@ -287,15 +287,15 @@ function StatCard({
     tone: 'indigo' | 'emerald' | 'rose' | 'amber';
 }) {
     const tones: Record<typeof tone, string> = {
-        indigo: 'bg-brand-50 text-brand-700 ring-brand-100 dark:bg-brand-500/15 dark:text-brand-300',
-        emerald: 'bg-emerald-50 text-emerald-700 ring-emerald-100 dark:bg-emerald-500/15 dark:text-emerald-300',
-        rose: 'bg-rose-50 text-rose-700 ring-rose-100 dark:bg-rose-500/15 dark:text-rose-300',
-        amber: 'bg-amber-50 text-amber-700 ring-amber-100 dark:bg-amber-500/15 dark:text-amber-300',
+        indigo: 'bg-brand-50 text-brand-700 ring-brand-100 ',
+        emerald: 'bg-emerald-50 text-emerald-700 ring-emerald-100 ',
+        rose: 'bg-rose-50 text-rose-700 ring-rose-100 ',
+        amber: 'bg-amber-50 text-amber-700 ring-amber-100 ',
     };
     return (
-        <div className="rounded-2xl bg-card p-4 shadow-[0_1px_2px_rgba(15,23,42,0.04)] ring-1 ring-slate-200/70 dark:ring-neutral-800">
+        <div className="rounded-2xl bg-card p-4 shadow-[0_1px_2px_rgba(15,23,42,0.04)] ring-1 ring-slate-200/70 ">
             <div className="flex items-center justify-between gap-2">
-                <span className="text-[10.5px] font-semibold tracking-wider text-slate-500 uppercase dark:text-neutral-400">
+                <span className="text-[10.5px] font-semibold tracking-wider text-slate-500 uppercase ">
                     {label}
                 </span>
                 <span
@@ -307,7 +307,7 @@ function StatCard({
                     {icon}
                 </span>
             </div>
-            <div className="mt-2 text-[22px] font-extrabold text-slate-900 tabular-nums dark:text-neutral-100">
+            <div className="mt-2 text-[22px] font-extrabold text-slate-900 tabular-nums ">
                 {value.toLocaleString('id-ID')}
             </div>
         </div>
@@ -349,7 +349,7 @@ function TenantRow({ tenant }: { tenant: Tenant }) {
     };
 
     return (
-        <div className="group rounded-2xl bg-card p-4 shadow-[0_1px_2px_rgba(15,23,42,0.04)] ring-1 ring-slate-200/70 transition hover:ring-brand-200 dark:ring-neutral-800 dark:hover:ring-brand-500/40">
+        <div className="group rounded-2xl bg-card p-4 shadow-[0_1px_2px_rgba(15,23,42,0.04)] ring-1 ring-slate-200/70 transition hover:ring-brand-200 ">
             <div className="flex flex-col gap-4 lg:flex-row lg:items-center">
                 {/* Identity */}
                 <div className="flex min-w-0 flex-1 items-center gap-3">
@@ -357,7 +357,7 @@ function TenantRow({ tenant }: { tenant: Tenant }) {
                         <img
                             src={tenant.logo_url}
                             alt={tenant.name}
-                            className="size-12 shrink-0 rounded-xl object-cover ring-1 ring-slate-200 dark:ring-neutral-800"
+                            className="size-12 shrink-0 rounded-xl object-cover ring-1 ring-slate-200 "
                         />
                     ) : (
                         <span className="grid size-12 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-brand-500 to-brand-600 text-[14px] font-bold text-white">
@@ -368,7 +368,7 @@ function TenantRow({ tenant }: { tenant: Tenant }) {
                         <div className="flex flex-wrap items-center gap-1.5">
                             <Link
                                 href={`/admin/tenants/${tenant.id}`}
-                                className="text-[14px] font-bold text-slate-900 transition hover:text-brand-700 dark:text-neutral-100 dark:hover:text-brand-300"
+                                className="text-[14px] font-bold text-slate-900 transition hover:text-brand-700 "
                             >
                                 {tenant.display_name ?? tenant.name}
                             </Link>
@@ -382,7 +382,7 @@ function TenantRow({ tenant }: { tenant: Tenant }) {
                                 {status.label}
                             </span>
                         </div>
-                        <div className="mt-0.5 truncate text-[11.5px] text-slate-500 dark:text-neutral-400">
+                        <div className="mt-0.5 truncate text-[11.5px] text-slate-500 ">
                             {tenant.slug} · {tenant.industry ?? 'Umum'}
                         </div>
                     </div>
@@ -390,12 +390,12 @@ function TenantRow({ tenant }: { tenant: Tenant }) {
 
                 {/* Plan */}
                 <div className="lg:w-[140px]">
-                    <div className="text-[10.5px] font-semibold tracking-wider text-slate-500 uppercase dark:text-neutral-400">
+                    <div className="text-[10.5px] font-semibold tracking-wider text-slate-500 uppercase ">
                         Plan
                     </div>
-                    <div className="mt-0.5 text-[12.5px] font-bold text-slate-900 dark:text-neutral-100">
+                    <div className="mt-0.5 text-[12.5px] font-bold text-slate-900 ">
                         {tenant.plan ? (
-                            <Badge className="border-transparent bg-brand-50 px-2 py-0.5 text-[11px] text-brand-700 dark:bg-brand-500/15 dark:text-brand-300">
+                            <Badge className="border-transparent bg-brand-50 px-2 py-0.5 text-[11px] text-brand-700 ">
                                 {tenant.plan.name}
                             </Badge>
                         ) : (
@@ -408,13 +408,13 @@ function TenantRow({ tenant }: { tenant: Tenant }) {
 
                 {/* Seats */}
                 <div className="lg:w-[180px]">
-                    <div className="flex items-center justify-between gap-2 text-[10.5px] font-semibold tracking-wider text-slate-500 uppercase dark:text-neutral-400">
+                    <div className="flex items-center justify-between gap-2 text-[10.5px] font-semibold tracking-wider text-slate-500 uppercase ">
                         <span>Seat</span>
                         <span className="tabular-nums">
                             {tenant.seats_used}/{tenant.seat_quota}
                         </span>
                     </div>
-                    <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-slate-100 dark:bg-neutral-800">
+                    <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-slate-100 ">
                         <div
                             className={cn(
                                 'h-full rounded-full transition-all',
@@ -427,23 +427,23 @@ function TenantRow({ tenant }: { tenant: Tenant }) {
 
                 {/* Contract */}
                 <div className="lg:w-[150px]">
-                    <div className="text-[10.5px] font-semibold tracking-wider text-slate-500 uppercase dark:text-neutral-400">
+                    <div className="text-[10.5px] font-semibold tracking-wider text-slate-500 uppercase ">
                         Kontrak
                     </div>
-                    <div className="mt-0.5 flex items-center gap-1 text-[12px] text-slate-700 dark:text-neutral-300">
+                    <div className="mt-0.5 flex items-center gap-1 text-[12px] text-slate-700 ">
                         <CalendarClock className="size-3 text-slate-400" />
                         {formatDate(tenant.contract_ends_at)}
                     </div>
                     {tenant.contract_expired ? (
-                        <span className="mt-0.5 inline-block text-[10.5px] font-semibold text-rose-600 dark:text-rose-400">
+                        <span className="mt-0.5 inline-block text-[10.5px] font-semibold text-rose-600 ">
                             Sudah berakhir
                         </span>
                     ) : tenant.contract_expiring_soon ? (
-                        <span className="mt-0.5 inline-block text-[10.5px] font-semibold text-amber-600 dark:text-amber-400">
+                        <span className="mt-0.5 inline-block text-[10.5px] font-semibold text-amber-600 ">
                             {tenant.contract_days_remaining} hari lagi
                         </span>
                     ) : tenant.contract_days_remaining !== null ? (
-                        <span className="mt-0.5 inline-block text-[10.5px] text-slate-500 dark:text-neutral-400">
+                        <span className="mt-0.5 inline-block text-[10.5px] text-slate-500 ">
                             {tenant.contract_days_remaining} hari lagi
                         </span>
                     ) : null}

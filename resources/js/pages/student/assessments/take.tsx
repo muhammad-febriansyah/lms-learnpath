@@ -190,9 +190,9 @@ export default function AssessmentTake({
         <>
             <Head title={`Kerjakan: ${assessment.title}`} />
 
-            <div className="flex min-h-screen flex-col bg-slate-50 dark:bg-neutral-950">
+            <div className="flex min-h-screen flex-col bg-slate-50 ">
                 {/* Top exam bar */}
-                <header className="sticky top-0 z-30 bg-gradient-to-r from-slate-900 via-slate-900 to-brand-950 text-white shadow-[0_4px_24px_-12px_rgba(15,23,42,0.5)] dark:from-neutral-950 dark:via-neutral-950 dark:to-brand-950">
+                <header className="sticky top-0 z-30 bg-gradient-to-r from-slate-900 via-slate-900 to-brand-950 text-white shadow-[0_4px_24px_-12px_rgba(15,23,42,0.5)] ">
                     <div className="mx-auto flex max-w-[1600px] flex-wrap items-center gap-3 px-4 py-3 lg:gap-5 lg:px-6">
                         <div className="flex min-w-0 flex-1 items-center gap-3">
                             <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-white/10 text-white ring-1 ring-white/15">
@@ -283,33 +283,33 @@ export default function AssessmentTake({
                                     }}
                                     data-q-idx={idx}
                                     className={cn(
-                                        'scroll-mt-32 rounded-2xl bg-white p-5 shadow-[0_1px_2px_rgba(15,23,42,0.04)] ring-1 transition sm:p-6 dark:bg-neutral-900',
+                                        'scroll-mt-32 rounded-2xl bg-white p-5 shadow-[0_1px_2px_rgba(15,23,42,0.04)] ring-1 transition sm:p-6 ',
                                         isActive
-                                            ? 'ring-2 ring-brand-300 dark:ring-brand-500/40'
-                                            : 'ring-slate-200/70 dark:ring-neutral-800',
+                                            ? 'ring-2 ring-brand-300 '
+                                            : 'ring-slate-200/70 ',
                                     )}
                                 >
                                     <div className="flex items-start gap-4">
-                                        <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-brand-50 to-brand-50 text-[13px] font-extrabold text-brand-700 ring-1 ring-brand-100 dark:from-brand-500/15 dark:to-brand-500/15 dark:text-brand-200 dark:ring-brand-500/20">
+                                        <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-brand-50 to-brand-50 text-[13px] font-extrabold text-brand-700 ring-1 ring-brand-100 ">
                                             {idx + 1}
                                         </div>
                                         <div className="min-w-0 flex-1">
                                             <div className="flex flex-wrap items-center gap-2">
-                                                <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[10.5px] font-semibold tracking-wide text-slate-600 uppercase dark:bg-neutral-800 dark:text-neutral-300">
+                                                <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[10.5px] font-semibold tracking-wide text-slate-600 uppercase ">
                                                     Soal {idx + 1} dari{' '}
                                                     {totalQuestions}
                                                 </span>
-                                                <span className="rounded-full bg-amber-50 px-2 py-0.5 text-[10.5px] font-semibold text-amber-700 dark:bg-amber-500/15 dark:text-amber-300">
+                                                <span className="rounded-full bg-amber-50 px-2 py-0.5 text-[10.5px] font-semibold text-amber-700 ">
                                                     {q.points} poin
                                                 </span>
                                                 {selectedId !== null && (
-                                                    <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[10.5px] font-semibold text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300">
+                                                    <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[10.5px] font-semibold text-emerald-700 ">
                                                         <CheckCircle2 className="size-3" />
                                                         Sudah dijawab
                                                     </span>
                                                 )}
                                             </div>
-                                            <p className="mt-3 text-[15px] leading-relaxed font-bold text-slate-900 dark:text-neutral-100">
+                                            <p className="mt-3 text-[15px] leading-relaxed font-bold text-slate-900 ">
                                                 {q.question_text}
                                             </p>
 
@@ -323,8 +323,8 @@ export default function AssessmentTake({
                                                             className={cn(
                                                                 'flex cursor-pointer items-start gap-3 rounded-xl border p-3.5 transition',
                                                                 selected
-                                                                    ? 'border-brand-500 bg-brand-50/70 ring-1 ring-brand-300 dark:bg-brand-500/15'
-                                                                    : 'border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50/60 dark:border-neutral-800 dark:bg-neutral-900 dark:hover:border-neutral-700 dark:hover:bg-neutral-800/60',
+                                                                    ? 'border-brand-500 bg-brand-50/70 ring-1 ring-brand-300 '
+                                                                    : 'border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50/60 ',
                                                             )}
                                                         >
                                                             <span
@@ -332,7 +332,7 @@ export default function AssessmentTake({
                                                                     'mt-0.5 grid size-6 shrink-0 place-items-center rounded-md text-[11px] font-extrabold transition',
                                                                     selected
                                                                         ? 'bg-brand-600 text-white'
-                                                                        : 'bg-slate-100 text-slate-600 dark:bg-neutral-800 dark:text-neutral-300',
+                                                                        : 'bg-slate-100 text-slate-600 ',
                                                                 )}
                                                             >
                                                                 {selected ? (
@@ -364,8 +364,8 @@ export default function AssessmentTake({
                                                                 className={cn(
                                                                     'flex-1 text-[13.5px] leading-relaxed',
                                                                     selected
-                                                                        ? 'font-semibold text-brand-900 dark:text-brand-100'
-                                                                        : 'text-slate-800 dark:text-neutral-200',
+                                                                        ? 'font-semibold text-brand-900 '
+                                                                        : 'text-slate-800 ',
                                                                 )}
                                                             >
                                                                 {opt.option_text}
@@ -376,7 +376,7 @@ export default function AssessmentTake({
                                             </div>
 
                                             {/* Per-question quick nav */}
-                                            <div className="mt-4 flex items-center justify-between border-t border-slate-100 pt-3 text-[11.5px] text-slate-500 dark:border-neutral-800 dark:text-neutral-400">
+                                            <div className="mt-4 flex items-center justify-between border-t border-slate-100 pt-3 text-[11.5px] text-slate-500 ">
                                                 <button
                                                     type="button"
                                                     onClick={() =>
@@ -385,7 +385,7 @@ export default function AssessmentTake({
                                                         )
                                                     }
                                                     disabled={idx === 0}
-                                                    className="inline-flex items-center gap-1 rounded-md px-2 py-1 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-30 dark:hover:bg-neutral-800"
+                                                    className="inline-flex items-center gap-1 rounded-md px-2 py-1 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-30 "
                                                 >
                                                     <ChevronLeft className="size-3.5" />
                                                     Sebelumnya
@@ -401,7 +401,7 @@ export default function AssessmentTake({
                                                         idx ===
                                                         totalQuestions - 1
                                                     }
-                                                    className="inline-flex items-center gap-1 rounded-md px-2 py-1 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-30 dark:hover:bg-neutral-800"
+                                                    className="inline-flex items-center gap-1 rounded-md px-2 py-1 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-30 "
                                                 >
                                                     Berikutnya
                                                     <ChevronRight className="size-3.5" />
@@ -414,8 +414,8 @@ export default function AssessmentTake({
                         })}
 
                         {unanswered > 0 && (
-                            <div className="flex items-start gap-3 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-[12.5px] text-amber-900 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-200">
-                                <AlertCircle className="mt-0.5 size-5 shrink-0 text-amber-600 dark:text-amber-300" />
+                            <div className="flex items-start gap-3 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-[12.5px] text-amber-900 ">
+                                <AlertCircle className="mt-0.5 size-5 shrink-0 text-amber-600 " />
                                 <span>
                                     Anda belum menjawab{' '}
                                     <strong>{unanswered}</strong> soal. Soal
@@ -432,12 +432,12 @@ export default function AssessmentTake({
                     {/* Right rail — question navigator */}
                     <aside className="hidden w-[280px] shrink-0 lg:block">
                         <div className="sticky top-[88px] space-y-4">
-                            <div className="rounded-2xl bg-white p-4 shadow-[0_1px_2px_rgba(15,23,42,0.04)] ring-1 ring-slate-200/70 dark:bg-neutral-900 dark:ring-neutral-800">
+                            <div className="rounded-2xl bg-white p-4 shadow-[0_1px_2px_rgba(15,23,42,0.04)] ring-1 ring-slate-200/70 ">
                                 <div className="flex items-center justify-between">
-                                    <h3 className="text-[12px] font-bold tracking-wider text-slate-700 uppercase dark:text-neutral-200">
+                                    <h3 className="text-[12px] font-bold tracking-wider text-slate-700 uppercase ">
                                         Navigasi Soal
                                     </h3>
-                                    <span className="text-[11px] text-slate-500 tabular-nums dark:text-neutral-400">
+                                    <span className="text-[11px] text-slate-500 tabular-nums ">
                                         {answeredCount}/{totalQuestions}
                                     </span>
                                 </div>
@@ -456,10 +456,10 @@ export default function AssessmentTake({
                                                 className={cn(
                                                     'grid size-9 place-items-center rounded-lg text-[11.5px] font-bold tabular-nums transition',
                                                     isActive
-                                                        ? 'bg-brand-600 text-white shadow-sm ring-2 ring-brand-200 dark:ring-brand-500/40'
+                                                        ? 'bg-brand-600 text-white shadow-sm ring-2 ring-brand-200 '
                                                         : answered
-                                                          ? 'bg-emerald-100 text-emerald-700 ring-1 ring-emerald-200 hover:bg-emerald-200 dark:bg-emerald-500/20 dark:text-emerald-300 dark:ring-emerald-500/30'
-                                                          : 'bg-slate-100 text-slate-600 ring-1 ring-slate-200 hover:bg-slate-200 dark:bg-neutral-800 dark:text-neutral-300 dark:ring-neutral-700',
+                                                          ? 'bg-emerald-100 text-emerald-700 ring-1 ring-emerald-200 hover:bg-emerald-200 '
+                                                          : 'bg-slate-100 text-slate-600 ring-1 ring-slate-200 hover:bg-slate-200 ',
                                                 )}
                                                 title={`Soal ${idx + 1}${answered ? ' (terjawab)' : ''}`}
                                             >
@@ -469,13 +469,13 @@ export default function AssessmentTake({
                                     })}
                                 </div>
 
-                                <div className="mt-4 space-y-1.5 text-[11px] text-slate-500 dark:text-neutral-400">
+                                <div className="mt-4 space-y-1.5 text-[11px] text-slate-500 ">
                                     <div className="flex items-center gap-2">
-                                        <span className="size-3 rounded-md bg-emerald-200 ring-1 ring-emerald-300 dark:bg-emerald-500/30 dark:ring-emerald-500/50" />
+                                        <span className="size-3 rounded-md bg-emerald-200 ring-1 ring-emerald-300 " />
                                         Terjawab
                                     </div>
                                     <div className="flex items-center gap-2">
-                                        <span className="size-3 rounded-md bg-slate-200 ring-1 ring-slate-300 dark:bg-neutral-700 dark:ring-neutral-600" />
+                                        <span className="size-3 rounded-md bg-slate-200 ring-1 ring-slate-300 " />
                                         Belum dijawab
                                     </div>
                                     <div className="flex items-center gap-2">
@@ -485,7 +485,7 @@ export default function AssessmentTake({
                                 </div>
                             </div>
 
-                            <div className="rounded-2xl bg-white p-4 shadow-[0_1px_2px_rgba(15,23,42,0.04)] ring-1 ring-slate-200/70 dark:bg-neutral-900 dark:ring-neutral-800">
+                            <div className="rounded-2xl bg-white p-4 shadow-[0_1px_2px_rgba(15,23,42,0.04)] ring-1 ring-slate-200/70 ">
                                 <Button
                                     type="button"
                                     onClick={() => onClickSubmit()}
@@ -498,7 +498,7 @@ export default function AssessmentTake({
                                         ? 'Mengirim...'
                                         : 'Kirim Jawaban'}
                                 </Button>
-                                <p className="mt-2 text-center text-[10.5px] text-slate-500 dark:text-neutral-400">
+                                <p className="mt-2 text-center text-[10.5px] text-slate-500 ">
                                     Setelah dikirim, jawaban tidak bisa diubah.
                                 </p>
                             </div>
@@ -507,7 +507,7 @@ export default function AssessmentTake({
                 </div>
 
                 {/* Mobile sticky action bar */}
-                <div className="sticky bottom-0 z-20 border-t border-slate-200 bg-white/95 px-4 py-3 backdrop-blur lg:hidden dark:border-neutral-800 dark:bg-neutral-900/95">
+                <div className="sticky bottom-0 z-20 border-t border-slate-200 bg-white/95 px-4 py-3 backdrop-blur lg:hidden ">
                     <div className="mx-auto flex max-w-[1600px] items-center gap-2">
                         <Button
                             type="button"
